@@ -4,34 +4,39 @@ const mongoose = require('mongoose'); // Erase if already required
 var productSchema = new mongoose.Schema({
     title:{
         type:String,
-        required:true,
+       // required:true,
         trim:true,
     },
     slug:{
         type:String,
-        required:true,
-        unique:true,
-        lowercase:true,
+       // required:true,
+       // unique:true,
+      //  lowercase:true,
     },
     description:{
         type:String,
-        required:true,
+       // required:true,
     },
     price:{
         type:Number,
-        required:true,
+      //  required:true,
+    },
+    size:{
+        type:String,
+      //  required:true,
     },
     category:{
-        type:String,           //mongoose.Types.ObjectId,
-         required:true,         //ref:"Category",
+        type:mongoose.Types.ObjectId,
+        ref:"Category",
+        //  required:true,        
     },
     brand:{
 type:String,
-required:true,          //enum:['Apple','Samsung','Lenovo']
+//required:true,          //enum:['Apple','Samsung','Lenovo']
     },
     quantity:{
         type:Number,
-        required:true,
+      //  required:true,
     },
     sold:{
         type:Number,
@@ -43,7 +48,11 @@ required:true,          //enum:['Apple','Samsung','Lenovo']
     },
     color:{
         type:String,
-        required:true,         //enum:['Black','Brown','Red'],
+       // required:true,         //enum:['Black','Brown','Red'],
+    },
+    is_listed: {
+        type: Boolean,
+        default: true
     },
     ratings:[{
         star:Number,

@@ -1,0 +1,78 @@
+<%- include('../layouts/adminLayout/_header.ejs') -%>
+
+    <section class="content-main">
+        <div class="content-header">
+            <div>
+                <h2 class="content-title card-title">Categories</h2>
+                <p>Add, edit or delete a category</p>
+            </div>
+            <h3 style="color:red">
+                <%= messages.head ? messages.head : '' %>
+            </h3>
+           
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <form action="/admin/updateCategory" method="post">
+                            <input type="text" name="_id" value="<%= category._id %>" hidden readonly>
+                            <div class="mb-4">
+                                <label for="product_name" class="form-label">Title</label>
+                                <input type="text" placeholder="Type here" class="form-control" id="product_name"
+                                    name="title" value="<%= category.title %>" />
+                                    <%= messages.title ? messages.head : '' %>
+                            </div>
+                            <div class="mb-4">
+                                <label for="product_name" class="form-label">Slug</label>
+                                <input type="text" placeholder="Type here" class="form-control" id="product_name"
+                                    name="slug" value="<%= category.slug %>"/>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Description</label>
+                                <input type="text" placeholder="Type here" class="form-control" name="description" value="<%= category.description %>"></input>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label"> <%= category.is_listed==true ? 'Listed' : 'UnListed' %> </label>
+                                <div class="radio-group">
+                                  <label>
+                                    <input type="radio" name="is_listed" value="true" 
+                                    <%= category.is_listed ? 'checked' : '' %> /> List
+                                  </label>
+                                  <label>
+                                    <input type="radio" name="is_listed" value="false" 
+                                    <%= !category.is_listed ? 'checked' : '' %> /> Unlist
+                                  </label>
+                                </div>
+                              </div>
+                            <div class="d-grid">
+                                <button class="btn btn-primary" >Update category</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="table-responsive">
+
+                           
+                        </div>
+                    </div>
+                    <!-- .col// -->
+                </div>
+                <!-- .row // -->
+            </div>
+            <!-- card body .// -->
+        </div>
+        <!-- card .// -->
+    </section>
+    <!-- include jquery -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Include DataTables -->
+    <script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <!-- <script src="/admin/sweetalert2/dist/sweetalert2.min.js"></script> -->
+
+    
+
+    <%- include('../layouts/adminLayout/_footer.ejs') -%>

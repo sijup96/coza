@@ -1,0 +1,199 @@
+<%- include('../layouts/adminLayout/_header.ejs') -%>
+
+    <section class="content-main">
+        <div class="content-header">
+            <div>
+                <h2 class="content-title card-title">Categories</h2>
+               
+            </div>
+            <h3 style="color:red">
+                <%= messages.head ? messages.head : '' %>
+            </h3>
+            <div>
+                <input type="text" placeholder="Search Categories" class="form-control bg-white" />
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <form action="/admin/createCategory" method="post">
+                            <div class="mb-4">
+                                <label for="product_name" class="form-label">Name</label>
+                                <input type="text" placeholder="Type here" class="form-control" id="product_name"
+                                    name="title" />
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Description</label>
+                                <textarea placeholder="Type here" class="form-control" name="description"></textarea>
+                            </div>
+                            <div class="d-grid">
+                                <button class="btn btn-primary">Create category</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="table-responsive">
+
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">
+
+                                        </th>
+                                        <th>No.</th>
+                                        <th>Name</th>
+                                       
+                                        <th>Slug</th>
+                                        <th>Status</th>
+                                        <th class="text-end">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if(category.length> 0) { %>
+                                        <% for(let i=0,n=1; i < category.length;i++,n++){ %>
+
+                                            <tr>
+                                                <td class="text-center">
+                                                    <!-- <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" />
+                                        </div> -->
+                                                </td>
+                                                <td>
+                                                    <%= n %>
+                                                </td>
+                                                <td><b>
+                                                        <%= category[i].title %>
+                                                    </b></td>
+                                                 
+                                                <td>
+                                                    <%= category[i].slug %>
+                                                </td>
+                                                <td><%= category[i].is_listed==true?'Listed':'UnListed' %></td>
+                                                <td class="text-end">
+                                                    <div class="dropdown">
+                                                        <a href="#" data-bs-toggle="dropdown"
+                                                            class="btn btn-light rounded btn-sm font-sm"> <i
+                                                                class="material-icons md-more_horiz"></i> </a>
+                                                        <div class="dropdown-menu">
+                                                            <a class="dropdown-item"
+                                                                href="" onclick="confirmEdit('<%= category[i]._id %>')">Edit
+                                                                info</a>
+                                                            <a class="dropdown-item text-danger"
+                                                                href=""
+                                                                onclick="confirmDelete('<%= category[i]._id %>')">Delete</a>
+                                                        </div>
+                                                    </div>
+                                                    <!-- dropdown //end -->
+                                                </td>
+                                            </tr>
+                                            <% } %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="5">categories not found</td>
+                                                    </tr>
+                                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- .col// -->
+                </div>
+                <!-- .row // -->
+            </div>
+            <!-- card body .// -->
+        </div>
+        <!-- card .// -->
+    </section>
+    <!-- include jquery -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Include DataTables -->
+    <script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <!-- <script src="/admin/sweetalert2/dist/sweetalert2.min.js"></script> -->
+
+    <script>
+        var $j = jQuery.noConflict();
+
+        $j(document).ready(function () {
+            $j('#cati').DataTable();
+            attachEventListeners();
+        });
+
+        function attachEventListeners() {
+            document.querySelectorAll('.category-status').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    const currentStatus = this.getAttribute('data-current-status');
+                    const newStatus = (currentStatus === 'Unlisted') ? 'List' : 'Unlist'
+                    const confirmButtonText = (newStatus === 'Unlist') ? 'Unlist the category' : 'List the category';
+                    Swal.fire({
+                        title: "Are you sure?",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#3085d6",
+                        cancelButtonColor: "#d33",
+                        confirmButtonText: confirmButtonText
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            const categoryId = this.getAttribute('data-categ-id');
+                            updateCategoryStatus(categoryId, newStatus);
+                            Swal.fire({
+                                title: "Updated!",
+                                text: "User status has been updated.",
+                                icon: "success"
+                            });
+                        }
+                    });
+                });
+            })
+        }
+
+
+        function updateCategoryStatus(categoryId, action) {
+            fetch(`/admin/categ/${action}/${categoryId}`, {
+                method: 'POST'
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log(data);
+
+                    const statusElement = document.getElementById(`status_${categoryId}`);
+                    const buttonElement = document.querySelector(`.category-status[data-categ-id="${categoryId}"]`);
+
+                    if (data.categories.is_blocked) {
+                        statusElement.innerHTML = '<span class="badge rounded-pill alert-warning">Unlisted</span>';
+                        buttonElement.innerText = 'List';
+                        buttonElement.classList.remove('btn-inverse-danger');
+                        buttonElement.classList.add('btn-inverse-success');
+                    } else {
+                        statusElement.innerHTML = '<span class="badge rounded-pill alert-success">Listed</span>';
+                        buttonElement.innerText = 'Unlist';
+                        buttonElement.classList.remove('btn-inverse-success');
+                        buttonElement.classList.add('btn-inverse-danger');
+                    }
+
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                });
+        }
+
+
+        function confirmDelete(categoryId) {
+            const result = confirm("Are you sure you want to delete this Category?");
+            if (result) {
+                window.location.href = "/admin/deleteCategory/" + categoryId;
+            }
+        }
+        function confirmEdit(categoryId) {
+            const result = confirm("Are you sure you want to edit this Category?");
+            if (result) {
+                window.location.href = "/admin/updateCategory/" + categoryId;
+            }
+        }
+
+    </script>
+
+    <%- include('../layouts/adminLayout/_footer.ejs') -%>

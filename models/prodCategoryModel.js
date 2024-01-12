@@ -5,11 +5,24 @@ var prodCategorySchema = new mongoose.Schema({
     title:{
         type:String,
         required:true,
-        unique:true,
-        index:true,
+       // unique:true,
+      //  index:true,
+    },
+    slug:{
+        type:String,
+        required:true,
+        
+    },
+    description:{
+        type:String,
+        required:true,
+    },
+    is_listed: {
+        type: Boolean,
+        default: true,
     },
    
 },{timestamps:true});
 
 //Export the model
-module.exports = mongoose.model('PCategory', prodCategorySchema);
+module.exports = mongoose.model('productCategory', prodCategorySchema);

@@ -1,9 +1,10 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
+const {loadAbout,loadContact}=require('../controller/aboutCtrl')
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-});
+router.get('/',loadAbout);
+router.get('/details',loadContact);
+
+
 
 module.exports = router;

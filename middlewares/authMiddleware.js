@@ -1,9 +1,12 @@
 const User=require('../models/userModel')
 const jwt=require('jsonwebtoken')
-const asyncHandler=require('express-async-handler')
+const asyncHandler=require('express-async-handler');
+const { Cookie } = require('express-session');
+
 
 const authMiddleware=asyncHandler(async (req,res,next)=>{
     let token;
+
     if(req?.headers?.authorization?.startsWith('Bearer')){
         token=req.headers.authorization.split(' ')[1]
         try {
@@ -11,6 +14,8 @@ const authMiddleware=asyncHandler(async (req,res,next)=>{
                 const decoded=jwt.verify(token,process.env.JWT_SECRET)
                 const user=await User.findById(decoded?.id)
                 req.user=user
+                console.log(req.user);
+                
                 next()
             }
             
@@ -18,19 +23,32 @@ const authMiddleware=asyncHandler(async (req,res,next)=>{
             throw new Error('Not Authorized token expired, please login again')
         }
     }else{
-        throw new Error('there is no token attached to header')
+        res.render('index')
     }
    
 });
 
 const isAdmin=asyncHandler(async(req,res,next)=>{
-    const {email}=req.user
-    const adminUser=await User.findOne({email})
-    if(adminUser.role!=="admin"){
-throw new Error("You are not admin")
-    }else{
+    try{
+        const cookie = req.cookies
+        if (!cookie?.refreshToken) throw new Error("No refresh Token in cookies")
+        const refreshToken = cookie.refreshToken
+        const user = await User.findOne({ refreshToken })
+    if(user.role=='admin'){
         next()
+       
+    }else{
+        res.redirect('/admin');
     }
+    }catch(error){
+        res.redirect('/admin');
+    }
+
 });
 
-module.exports={authMiddleware,isAdmin};
+const cacheControl=asyncHandler(async (req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache');
+    next();
+  });
+
+module.exports={authMiddleware,isAdmin, cacheControl};

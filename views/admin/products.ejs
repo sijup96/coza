@@ -1,0 +1,122 @@
+<%- include('../layouts/adminLayout/_header.ejs') -%>
+<section class="content-main">
+    <div class="content-header">
+      <div>
+        <h2 class="content-title card-title">Products List</h2>
+        <p>Here is the list of products</p>
+      </div>
+      <div>
+        <a href="/admin/addProduct" class="btn btn-primary btn-sm rounded">Create new</a>
+    </div>
+    </div>
+   
+    <div class="card mb-4">
+      <div class="card-body">
+        <% if (products.length > 0) { for (let i = 0; i <
+          products.length; i++) { %>
+        <article class="itemlist">
+          <div class="row align-items-center">
+            <div class="col col-check flex-grow-0"></div>
+            <div class="col-lg-3 col-sm-6 col-8 flex-grow-1 col-name">
+              <a class="itemside" href="#">
+                <div class="left">
+                  <img
+                    src="/myImages/<%= products[i].images[0] %>"
+                    class="img-sm img"
+                    alt="Item"
+                  />
+                </div>
+                <div class="info">
+                  <h6>Product Title</h6>
+                  <h4 cla ss="mb-0"><%= products[i].title %></h4>
+                </div>
+              </a>
+              
+            </div>
+            <div class="col-lg-2 col-sm-2 col-4 col-quantity">
+                <h6>Quantity</h6>
+                <span><%= products[i].quantity %></span>
+              </div>
+            <div class="col-lg-2 col-sm-2 col-4 col-price">
+              <h6>Price</h6>
+              <span> ₹ <%= products[i].price %></span>
+            </div>
+           
+            <div class="col-lg-2 col-sm-2 col-4 col-status">
+              <h6>Status</h6>
+              <span
+                class="badge rounded-pill <%= products[i].is_listed==true? 'alert-success' : 'alert-danger' %>"
+              >
+                <%= products[i].is_listed==true ? 'Listed' : 'Unlisted' %>
+              </span>
+            </div>
+ 
+            <div class="col-lg-2 col-sm-2 col-4 col-action text-end">
+              <h6>Make Changes</h6>
+              <a
+                class="btn btn-sm font-sm rounded btn-brand" onclick="confirmEdit('<%= products[i]._id %>')">
+                <i class="material-icons md-edit"></i> Edit
+              </a>
+              <a
+              class="btn btn-sm font-sm rounded btn-brand" onclick="confirmDelete('<%= products[i]._id %>')">
+              <i class="material-icons md-edit"></i> delete
+            </a>
+            </div>
+          </div>
+        </article>
+        <% } } else { %>
+        <td colspan="5">Products Not Found</td>
+        <% } %>
+      </div>
+      <!-- card-body end// -->
+    </div>
+    <!-- card end// -->
+
+    <div class="pagination-area mt-30 mb-50">
+      <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-start">
+          <li class="page-item active">
+            <a class="page-link" href="#">01</a>
+          </li>
+          <li class="page-item"><a class="page-link" href="#">02</a></li>
+          <li class="page-item"><a class="page-link" href="#">03</a></li>
+          <li class="page-item"><a class="page-link dot" href="#">...</a></li>
+          <li class="page-item"><a class="page-link" href="#">16</a></li>
+          <li class="page-item">
+            <a class="page-link" href="#"
+              ><i class="material-icons md-chevron_right"></i
+            ></a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </section>
+
+
+
+    <!-- Your HTML -->
+    <!-- <button class="delete-product-btn" data-product-id="yourProductId">Delete Product</button> -->
+
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <script>
+
+        function confirmDelete(productId) {
+            const result = confirm("Are you sure you want to delete this product?");
+            if (result) {
+                window.location.href = "/admin/deleteProduct/" + productId;
+            }
+        }
+        function confirmEdit(productId) {
+            const result = confirm("Are you sure you want to edit this product?");
+            if (result) {
+                window.location.href = "/admin/updateProduct/" + productId;
+            }
+        }
+
+
+    </script>
+
+    <!-- content-main end// -->
+    <%- include('../layouts/adminLayout/_footer.ejs') -%>

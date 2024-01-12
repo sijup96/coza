@@ -1,0 +1,253 @@
+<%- include('../layouts/adminLayout/_header.ejs') -%>
+    <section class="content-main">
+        <div class="row">
+            <div class="col-6">
+                <div class="content-header">
+                    <h2 class="content-title">Edit Product</h2>
+                    <form action="/admin/addProduct" method="post" enctype="multipart/form-data">
+                        <p style="color:red">
+                            <%= messages.head ? messages.head : '' %>
+                        </p>
+                        <div>
+                            <button class="btn btn-md rounded font-sm hover-up">Update</button>
+                        </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <h6>1. General info</h6>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="mb-4">
+                                    <label class="form-label">Product Title</label>
+                                    <input type="text" placeholder="Type here" class="form-control" name="title"
+                                        value=" <%= product.title %> " minlength="4" maxlength="20" required>
+                                    <p style="color:red">
+                                        <%= messages.title ? messages.title : '' %>
+                                    </p>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Description</label>
+                                    <input type="text" placeholder="Type here" class="form-control" rows="4"
+                                        name="description" value="<%= product.description %> " required></input>
+                                    <p style="color:red">
+                                        <%= messages.description ? messages.description : '' %>
+                                    </p>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Brand name</label>
+                                    <select class="form-select" name="brand" required>
+                                        <option value=" <%= product.brand %> ">
+                                            <%= product.brand %>
+                                        </option>
+                                        <option value="gucci">Gucci</option>
+                                        <option value="chanel">Chanel</option>
+                                        <option value="nike">Nike</option>
+                                        <option value="zara">Zara</option>
+                                        <option value="adidas">Adidas</option>
+                                        <option value="louis-vuitton">Louis Vuitton</option>
+                                        <option value="prada">Prada</option>
+                                        <option value="balenciaga">Balenciaga</option>
+                                        <option value="givenchy">Givenchy</option>
+                                        <option value="versace">Versace</option>
+                                        <option value="ralph-lauren">Ralph Lauren</option>
+                                        <option value="tommy-hilfiger">Tommy Hilfiger</option>
+                                        <option value="calvin-klein">Calvin Klein</option>
+                                        <option value="hm">H&M</option>
+                                        <option value="forever-21">Forever 21</option>
+                                    </select>
+                                    <p style="color:red">
+                                        <%= messages.brand ? messages.brand : '' %>
+                                    </p>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Size</label>
+                                    <select class="form-select" name="size">
+                                        <option value="<%= product.size %>">
+                                            <%= product.size %>
+                                        </option>
+                                        <option value="small">Small</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="large">Large</option>
+                                        <option value="extra-large">Extra Large</option>
+                                    </select>
+                                    <p style="color:red">
+                                        <%= messages.size ? messages.size : '' %>
+                                    </p>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Select Color</label><label
+                                        class="form-label">Color</label> <input type="text" id="result"
+                                        style="width: 2em ; border-radius: 100px;" readonly>
+
+                                    <select class="form-select" id="colorSelect" name="color"
+                                        onchange="changeBackgroundColor(this)">
+                                        <option value="<%= product.color %>">
+                                            <%= product.color %>
+                                        </option>
+
+                                        <option value="#ff0000">Red</option>
+                                        <option value="#00ff00">Green</option>
+                                        <option value="#0000ff">Blue</option>
+                                        <option value="#ff6600">Orange</option>
+                                        <option value="#800080">Purple</option>
+                                        <option value="#ffff00">Yellow</option>
+                                        <option value="#008080">Teal</option>
+                                        <option value="#ff00ff">Magenta</option>
+                                        <option value="#ffa500">Orange</option>
+                                        <option value="#008000">Dark Green</option>
+                                        <option value="#800000">Maroon</option>
+                                        <option value="#808080">Gray</option>
+                                        <option value="#000000">Black</option>
+                                        <option value="#ffffff">White</option>
+                                        <option value="#ffffcc">Light Yellow</option>
+                                        <option value="#00ffff">Cyan</option>
+                                        <option value="#800000">Brown</option>
+                                        <option value="#9966cc">Lavender</option>
+                                        <option value="#66cc99">Mint Green</option>
+                                        <option value="#ffcc99">Peach</option>
+                                        <option value="#99ccff">Sky Blue</option>
+                                        <option value="#ff6666">Salmon</option>
+                                        <option value="#99ffcc">Mint</option>
+                                        <option value="#ffccff">Light Pink</option>
+                                        <option value="#ccffcc">Pale Green</option>
+                                        <option value="#ff99cc">Rose</option>
+                                        <option value="#66ccff">Baby Blue</option>
+                                        <option value="#cc99ff">Amethyst</option>
+                                        <option value="#ffcc66">Gold</option>
+                                        <option value="#99ff99">Mint</option>
+                                        <option value="#ccff99">Pale Lime</option>
+                                        <option value="#ff9999">Light Salmon</option>
+                                        <option value="#99cc99">Sage</option>
+                                        <option value="#ff6666">Light Coral</option>
+                                        <option value="#66ffcc">Turquoise</option>
+                                        <option value="#ff66cc">Bubblegum Pink</option>
+                                        <option value="#cc66ff">Lilac</option>
+                                        <option value="#ccff66">Lime</option>
+                                        <option value="#66ff66">Spring Green</option>
+                                        <option value="#ff9966">Apricot</option>
+                                        <option value="#cc9966">Desert Sand</option>
+                                        <option value="#6699cc">Steel Blue</option>
+                                        <option value="#996699">Mauve</option>
+                                        <option value="#cc6699">Raspberry</option>
+                                        <option value="#99cc66">Moss Green</option>
+                                        <option value="#666699">Slate Blue</option>
+                                        <option value="#996666">Cool Gray</option>
+                                        <option value="#996633">Olive</option>
+                                        <option value="#666633">Khaki</option>
+                                        <option value="#663300">Burnt Orange</option>
+                                    </select>
+                                    <p style="color:red">
+                                        <%= messages.color ? messages.color : '' %>
+                                    </p>
+                                </div>
+
+                            </div> <!-- col.// -->
+                        </div> <!-- row.// -->
+
+                        <hr class="mb-4 mt-0">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <h6>2. Pricing</h6>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="mb-4">
+                                    <label class="form-label">Cost in INR</label>
+                                    <input type="text" placeholder="₹" class="form-control" name="price"
+                                        value="<%= product.price %>" pattern="\d+(\.\d{1,2})?" required>
+                                    <p style="color:red">
+                                        <%= messages.price ? messages.price : '' %>
+                                    </p>
+                                </div>
+                            </div> <!-- col.// -->
+                        </div> <!-- row.// -->
+                        <hr class="mb-4 mt-0">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <h6>3. Category</h6>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="mb-4">
+                                    <div class="mb-4">
+                                        <label class="form-label">Categories</label>
+                                        <select class="form-select" name="category">
+                                            <option>
+                                                <%= categoryData && categoryData.title %>
+                                            </option>
+                                            <% if(category.length> 0){ %>
+                                                <% for(let i=0; i < category.length; i++){ %>
+                                                    <option>
+                                                        <%= category[i].title %>
+                                                    </option>
+                                                    <% } %>
+                                                        <% }else{ %>
+                                                            <option> Not found </option>
+                                                            <% } %>
+                                        </select>
+                                        <p style="color:red">
+                                            <%= messages.category ? messages.category : '' %>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div> <!-- col.// -->
+                        </div> <!-- row.// -->
+
+                        <hr class="mb-4 mt-0">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <h6>4. Quantity</h6>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="mb-4">
+                                    <input type="text" placeholder="Enter Quantity" class="form-control" name="quantity"
+                                        value="<%= product.quantity %>" pattern="\d+(\.\d{1,2})?" required>
+                                    <p style="color:red">
+                                        <%= messages.quantity ? messages.quantity : '' %>
+                                    </p>
+                                </div>
+                            </div> <!-- col.// -->
+                        </div> <!-- row.// -->
+
+
+                        <hr class="mb-4 mt-0">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <h6>5. Media</h6>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="mb-4">
+                                    <label class="form-label">Images</label>
+                                    <input class="form-control" type="file" name="images" id="fileUpload" multiple>
+                                    <p style="color:red">
+                                        <%= messages.image ? messages.image : '' %>
+                                    </p>
+                                </div>
+                            </div> <!-- col.// -->
+                            </form>
+                        </div> <!-- .row end// -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </section> <!-- content-main end// -->
+
+    <script>
+        function changeBackgroundColor(selectElement) {
+            // Get the selected color value
+            const selectedColor = selectElement.value;
+
+            // Change the background color dynamically
+            document.getElementById('result').style.backgroundColor = selectedColor;
+
+            // Update the content dynamically based on the selected color
+            // document.getElementById('result') = ` style="fontColor: ${selectedColor}"`;
+        }
+    </script>
+
+    <%- include('../layouts/adminLayout/_footer.ejs') -%>

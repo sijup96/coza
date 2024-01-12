@@ -4,6 +4,17 @@ const asyncHandler=require('express-async-handler');
 const validateMongoDbId=require('../utils/validateMongodbId');
 
 
+
+//Load Blog
+
+const loadBlog=asyncHandler(async(req,res)=>{
+    try {
+        res.render('blog')
+    } catch (error) {
+        throw new Error(error)
+    }
+    });
+
 //Create Blog
 
 const createBlog=asyncHandler(async(req,res)=>{
@@ -76,4 +87,4 @@ const updateBlog=asyncHandler(async(req,res)=>{
     // Likes and Dislikes (4.52)
 
 
-module.exports={createBlog,updateBlog,getBlog,getAllBlogs,deleteBlog}
+module.exports={createBlog,updateBlog,getBlog,getAllBlogs,deleteBlog,loadBlog}

@@ -13,11 +13,11 @@ var userSchema = new mongoose.Schema({
     email:{
         type:String,
         required:true,
-        unique:true,
+        //unique:true,
     },
     mobile:{
         type:String,
-       required:true,
+       //required:true,
         //unique:true,
     },
     password:{
@@ -35,6 +35,10 @@ var userSchema = new mongoose.Schema({
     cart:{
         type:Array,
         default:[],
+    },
+    verified:{
+       type:Boolean,
+       default:false,
     },
     address:[{type:mongoose.Types.ObjectId,ref:"Address"}],
     wishlist:[{type:mongoose.Types.ObjectId,ref:"Product"}],
