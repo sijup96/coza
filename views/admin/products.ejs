@@ -5,18 +5,24 @@
         <h2 class="content-title card-title">Products List</h2>
         <p>Here is the list of products</p>
       </div>
+      <p style="color:red">
+        <%= messages.head ? messages.head : '' %>
+    </p>
       <div>
+      
         <a href="/admin/addProduct" class="btn btn-primary btn-sm rounded">Create new</a>
     </div>
     </div>
    
     <div class="card mb-4">
       <div class="card-body">
-        <% if (products.length > 0) { for (let i = 0; i <
-          products.length; i++) { %>
+        <% if (products.length > 0) { for (let i = 0; i <  products.length; i++) { %>
         <article class="itemlist">
           <div class="row align-items-center">
-            <div class="col col-check flex-grow-0"></div>
+            <div class="col col-check flex-grow-0">
+              
+                <span><%= i+1 %>.</span>
+            </div>
             <div class="col-lg-3 col-sm-6 col-8 flex-grow-1 col-name">
               <a class="itemside" href="#">
                 <div class="left">
@@ -45,8 +51,7 @@
             <div class="col-lg-2 col-sm-2 col-4 col-status">
               <h6>Status</h6>
               <span
-                class="badge rounded-pill <%= products[i].is_listed==true? 'alert-success' : 'alert-danger' %>"
-              >
+                class="badge rounded-pill <%= products[i].is_listed==true? 'alert-success' : 'alert-danger' %>">
                 <%= products[i].is_listed==true ? 'Listed' : 'Unlisted' %>
               </span>
             </div>

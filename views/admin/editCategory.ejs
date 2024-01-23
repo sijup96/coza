@@ -34,7 +34,7 @@
                                 <input type="text" placeholder="Type here" class="form-control" name="description" value="<%= category.description %>"></input>
                             </div>
                             <div class="mb-4">
-                                <label class="form-label"> <%= category.is_listed==true ? 'Listed' : 'UnListed' %> </label>
+                                <label class="form-label"> <%= category.is_listed==true ? 'Currently-Listed' : 'Currently-UnListed' %> </label>
                                 <div class="radio-group">
                                   <label>
                                     <input type="radio" name="is_listed" value="true" 

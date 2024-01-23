@@ -25,6 +25,10 @@ var productSchema = new mongoose.Schema({
         type:String,
       //  required:true,
     },
+    sex:{
+        type:String,
+         //  required:true,
+    },
     category:{
         type:mongoose.Types.ObjectId,
         ref:"Category",

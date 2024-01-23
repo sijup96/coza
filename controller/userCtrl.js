@@ -8,11 +8,31 @@ const jwt = require('jsonwebtoken');
 const sendEmail = require('./emailCtrl')
 const crypto = require('crypto');
 const mailOTP = require('../models/mailOTP')
-const bcrypt=require('bcrypt');
+const bcrypt = require('bcrypt');
+const Category = require('../models/prodCategoryModel')
+const Product = require('../models/productModel')
 
 /* GET home page. */
 const userHome = asyncHandler(async (req, res) => {
-  res.render('index')
+  try {
+    const categories = await Category.find({ is_listed: true });
+    const categoryIds = categories.map(category => category._id);
+
+    if (categoryIds.length > 0) {
+      const productsFemale = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'female' });
+            const productsMale = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'male' });
+            const productsUnisex = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'unisex' });
+           res.render('index', { productsFemale, productsMale, productsUnisex, categories});
+    } else {
+      // Handle the case when no categories are found
+      console.log('No categories found');
+      res.render('index', );
+    }
+  } catch (error) {
+    // Handle the error appropriately, e.g., log it or send an error response
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 //Get Login page
@@ -28,7 +48,7 @@ const userLogin = asyncHandler(async (req, res) => {
     // Check if there is a refreshToken cookie
     if (!cookies || !cookies.refreshToken) {
       // Render 'userLogin' if refreshToken cookie is not present
-      req.flash('message', 'Please Login');
+
       res.render('userLogin');
     } else {
       // Render 'index' if refreshToken cookie is present
@@ -49,12 +69,77 @@ const userRegister = asyncHandler(async (req, res) => {
   res.redirect('/login')
 });
 
+
+//Validate form
+const validateUser = asyncHandler(async (req, res) => {
+  try {
+    const { firstname, password, email, mobile } = req.body;
+
+    let response = {};
+
+    // Name Validation
+
+    if (firstname && (firstname.trim() === "" || firstname.length < 3)) {
+      response.fnameStatus =
+        "Name must contain 3 or more letters";
+    } else if (!/^[^\s\d!@#$%^&*(),.?":{}|<>_+=\[\\;\]`~]*[a-zA-ZÀ-ÖØ-öø-ÿ-' ]+[^\s!@#$%^&*(),.?":{}|<>_+=\[\\;\]`~]*$/.test(firstname)) {
+      response.fnameStatus = "Please enter the correct Name";
+    } else {
+      response.fnameStatus = '';
+    }
+
+
+        // Email Validation
+
+        if (email && (email.trim() === "")) {
+          response.fnameStatus =
+            "Please enter email";
+        } else if (!/^[^\s@]+@(?!.*\.[^\s@]+)[a-zA-Z\d-]+\.(com|org|in|net|edu|gov|co|uk)$/.test(email)) {
+          response.emailStatus = "Please enter valid email";
+        } else {
+          response.emailStatus = '';
+        }
+
+    //Mobile Number Validation
+
+    if (mobile && (mobile.trim() === "" || mobile.length <10 || !/^\d{10}$/.test(mobile))) {
+      response.mobileStatus =
+        "Enter valid Number";
+    } else {
+      response.mobileStatus = "";
+    }
+
+    // Password Validation
+
+    if (password && password.trim() === "") {
+      response.passwordStatus = "Password cannot be Empty";
+    } else if (password && password.length <= 8) {
+      response.passwordStatus = "Password must be at least 8 characters long";
+    } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()-_+=])[A-Za-z\d!@#$%^&*()-_+=]{8,}$/.test(password)) {
+      response.passwordStatus =
+        "Password must include lowercase and uppercase letters, numbers, and special characters";
+    } else {
+      response.passwordStatus = "";
+    }
+
+    res.send(response);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ error: "Internal Server Error" });
+  }
+});
+
+
+
+
+
+
 //Create User
 
 const createUser = asyncHandler(async (req, res) => {
   try {
-    const email = req.body.email;
-
+    const { name, mobile, email, password } = req.body;
+    console.log(password);
     // Check if the user already exists
     const findUser = await User.findOne({ email: email });
 
@@ -64,34 +149,35 @@ const createUser = asyncHandler(async (req, res) => {
 
       const newUser = await User.create(req.body);
       sendOTP(newUser);
-      
-      res.render('otp',{email})
-      
+
+      res.render('otp', { email })
+
     } else {
-      req.flash('message', `Hi ${req.body.name}, Already Regestered Please Login... `);
+      req.flash('head', `This Email is Already Regestered Please Login... `);
 
       // User already exists
-      res.redirect('userLogin');
+      res.redirect('/login');
     }
   } catch (error) {
     // Handle unexpected errors
     console.error(error);
-    req.flash('message', 'Invalid credentials');
+    req.flash('invalid', 'Invalid credentials');
+    res.redirect('/register');
   }
 });
 
 
 //send OTP
 
-const sendOTP=asyncHandler(async ({email,res})=>{
-try {
-  const otp = `${Math.floor(100000 + Math.random() * 900000)}`
+const sendOTP = asyncHandler(async ({ email, res }) => {
+  try {
+    const otp = `${Math.floor(100000 + Math.random() * 900000)}`
 
-  const data = {
-    to: email,
-    text: 'Hey User',
-    subject: 'coza store OTP ',
-    htm: `
+    const data = {
+      to: email,
+      text: 'Hey User',
+      subject: 'coza store OTP ',
+      htm: `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
         <h2 style="color: #007BFF;">Verify Your Email</h2>
         <p>Please use the following OTP to verify your email:</p>
@@ -103,30 +189,60 @@ try {
         <P style="color: #007BFF;">From Coza Store </p>
     </div>
 `,
+    }
+
+
+    // const saltrounds = 10
+    // OTP
+
+    const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex")
+    console.log(hashedOtp);
+    const newOtpVerification = await new mailOTP({
+      email: email,
+      otp: hashedOtp,
+      createdAt: new Date()
+    })
+
+    // save otp record
+    await newOtpVerification.save()
+    sendEmail(data);
+
+
+  } catch (error) {
+    throw new Error(error)
   }
-
-  // const saltrounds = 10
-  // OTP
-
-  const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex")
-  console.log(hashedOtp);
-  const newOtpVerification = await new mailOTP({
-    email: email,
-    otp: hashedOtp,
-    createdAt: new Date()
-  })
-
-  // save otp record
-  await newOtpVerification.save()
-  sendEmail(data);
-  
-
-} catch (error) {
-  throw new Error(error)
-}
 })
 
+// resend Otp
+const resendOTP = asyncHandler(async (req, res) => {
+  try {
+    const email = req.body.email;
+    console.log(email);
+    // Check if the user already exists
+    const findUser = await User.findOne({ email: email });
 
+    // if (!findUser) {
+
+    //   // Create new user
+
+    //   const newUser = await User.create(req.body);
+    //   sendOTP(newUser);
+
+    //   res.render('otp',{email})
+
+    // } else {
+    //   req.flash('head', `This Email is Already Regestered Please Login... `);
+
+    //   // User already exists
+    //   res.redirect('/login');
+    // }
+  } catch (error) {
+    // Handle unexpected errors
+    console.error(error);
+    req.flash('invalid', 'Invalid credentials');
+    res.redirect('/register');
+  }
+});
 
 
 
@@ -135,15 +251,10 @@ try {
 const verifyOtp = asyncHandler(async (req, res) => {
   try {
     const email = req.body.email
-    console.log('email:', req.body.email);
     const otp = req.body.one + req.body.two + req.body.three + req.body.four + req.body.five + req.body.six;
-
-console.log(otp);
-
     const user = await mailOTP.findOne({ email: email })
-    console.log('user:', user);
-
     if (!user) {
+      req.flash('otp', "otp expired")
       res.render('otp');     //{ message: "otp expired" }
     }
 
@@ -157,21 +268,21 @@ console.log(otp);
       await mailOTP.deleteOne({ email: email });
 
       req.cookies.user_id = userData._id
-      req.flash('info', ` Regestered Successfully Please Login... `);
+      req.flash('head', ' Regestered Successfully Please Login... ');
       res.redirect('/login');
 
-    } else if(hashedOtp){
-      
+    } else if (hashedOtp) {
+
       res.render('otp', { message: req.flash('otp', 'otp is incorrect'), email: email });
 
-    }else{
-      await User.findOneAndDelete({email})
+    } else {
+      await User.findOneAndDelete({ email })
       req.flash('info', ` OTP timeout Register again `);
       res.redirect('/login')
     }
 
   } catch (error) {
-    await User.findOneAndDelete({email})
+    await User.findOneAndDelete({ email })
     console.log(error);
   }
 
@@ -204,8 +315,8 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
       res.redirect('/');
     } else {
       // Redirect to "/userLogin" for invalid credentials
-
-      res.redirect('userLogin');
+      req.flash('login', 'Invalid credentials')
+      res.redirect('/register');
     }
   } catch (error) {
     // Handle unexpected errors
@@ -287,12 +398,13 @@ const updateUser = asyncHandler(async (req, res) => {
   }
 });
 
+
 //Get all Users
 
 const getAllUsers = asyncHandler(async (req, res) => {
   try {
     const users = await User.find();
-    res.render('admin/userDetails',{users})
+    res.render('admin/userDetails', { users })
   } catch (error) {
     throw new Error(error);
 
@@ -327,41 +439,31 @@ const deleteUser = asyncHandler(async (req, res) => {
 });
 
 const blockUser = asyncHandler(async (req, res) => {
-  const { id } = req.params
-  try {
-    const block = await User.findByIdAndUpdate({ _id: id },
-      {
-        isBlocked: true,
-      }, {
-      new: true
-    })
-    res.json({
-      message: "User Blocked"
-    })
-  } catch (error) {
-    throw new Error(error)
+  const { id } = req.params;
+  const redirectUrl = req.body.redirectUrl || '/admin/getAllUsers';
 
+  try {
+    await User.findByIdAndUpdate(id, { isBlocked: true }, { new: true });
+    res.redirect(redirectUrl);
+  } catch (error) {
+    console.error('Error blocking user:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
 const unblockUser = asyncHandler(async (req, res) => {
-  const { id } = req.params
+  const { id } = req.params;
+  const redirectUrl = req.body.redirectUrl || '/admin/getAllUsers';
+
   try {
-    const unblock = await User.findByIdAndUpdate(id,
-      {
-        isBlocked: false,
-      }, {
-      new: true
-    })
-    res.json({
-      message: "User UnBlocked"
-    })
+    await User.findByIdAndUpdate(id, { isBlocked: false }, { new: true });
+    res.redirect(redirectUrl);
   } catch (error) {
-    throw new Error(error)
-
+    console.error('Error unblocking user:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
-
 });
+
 
 //Update Password
 
@@ -458,6 +560,9 @@ module.exports = {
   userRegister,
   verifyOtp,
   sendOTP,
+  resendOTP,
+  validateUser,
+
 
   // verifySignup
 }

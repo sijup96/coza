@@ -309,7 +309,7 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
   display: -ms-flexbox;
   display: flex;
   align-items: center;
-  background-color: transparent;
+  background-color:#1d1d1d;
 }
 
 
@@ -2669,6 +2669,7 @@ input.num-product::-webkit-inner-spin-button {
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
+  margin-top: 85px;
 }
 
 

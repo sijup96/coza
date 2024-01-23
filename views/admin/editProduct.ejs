@@ -4,7 +4,7 @@
             <div class="col-6">
                 <div class="content-header">
                     <h2 class="content-title">Edit Product</h2>
-                    <form action="/admin/addProduct" method="post" enctype="multipart/form-data">
+                    <form action="/admin/updateProduct" method="post" enctype="multipart/form-data">
                         <p style="color:red">
                             <%= messages.head ? messages.head : '' %>
                         </p>
@@ -31,6 +31,16 @@
                                         <%= messages.title ? messages.title : '' %>
                                     </p>
                                 </div>
+                                <div class="col-md-9">
+                                    <div class="mb-4">
+                                        <label class="form-label">Slug Id</label>
+                                        <input type="text" placeholder="Type here" class="form-control" name="slug"
+                                            value=" <%= product.slug %> " minlength="4" maxlength="20" readonly required>
+                                        <p style="color:red">
+                                            <%= messages.slug ? messages.slug : '' %>
+                                        </p>
+                                        <input type="hidden" value="<%= product._id %>" name="id">
+                                    </div>
                                 <div class="mb-4">
                                     <label class="form-label">Description</label>
                                     <input type="text" placeholder="Type here" class="form-control" rows="4"
@@ -71,81 +81,39 @@
                                         <option value="<%= product.size %>">
                                             <%= product.size %>
                                         </option>
-                                        <option value="small">Small</option>
-                                        <option value="medium">Medium</option>
-                                        <option value="large">Large</option>
-                                        <option value="extra-large">Extra Large</option>
+                                        <option value="s">S</option>
+                                        <option value="m">M</option>
+                                        <option value="l">L</option>
+                                        <option value="xl">XL</option>
+                                        <option value="xxl">XXL</option>
                                     </select>
                                     <p style="color:red">
                                         <%= messages.size ? messages.size : '' %>
                                     </p>
                                 </div>
                                 <div class="mb-4">
+                                    <label class="form-label">Gender</label>
+                                    <select class="form-select" name="sex">
+                                        <option value="<%= product.sex %>"> <%= product.sex %> </option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="unisex">Unisex</option>
+                                    </select>
+                                   
+                                </div>
+                        
+                                <!-- <div class="mb-4">
                                     <label class="form-label">Select Color</label><label
                                         class="form-label">Color</label> <input type="text" id="result"
                                         style="width: 2em ; border-radius: 100px;" readonly>
 
-                                    <select class="form-select" id="colorSelect" name="color"
-                                        onchange="changeBackgroundColor(this)">
-                                        <option value="<%= product.color %>">
-                                            <%= product.color %>
-                                        </option>
-
-                                        <option value="#ff0000">Red</option>
-                                        <option value="#00ff00">Green</option>
-                                        <option value="#0000ff">Blue</option>
-                                        <option value="#ff6600">Orange</option>
-                                        <option value="#800080">Purple</option>
-                                        <option value="#ffff00">Yellow</option>
-                                        <option value="#008080">Teal</option>
-                                        <option value="#ff00ff">Magenta</option>
-                                        <option value="#ffa500">Orange</option>
-                                        <option value="#008000">Dark Green</option>
-                                        <option value="#800000">Maroon</option>
-                                        <option value="#808080">Gray</option>
-                                        <option value="#000000">Black</option>
-                                        <option value="#ffffff">White</option>
-                                        <option value="#ffffcc">Light Yellow</option>
-                                        <option value="#00ffff">Cyan</option>
-                                        <option value="#800000">Brown</option>
-                                        <option value="#9966cc">Lavender</option>
-                                        <option value="#66cc99">Mint Green</option>
-                                        <option value="#ffcc99">Peach</option>
-                                        <option value="#99ccff">Sky Blue</option>
-                                        <option value="#ff6666">Salmon</option>
-                                        <option value="#99ffcc">Mint</option>
-                                        <option value="#ffccff">Light Pink</option>
-                                        <option value="#ccffcc">Pale Green</option>
-                                        <option value="#ff99cc">Rose</option>
-                                        <option value="#66ccff">Baby Blue</option>
-                                        <option value="#cc99ff">Amethyst</option>
-                                        <option value="#ffcc66">Gold</option>
-                                        <option value="#99ff99">Mint</option>
-                                        <option value="#ccff99">Pale Lime</option>
-                                        <option value="#ff9999">Light Salmon</option>
-                                        <option value="#99cc99">Sage</option>
-                                        <option value="#ff6666">Light Coral</option>
-                                        <option value="#66ffcc">Turquoise</option>
-                                        <option value="#ff66cc">Bubblegum Pink</option>
-                                        <option value="#cc66ff">Lilac</option>
-                                        <option value="#ccff66">Lime</option>
-                                        <option value="#66ff66">Spring Green</option>
-                                        <option value="#ff9966">Apricot</option>
-                                        <option value="#cc9966">Desert Sand</option>
-                                        <option value="#6699cc">Steel Blue</option>
-                                        <option value="#996699">Mauve</option>
-                                        <option value="#cc6699">Raspberry</option>
-                                        <option value="#99cc66">Moss Green</option>
-                                        <option value="#666699">Slate Blue</option>
-                                        <option value="#996666">Cool Gray</option>
-                                        <option value="#996633">Olive</option>
-                                        <option value="#666633">Khaki</option>
-                                        <option value="#663300">Burnt Orange</option>
-                                    </select>
+                                        <input type="color" class="form-select" id="colorSelect" name="color"
+                                        onchange="changeBackgroundColor(this)" >
+                                   
                                     <p style="color:red">
                                         <%= messages.color ? messages.color : '' %>
                                     </p>
-                                </div>
+                                </div> -->
 
                             </div> <!-- col.// -->
                         </div> <!-- row.// -->
@@ -176,21 +144,20 @@
                                     <div class="mb-4">
                                         <label class="form-label">Categories</label>
                                         <select class="form-select" name="category">
-                                            <option>
+                                            <option value="<%= categoryData && categoryData._id %>">
                                                 <%= categoryData && categoryData.title %>
                                             </option>
-                                            <% if(category.length> 0){ %>
-                                                <% for(let i=0; i < category.length; i++){ %>
-                                                    <option>
+                                            <% if (category.length > 0) { %>
+                                                <% for (let i = 0; i < category.length; i++) { %>
+                                                    <option value="<%= category[i]._id %>">
                                                         <%= category[i].title %>
                                                     </option>
-                                                    <% } %>
-                                                        <% }else{ %>
-                                                            <option> Not found </option>
-                                                            <% } %>
+                                                <% } %>
+                                            <% } else { %>
+                                                <% } %>
                                         </select>
                                         <p style="color:red">
-                                            <%= messages.category ? messages.category : '' %>
+                                            <%= messages.category ? 'Please select a valid category.' : '' %>
                                         </p>
                                     </div>
                                 </div>
@@ -212,7 +179,20 @@
                                 </div>
                             </div> <!-- col.// -->
                         </div> <!-- row.// -->
-
+                        <hr class="mb-4 mt-0">
+                        <div class="row " style="display: flex; text-align: center; ">
+                            <label class="col-1-md-3" style="display: flex;"> <%= product.is_listed==true ? 'Currently Listed:-' : 'Currently  UnListed:-' %> </label>
+                           <div class="radio-group " style="position: absolute;">
+                              <label>
+                                <input type="radio" name="is_listed" value="true" 
+                                <%= product.is_listed ? 'checked' : '' %> /> List
+                              </label>
+                              <label>
+                                <input type="radio" name="is_listed" value="false" 
+                                <%= !product.is_listed ? 'checked' : '' %> /> Unlist
+                              </label>
+                            </div>
+                          </div>
 
                         <hr class="mb-4 mt-0">
                         <div class="row">
@@ -222,7 +202,7 @@
                             <div class="col-md-9">
                                 <div class="mb-4">
                                     <label class="form-label">Images</label>
-                                    <input class="form-control" type="file" name="images" id="fileUpload" multiple>
+                                    <input class="form-control" type="file" name="images" id="imageUpload" multiple onchange="loadAndEditImages()">
                                     <p style="color:red">
                                         <%= messages.image ? messages.image : '' %>
                                     </p>
@@ -230,14 +210,104 @@
                             </div> <!-- col.// -->
                             </form>
                         </div> <!-- .row end// -->
+                        
                     </div>
                 </div>
             </div>
         </div>
+        <div class="col-lg-2" style="display: flex; text-align: end;" >
+            <div class="card card-product-grid ">
+                <div class="info-wrap " style="display: flex; text-align: end;">
+                    <div class="input-upload">
+                        <% if (product.images && product.images.length > 0) { %>
+                            <% for (let i = 0; i < product.images.length; i++) { %>
+                                
+                                <div class="image-container">
+                                  
+                                    <img src="/myImages/<%= product.images[i] %>" alt="<%= product.images[i] %>">
+                                    <input type="checkbox" value="<%= product.images[i] %>"  name="selectedImages" >
+                                </div>
+                                <br>
+                                
+                            <% } %>
+                        <% } %>
+                        <button type="button" class="btn btn-info" onclick="deleteSelectedImages()">Delete Selected Images</button>
+                    </div>
+
+                </div>
+                <ul id="loadedImages">
+                    
+                    <li style="display: flex;" id="imageUpload" >
+                        <label>Images to Upload</label>
+                        <img src="" alt="">
+                    </li>
+                    </ul>
+
+            </div>
+            <!-- card-product  end// -->
         </div>
+        
+
+        </div>
+       
+        
     </section> <!-- content-main end// -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
     <script>
+//Image view
+
+// Function to handle image loading and editing
+function loadAndEditImages() {
+    const imageUploadInput = document.getElementById('imageUpload');
+    const loadedImagesList = document.getElementById('loadedImages');
+
+    // Display loaded images dynamically
+    for (const file of imageUploadInput.files) {
+        const listItem = document.createElement('li');
+        listItem.style.padding = '5px'
+        loadedImagesList.appendChild(listItem);
+
+        // Display the image
+        const image = document.createElement('img') ;
+        image.src = URL.createObjectURL(file);
+        image.alt = file.name;
+        listItem.appendChild(image);
+    }
+}
+
+// Delete Images
+
+        function deleteSelectedImages() {
+            const selectedCheckboxes = document.querySelectorAll('input[name="selectedImages"]:checked');
+            const selectedImageValues = Array.from(selectedCheckboxes).map(checkbox => checkbox.value);
+          
+            if (selectedImageValues.length > 0) {
+                if (confirm('Are you sure you want to delete the selected images?')) {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('POST', '/admin/deleteImages', true);
+                    xhr.setRequestHeader('Content-Type', 'application/json');
+                    xhr.onload = function () {
+                        if (xhr.status === 200) {
+                            // Refresh the page or update UI with a success message
+                            location.reload();
+                        } else {
+                            // Display an informative error message to the user
+                            alert('Failed to delete images. Please try again.');
+                        }
+                    };
+                    xhr.onerror = function () {
+                        // Handle network errors
+                        console.error('Network error during image deletion');
+                    };
+                    xhr.send(JSON.stringify({ selectedImages: selectedImageValues }));
+                }
+            } else {
+                alert('Please select images to delete.');
+            }
+        }
+
+
         function changeBackgroundColor(selectElement) {
             // Get the selected color value
             const selectedColor = selectElement.value;

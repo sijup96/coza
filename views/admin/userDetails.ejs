@@ -37,8 +37,8 @@
                         <tr>
                             <th>Users</th>
                             <th>Email</th>
+                            <th>Mobile</th>
                             <th>Status</th>
-                            <th>Account</th>
                             <th class="text-end">Action</th>
                         </tr>
                     </thead>
@@ -62,11 +62,19 @@
                                 </a>
                             </td>
                             <td><%= users[i].email %></td>
-                            <td><span class="badge rounded-pill <%= users[i].isBlocked =='true'? 'alert-danger':'alert-success' %>"><%= users[i].isBlocked =='true'? 'Blocked':'Not-Blocked' %></span></td>
-                            <td><%= users[i].verified ==true? 'Verified':'Not-Verified' %></td>
-                            <td class="text-end">
-                                <a href="#" class="btn btn-sm btn-brand rounded font-sm mt-15">View details</a>
-                            </td>
+                            <td><%= users[i].mobile %></td>
+                            <td>
+                                <span class="badge rounded-pill <%= users[i].isBlocked ? 'alert-danger' : 'alert-success' %>">
+                                  <%= users[i].isBlocked ? 'Blocked' : 'Not Blocked' %>
+                                </span>
+                              </td>
+                              <td class="text-end">
+                                <% if (users[i].isBlocked) { %>
+                                  <a href="" class="btn btn-sm btn-success rounded font-sm mt-15" onclick="unblockUser('<%= users[i]._id %>')">Unblock User</a>
+                                <% } else { %>
+                                  <a href="" class="btn btn-sm btn-danger rounded font-sm mt-15" onclick="blockUser('<%= users[i]._id %>')">Block User</a>
+                                <% } %>
+                              </td>
                         </tr>
                         <% } } else { %>
                             <td colspan="5">Products Not Found</td>
@@ -96,4 +104,51 @@
     </div>
 </section>
 
+<script>
+   function blockUser(userId) {
+  // Send an AJAX request to block the user
+  fetch(`/admin/blockUser/${userId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ isBlocked: true }),
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.message === 'User blocked successfully') {
+        // Update the UI or perform additional actions on success
+        alert('User blocked successfully.');
+      } else {
+        alert('Failed to block user. Please try again.');
+      }
+    })
+    .catch(error => {
+      console.error('Error blocking user:', error);
+    });
+}
+
+function unblockUser(userId) {
+  // Send an AJAX request to unblock the user
+  fetch(`/admin/unblockUser/${userId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ isBlocked: false }),
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.message === 'User unblocked successfully') {
+        // Update the UI or perform additional actions on success
+        alert('User unblocked successfully.');
+      } else {
+        alert('Failed to unblock user. Please try again.');
+      }
+    })
+    .catch(error => {
+      console.error('Error unblocking user:', error);
+    });
+}
+  </script>
 <%- include('../layouts/adminLayout/_footer.ejs') -%>

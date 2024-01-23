@@ -1,6 +1,17 @@
 <%- include('./indlude/_header.ejs') %>
 	<link rel="stylesheet" type="text/css" href="/stylesheets/login.css">
-
+	<style>
+		.limiter-menu-desktop {
+			height: 100%;
+			display: -webkit-box;
+			display: -webkit-flex;
+			display: -moz-box;
+			display: -ms-flexbox;
+			display: flex;
+			align-items: center;
+			background-color: rgba(30, 24, 13, 0.645);
+		}
+	</style>
 	</head>
 
 	<body id="log">
@@ -10,10 +21,9 @@
 			<div class="container-menu-desktop trans-03">
 				<div class="wrap-menu-desktop">
 					<nav class="limiter-menu-desktop p-l-45">
-
 						<!-- Logo desktop -->
-						<a href="#" class="logo">
-							<img src="images/icons/logo-02.png" alt="IMG-LOGO">
+						<a href="/" class="logo">
+							<img src="/images/icons/logo-02.png" alt="IMG-LOGO">
 						</a>
 
 						<!-- Menu desktop -->
@@ -24,123 +34,45 @@
 								<li>
 									<a href="/">Home</a>
 								</li>
+								<li>
+									<a href="/products">Shop</a>
+								</li>
+								<li>
+									<a href="/blog">Blog</a>
+								</li>
 
+								<li>
+									<a href="/about">About</a>
+								</li>
 
 							</ul>
 						</div>
 
-						<!-- Icon header -->
-						<div class="wrap-icon-header flex-w flex-r-m h-full">
-
-
-							<div class="flex-c-m h-full p-lr-19">
-								<div class="icon-header-item cl0 hov-cl1 trans-04 p-lr-11 js-show-sidebar">
-									<i class="zmdi zmdi-menu"></i>
-								</div>
-							</div>
-						</div>
-					</nav>
-				</div>
-			</div>
-
-			<!-- Header Mobile -->
-			<div class="wrap-header-mobile">
-				<!-- Logo moblie -->
-				<div class="logo-mobile">
-					<a href="index.html"><img src="images/icons/logo-01.png" alt="IMG-LOGO"></a>
-				</div>
-
-				<!-- Icon header -->
-				<div class="wrap-icon-header flex-w flex-r-m h-full m-r-15">
-					<div class="flex-c-m h-full p-r-5">
-						<div class="icon-header-item cl2 hov-cl1 trans-04 p-lr-11 icon-header-noti js-show-cart"
-							data-notify="2">
-							<i class="zmdi zmdi-shopping-cart"></i>
-						</div>
-					</div>
-				</div>
-
-				<!-- Button show menu -->
-				<div class="btn-show-menu-mobile hamburger hamburger--squeeze">
-					<span class="hamburger-box">
-						<span class="hamburger-inner"></span>
-					</span>
-				</div>
-			</div>
-
-
-			<!-- Menu Mobile -->
-			<div class="menu-mobile">
-				<ul class="main-menu-m">
-					<li>
-						<a href="index.html">Home</a>
-
-						<span class="arrow-main-menu-m">
-							<i class="fa fa-angle-right" aria-hidden="true"></i>
-						</span>
-					</li>
-
-
-
-					<li>
-						<a href="shoping-cart.html" class="label1 rs1" data-label1="hot">Features</a>
-					</li>
-
-					<li>
-						<a href="blog.html">Blog</a>
-					</li>
-
-					<li>
-						<a href="about.html">About</a>
-					</li>
-
-					<li>
-						<a href="contact.html">Contact</a>
-					</li>
-				</ul>
-			</div>
-
-			<!-- Modal Search -->
-			<div class="modal-search-header flex-c-m trans-04 js-hide-modal-search">
-				<button class="flex-c-m btn-hide-modal-search trans-04">
-					<i class="zmdi zmdi-close"></i>
-				</button>
-
-				<form class="container-search-header">
-					<div class="wrap-search-header">
-						<input class="plh0" type="text" name="search" placeholder="Search...">
-
-						<button class="flex-c-m trans-04">
-							<i class="zmdi zmdi-search"></i>
-						</button>
-					</div>
-				</form>
-			</div>
+				
 		</header>
 
-
-
-
-
-
-
-
 		<p>
-			<%= messages.message ? messages.message : '' %>
+			<%= messages.head ? messages.head : '' %>
 		</p>
 
 		<div class="container" id="container">
 			<div class="form-container sign-up-container">
-				<form action="" method="post">
+				<form action="" method="post" id="signupForm">
 					<h1>Create Account</h1>
 
 					<span>or use your email for registration</span>
-					<input type="text" placeholder="Name" name="name" />
-					<input type="text" placeholder="Number" name="mobile" />
-					<input type="email" placeholder="Email" name="email" />
-					<input type="password" placeholder="Password" name="password" />
+					<input type="text" placeholder="Name" name="name" id="userName" required />
+					<span id="nameAlert" style="color: red;"></span>
 
-					<button>Sign Up</button>
+					<input type="mobile" placeholder="Mobile Number" name="mobile" id="mobileNumber" required />
+					<span id="alertNumber" style="color: red; "></span>
+
+					<input type="email" placeholder="Email" name="email" id="email" required />
+					<span id="alertEmail" style="color: red;"></span>
+
+					<input type="password" placeholder="Password" name="password" id="password" required />
+					<span id="alertPassword" style="color: red;"></span>
+					<button type="button" onclick="registerButton()">Sign Up</button>
 				</form>
 			</div>
 			<div class="form-container sign-in-container">
@@ -154,6 +86,9 @@
 					<span>or use your account</span>
 					<input type="email" placeholder="Email" name="email" />
 					<input type="password" placeholder="Password" name="password" />
+					<p style="color:red">
+						<%= messages.login ? messages.login : '' %>
+					</p>
 					<a href="#">Forgot your password?</a>
 					<button>Sign In</button>
 				</form>
@@ -176,6 +111,193 @@
 
 
 		<script src="/javascripts/login.js"></script>
+
+
+		<script>
+			// Validation
+
+			async function registerButton(event) {
+				let userName = document.getElementById('userName').value;
+				let email = document.getElementById('email').value.toLowerCase();
+				let mobileNumber = document.getElementById('mobileNumber').value;
+				let password = document.getElementById('password').value;
+
+				const nameRegex = /^[^\s\d!@#$%^&*(),.?":{}|<>_+=\[\\;\]`~]*[a-zA-ZÀ-ÖØ-öø-ÿ-' ]+[^\s!@#$%^&*(),.?":{}|<>_+=\[\\;\]`~]*$/;
+				if (!nameRegex.test(userName)) {
+					document.getElementById('nameAlert').innerHTML = 'Enter a valid Name ';
+					return false;
+				} else {
+					document.getElementById('nameAlert').innerHTML = '';
+				}
+
+				const emailOne = /^[^\s@]+@/;
+				const emailTwo = /[a-zA-Z\d-]+\.(com|org|in|net|edu|gov|co|uk)$/;
+				const combinedRegex = new RegExp(emailOne.source + emailTwo.source);
+
+
+				if (!combinedRegex.test(email)) {
+					document.getElementById('alertEmail').innerHTML = '  Please enter a valid Gmail address';
+
+					return false;
+				} else {
+					document.getElementById('alertEmail').innerHTML = '';
+				}
+
+				const mobileRegex = /^\d{10}$/;
+
+				if (!mobileRegex.test(mobileNumber)) {
+					document.getElementById('alertNumber').innerHTML = 'Mobile number should contain only numbers should have exactly 10 ';
+
+					return false;
+				} else {
+					document.getElementById('alertNumber').innerHTML = '';
+				}
+
+				const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()-_+=])[A-Za-z\d!@#$%^&*()-_+=]{8,}$/;
+
+				if (!passwordRegex.test(password)) {
+					document.getElementById('alertPassword').innerHTML = 'Password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, one digit, and one special character (@ $ ! % * ? &)';
+
+					return false;
+				} else {
+					document.getElementById('alertPassword').innerHTML = '';
+				}
+
+				document.getElementById('signupForm').submit();
+			}
+		</script>
+
+		<script>
+			document.addEventListener('DOMContentLoaded', function () {
+				let fNameInput = document.getElementById('userName');
+				let nameAlert = document.getElementById('nameAlert');
+
+				let inputPassword = document.getElementById('password');
+				let alertPassword = document.getElementById('alertPassword');
+
+				let mobileNumber = document.getElementById('mobileNumber');
+				let alertNumber = document.getElementById('alertNumber');
+
+				let email = document.getElementById('email');
+				let alertEmail = document.getElementById('alertEmail');
+				let sumbit = document.getElementById('submit');
+
+
+				// Name Validation
+
+				fNameInput.addEventListener('change', function () {
+
+					let fname = fNameInput.value;
+
+					fetch('/validate', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({ firstname: fname }),
+					})
+						.then(res => res.json())
+						.then(data => {
+							if (data.fnameStatus) {
+								nameAlert.style.display = 'block';
+								nameAlert.innerHTML = data.fnameStatus;
+
+							} else {
+								nameAlert.style.display = 'none';
+								nameAlert.innerHTML = ''; // Clear the message if there is no error
+							}
+							console.log(data);
+						})
+
+						.catch(error => {
+							console.error('Error:', error);
+						});
+				})
+
+				// Mobile Validation 
+
+				mobileNumber.addEventListener('change', function () {
+					let mobile = mobileNumber.value;
+					fetch('/validate', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({ mobile: mobile }),
+					})
+						.then(res => res.json())
+						.then(data => {
+							if (data.mobileStatus) {
+								alertNumber.style.display = 'block';
+								alertNumber.innerHTML = data.mobileStatus;
+							} else {
+								alertNumber.style.display = 'none';
+								alertNumber.innerHTML = ''; // Clear the message if there is no error
+							}
+							console.log(data);
+						})
+						.catch(error => {
+							console.error('Error:', error);
+						});
+				});
+
+				// Email Validation
+
+				email.addEventListener('change', function () {
+					let email = email.value;
+					fetch('/validate', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({ email: email }),
+					})
+						.then(res => res.json())
+						.then(data => {
+							if (data.emailStatus) {
+								alertEmail.style.display = 'block';
+								alertEmail.innerHTML = data.emailStatus;
+							} else {
+								alertEmail.style.display = 'none';
+								alertEmail.innerHTML = ''; // Clear the message if there is no error
+							}
+							console.log(data);
+						})
+						.catch(error => {
+							console.error('Error:', error);
+						});
+				});
+
+				// Password Validation
+
+				inputPassword.addEventListener('change', function () {
+					let Pfield = inputPassword.value;
+					fetch('/validate', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({ password: Pfield }),
+					})
+						.then(res => res.json())
+						.then(data => {
+							if (data.passwordStatus) {
+								alertPassword.innerHTML = data.passwordStatus;
+							} else {
+								alertPassword.innerHTML = ''; // Clear the message 
+							}
+							console.log(data);
+						})
+						.catch(error => {
+							console.error('Error:', error);
+						});
+				});
+			});
+
+
+
+
+		</script>
 
 
 		<%- include('./indlude/_footer.ejs') %>

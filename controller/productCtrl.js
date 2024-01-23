@@ -5,16 +5,57 @@ const slugify = require('slugify')
 const User = require('../models/userModel');
 const fs = require('fs');
 const path = require('path');
-const { error } = require('console');
+const { error, log } = require('console');
 
 
 // Load Product
 const loadProduct = asyncHandler(async (req, res) => {
     try {
-        res.render('admin/products')
+        const categories = await Category.find({ is_listed: true });
+        const categoryIds = categories.map(category => category._id);
+
+        if (categoryIds.length > 0) {
+            const productsFemale = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'female' });
+            const productsMale = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'male' });
+            const productsUnisex = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'unisex' });
+            res.render('product', { productsFemale, productsMale, productsUnisex, categories });
+        } else {
+            // Handle the case when no categories are found
+            console.log('No categories found');
+            res.render('index', { productsFemale: [] });
+        }
     } catch (error) {
-        res.render("errorPage");    }
+        // Handle the error appropriately, e.g., log it or send an error response
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
 });
+
+const loadProductDetail = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    try {
+        const product = await Product.findById({ _id: id });
+        if (product.is_listed == true) {
+            res.render('product-detail', { product });
+        } else {
+            res.send(` <script>
+             alert('Sorry..., this product was unListed by Admin');
+             window.history.back();
+          </script>`)
+            res.render('product-detail', { product });
+        }
+
+    } catch (error) {
+        // Handle the error or log it
+        console.error(error);
+
+        // Optionally, you can render an error page or send an error response
+        res.status(500).render('error', { error: 'Internal Server Error' });
+    }
+});
+
+
+
 
 // Load addProduct
 const loadaddProduct = asyncHandler(async (req, res) => {
@@ -30,19 +71,22 @@ const loadaddProduct = asyncHandler(async (req, res) => {
 // Load Update Product
 const loadUpdateProduct = asyncHandler(async (req, res) => {
     const { id } = req.params;
-  try {
-    
-    const category = await Category.find({ is_listed: true });
-    const updateProduct = await Product.findById({ _id: id });
-    const selectedCategory= await Category.findOne({_id: updateProduct.category})
-    res.render("admin/editProduct", {
-      product: updateProduct,
-      category: category,
-      categoryData:selectedCategory
-    });
-  } catch (error) {
-    res.render("errorPage");
-  }
+    try {
+
+        const category = await Category.find({ is_listed: true });
+        const updateProduct = await Product.findById({ _id: id });
+        console.log(updateProduct);
+        const catId = updateProduct.category
+        const selectedCategory = await Category.findById({ _id: catId })
+        console.log(selectedCategory);
+        res.render("admin/editProduct", {
+            product: updateProduct,
+            category: category,
+            categoryData: selectedCategory
+        });
+    } catch (error) {
+        res.render("errorPage");
+    }
 });
 
 // Load All Products
@@ -51,7 +95,6 @@ const loadAllProducts = async (req, res) => {
         const productData = await Product.find({});
         const products = Array.isArray(productData) ? productData : [];
 
-        console.log(productData);
         res.render('admin/products', { products });
     } catch (error) {
         res.render("errorPage");
@@ -81,23 +124,15 @@ const createProduct = asyncHandler(async (req, res) => {
         console.log(files);
         console.log(req.body);
         if (!files || !Array.isArray(files)) {
-            req.flash('image', 'No files or invalid files array in the request.');
+            req.flash('head', 'No files or invalid files array in the request.');
 
             res.redirect('/admin/addProduct');
         }
 
-        const { title, description, quantity, price, category, brand, size, color } = req.body;
+        const { title, description, quantity, price, category, brand, size, color, sex } = req.body;
         const images = req.files.map((file) => file.originalname);
-        const selectedCategory = await Category.findOne({ title: category });
-        // const filenames = [];
-
-        // // Resize and save each uploaded image
-        // for (let i = 0; i < files.length; i++) {
-        //     const imagesPath = path.join(__dirname, '../public/sharpimages', files[i].filename);
-        //     await sharp(files[i].path).resize(800, 1200, { fit: 'fill' }).toFile(imagesPath);
-        //     filenames.push(files[i].filename);
-        // }
-
+        const selectedCategory = await Category.findOne({ slug: category });
+        console.log(selectedCategory);
         const newProduct = new Product({
             title,
             description,
@@ -106,12 +141,13 @@ const createProduct = asyncHandler(async (req, res) => {
             images,
             category: selectedCategory._id,
             brand,
+            sex,
             slug: req.body.slug,
             size,
             color
         });
         await newProduct.save();
-        console.log(newProduct);
+
 
         // Return a success response (adjust as needed for your application)
         req.flash('head', 'Product created successfully');
@@ -125,20 +161,51 @@ const createProduct = asyncHandler(async (req, res) => {
 //Update Product
 
 const updateProduct = asyncHandler(async (req, res) => {
-    const id = req.params.id
+    const { id, title, description, quantity, price, sex, category, brand, size, is_listed } = req.body
+
     try {
         if (req.body.title) {
             req.body.slug = slugify(req.body.title)
         }
-        const updateProduct = await Product.findOneAndUpdate({ _id: id }, req.body, {
-            new: true,
-        })
-        res.json(updateProduct)
+        const images = req.files.map((file) => file.originalname);
+        const updateFields = {
+            $set: {
+                title,
+                slug: req.body.slug,
+                description,
+                price,
+                sex,
+                category,
+                quantity,
+                brand,
+                size,
+                is_listed,
+
+            },
+        };
+
+        if (images) {
+            if (Array.isArray(images)) {
+                // If images is an array, use $push with $each
+                updateFields.$push = { images: { $each: images } };
+            } else {
+                // If images is a string, use $push without $each
+                updateFields.$push = { images };
+            }
+        }
+
+        const updateProduct = await Product.findOneAndUpdate(
+            { _id: id },
+            updateFields,
+            { new: true }
+        );
+        req.flash('head', ` ${updateProduct.title} Updated successfully`);
+        res.redirect('/admin/products');
     } catch (error) {
-        res.render("errorPage");
+
+        throw new Error(error)
     }
 });
-
 //Delete Product
 const deleteProduct = asyncHandler(async (req, res) => {
     const id = req.params.id
@@ -146,19 +213,29 @@ const deleteProduct = asyncHandler(async (req, res) => {
         console.log(id);
         const deleteProduct = await Product.findOneAndDelete({ _id: id })
         console.log(deleteProduct);
-        const filePath = path.join(__dirname, 'public', 'myImages', deleteProduct.images)
-        fs.unlink(filePath,(error)=>{
-            if (error) {
-                console.error(`Error deleting file ${filePath}: ${error}`);
-                return;
-            }
-            console.log(`File ${filePath} deleted successfully`);
-        })
+
         res.redirect(302, '/admin/products');
     } catch (error) {
         res.render("errorPage");
     }
 
+});
+const deleteImage = asyncHandler(async (req, res) => {
+    try {
+        const { selectedImages } = req.body;
+
+        // Perform deletion in the database (example using Mongoose)
+        await Product.updateMany(
+            { images: { $in: selectedImages } },
+            { $pull: { images: { $in: selectedImages } } }
+        );
+
+
+        res.status(200).json({ message: "Images deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting images:", error);
+        res.status(500).json({ error: "Failed to delete images" }); // More informative error message
+    }
 });
 //get a product
 
@@ -258,10 +335,10 @@ const addToWishlist = asyncHandler(async (req, res) => {
     } catch (error) {
         res.render("errorPage");
     }
-})
+});
 
 module.exports = {
     createProduct, getProduct, getAllProduct,
     updateProduct, deleteProduct, addToWishlist, loadProduct,
-    loadaddProduct, loadAllProducts, loadUpdateProduct
+    loadaddProduct, loadAllProducts, loadUpdateProduct, deleteImage, loadProductDetail,
 }
