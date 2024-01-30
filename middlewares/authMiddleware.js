@@ -4,29 +4,24 @@ const asyncHandler=require('express-async-handler');
 const { Cookie } = require('express-session');
 
 
-const authMiddleware=asyncHandler(async (req,res,next)=>{
-    let token;
-
-    if(req?.headers?.authorization?.startsWith('Bearer')){
-        token=req.headers.authorization.split(' ')[1]
-        try {
-            if(token){
-                const decoded=jwt.verify(token,process.env.JWT_SECRET)
-                const user=await User.findById(decoded?.id)
-                req.user=user
-                console.log(req.user);
-                
-                next()
-            }
-            
-        } catch (error) {
-            throw new Error(' Authorized token expired, please login again')
-        }
-    }else{
-        res.render('index')
+const userMiddleware = asyncHandler(async (req, res, next) => {
+    const token = req.cookies.refreshToken;
+    try {
+      if (token) {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded?.id);
+        req.user = user;
+        next();
+      } else {
+        req.flash('message','Authorized token expired, Please Login again')
+        res.redirect("/login");
+  
+        throw new Error("There is no token attached to header");
+      }
+    } catch (error) {
+      throw new Error("No Authorized token expired, Please Login again");
     }
-   
-});
+  });
 
 const isAdmin=asyncHandler(async(req,res,next)=>{
     try{
@@ -51,4 +46,4 @@ const cacheControl=asyncHandler(async (req, res, next) => {
     next();
   });
 
-module.exports={authMiddleware,isAdmin, cacheControl};
+module.exports={userMiddleware,isAdmin, cacheControl};

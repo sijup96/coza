@@ -44,11 +44,9 @@ const loadProductDetail = asyncHandler(async (req, res) => {
           </script>`)
             res.render('product-detail', { product });
         }
-
     } catch (error) {
         // Handle the error or log it
         console.error(error);
-
         // Optionally, you can render an error page or send an error response
         res.status(500).render('error', { error: 'Internal Server Error' });
     }
@@ -72,7 +70,6 @@ const loadaddProduct = asyncHandler(async (req, res) => {
 const loadUpdateProduct = asyncHandler(async (req, res) => {
     const { id } = req.params;
     try {
-
         const category = await Category.find({ is_listed: true });
         const updateProduct = await Product.findById({ _id: id });
         console.log(updateProduct);
@@ -101,7 +98,6 @@ const loadAllProducts = async (req, res) => {
     }
 };
 
-
 const createProduct = asyncHandler(async (req, res) => {
     try {
         if (req.body.title) {
@@ -112,23 +108,16 @@ const createProduct = asyncHandler(async (req, res) => {
             Product.findOne({ size: req.body.size }),
             Product.findOne({ color: req.body.color }),
         ]);
-
         if (existSlug && existSize && existColor) {
             req.flash('title', 'Product already exists');
 
             res.redirect('/admin/addProduct');
-
         }
         const files = req.files; // Check if req.files is defined
-
-        console.log(files);
-        console.log(req.body);
         if (!files || !Array.isArray(files)) {
             req.flash('head', 'No files or invalid files array in the request.');
-
             res.redirect('/admin/addProduct');
         }
-
         const { title, description, quantity, price, category, brand, size, color, sex } = req.body;
         const images = req.files.map((file) => file.originalname);
         const selectedCategory = await Category.findOne({ slug: category });
@@ -147,8 +136,6 @@ const createProduct = asyncHandler(async (req, res) => {
             color
         });
         await newProduct.save();
-
-
         // Return a success response (adjust as needed for your application)
         req.flash('head', 'Product created successfully');
 
@@ -336,6 +323,10 @@ const addToWishlist = asyncHandler(async (req, res) => {
         res.render("errorPage");
     }
 });
+
+
+
+
 
 module.exports = {
     createProduct, getProduct, getAllProduct,

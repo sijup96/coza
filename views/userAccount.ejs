@@ -1,0 +1,101 @@
+<%- include('./layouts/userLayout/userAccountHeader.ejs') %>
+    <section class="content-main">
+        <div class="content-header">
+            <h2 class="content-title">Profile setting</h2>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <div class="row gx-5">
+
+                    <div class="col-lg-9">
+                        <section class="content-body p-xl-4">
+                            <form>
+                                <div class="row">
+                                    <div class="col-lg-8">
+                                        <div class="row gx-3">
+                                            <div class="col-6 mb-3">
+                                                <label class="form-label">Full Name</label>
+                                                <input class="form-control" type="text" value="<%= user.name %>" disabled />
+                                            </div>
+                                        
+                                            <!-- col .// -->
+                                            <div class="col-lg-6 mb-3">
+                                                <label class="form-label">Email</label>
+                                                <input class="form-control" type="text" value="<%= user.email %>" disabled/>
+                                            </div>
+                                                <!-- col .// -->
+                                            <div class="col-lg-6 mb-3">
+                                                <label class="form-label">Gender</label>
+                                                <input class="form-control" type="text" value="<%= user.sex %>" disabled/>
+                                            </div>
+                                            <!-- col .// -->
+                                            <div class="col-lg-6 mb-3">
+                                                <label class="form-label">Phone</label>
+                                                <input class="form-control" type="text" value="<%= user.mobile %>" disabled/>
+                                            </div>
+                                           <!-- col .// -->
+                                           <div class="col-lg-6 mb-3">
+                                            <label class="form-label">Birthday</label>
+                                            <input class="form-control" type="text" value="<%= user.dob %>" disabled/>
+                                        </div>
+                                            
+                                        <div class="row" style="max-width: 920px">
+                                            <div class="col-md">
+                                                <article class="box mb-3 bg-light">
+                                                    <a class="btn float-end btn-light btn-sm rounded font-md" href="#">Change</a>
+                                                    <h6>Address</Address></h6>
+                                                    <small class="text-muted d-block" style="width: 70%">You can reset or change
+                                                        your password by clicking here</small>
+                                                </article>
+                                            </div>
+                                            </div>
+                                          
+                                            <!-- col .// -->
+                                        </div>
+                                        <!-- row.// -->
+                                    </div>
+                              
+                                    <!-- col.// -->
+                                </div>
+                                <!-- row.// -->
+                                <br />
+                                <button class="btn btn-primary" type="submit">Edit Profile</button>
+                            </form>
+                            <hr class="my-5" />
+                            <div class="row" style="max-width: 920px">
+                                <div class="col-md">
+                                    <article class="box mb-3 bg-light">
+                                        <a class="btn float-end btn-light btn-sm rounded font-md" href="#">Change</a>
+                                        <h6>Password</h6>
+                                        <small class="text-muted d-block" style="width: 70%">You can reset or change
+                                            your password by clicking here</small>
+                                    </article>
+                                </div>
+                                <!-- col.// -->
+                                <div class="col-md">
+                                    <article class="box mb-3 bg-light">
+                                        <a class="btn float-end btn-light rounded btn-sm font-md"
+                                            href="#">Deactivate</a>
+                                        <h6>Remove account</h6>
+                                        <small class="text-muted d-block" style="width: 70%">Once you delete your
+                                            account, there is no going back.</small>
+                                    </article>
+                                </div>
+                                <!-- col.// -->
+                            </div>
+                            <!-- row.// -->
+                        </section>
+                        <!-- content-body .// -->
+                    </div>
+                    <!-- col.// -->
+                </div>
+                <!-- row.// -->
+            </div>
+            <!-- card body end// -->
+        </div>
+        <!-- card end// -->
+    </section>
+    <!-- content-main end// -->
+
+
+    <%- include('./layouts/userLayout/userAccountFooter.ejs') %>

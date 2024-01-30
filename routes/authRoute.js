@@ -14,38 +14,39 @@ const { createUser,
    resetPassword,
    userHome,
    userLogin,
-   userRegister, 
-   verifyOtp,sendOTP, resendOTP, validateUser,
-   } = require('../controller/userCtrl');
-const { authMiddleware, isAdmin, cacheControl } = require('../middlewares/authMiddleware');
+   userRegister,
+   verifyOtp, resendOTP, validateUser, loadVerifyEmailPage, loadCreatePassword,
+} = require('../controller/userCtrl');
+const { userMiddleware, isAdmin, cacheControl } = require('../middlewares/authMiddleware');
 const router = express.Router()
 
 
 
-router.get("/",cacheControl,userHome);
-router.get("/register", userRegister);
-router.post("/register",createUser);
-router.post("/validate",validateUser);
+router.get("/", cacheControl, userHome);
+router.get("/register", cacheControl, userRegister);
 
-router.post("/verifyOTP",verifyOtp);
-router.post("/resentOTP",resendOTP);
+router.post("/register", cacheControl, createUser);
+router.patch("/validate", cacheControl, validateUser);
 
-router.post("/forgot-password-token", forgotPasswordToken);
+router.post("/verifyOTP", cacheControl, verifyOtp);
+router.post("/resendOTP", cacheControl, resendOTP);
+
+router.get("/forgotPassword", loadVerifyEmailPage);
+router.get("/createPassword/:id", loadCreatePassword);
+
+router.post("/forgotPassword", forgotPasswordToken);
+router.post("/createPassword/:id", resetPassword);
+
 router.patch("/reset-password/:token", resetPassword);
-router.put("/password", authMiddleware, updatePassword);
+router.put("/password", userMiddleware, updatePassword);
 
-router.get("/login", cacheControl,userLogin);
-router.post("/login",cacheControl,loginUserCtrl);
-router.get("/logout",cacheControl, logout)
-
-router.get("/getallusers", getAllUsers);
-router.get("/getuser/:id", authMiddleware, isAdmin, getUser);
+router.get("/login", cacheControl, userLogin);
+router.post("/login", cacheControl, loginUserCtrl);
+router.get("/logout", cacheControl, logout)
 
 router.delete("/deleteuser/:id", deleteUser);
-router.put("/updateuser", authMiddleware, updateUser);
+router.put("/updateuser", updateUser);
 
-router.put("/blockuser/:id", authMiddleware, isAdmin, blockUser);
-router.put("/unblockuser/:id", authMiddleware, isAdmin, unblockUser);
 
 router.get("/refresh", handleRefreshToken)
 

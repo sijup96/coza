@@ -1,0 +1,40 @@
+<%- include('./layouts/userLayout/userAccountHeader.ejs') %>
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">My Addresses</h2>
+            <p>Make edit or delete address.</p>
+        </div>
+        <div>
+
+            <a href="/user/createAddress" class="btn btn-primary btn-sm rounded">Create new</a>
+        </div>
+    </div>
+        <div class="row">
+            <div class="col-xl-3 col-lg-4 col-md-6">
+                <div class="card card-product-grid">
+                    <a href="#" class="img-wrap"> <img src="/assets/imgs/items/1.jpg" alt="Product" /> </a>
+                    <div class="info-wrap">
+                        <div class="dropdown float-end">
+                            <a href="#" class="btn btn-sm btn-brand rounded"> <i
+                                    class="material-icons md-edit mr-5"></i>Edit </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a class="dropdown-item" href="#">Edit info</a>
+                                <a class="dropdown-item text-danger" href="#">Delete</a>
+                            </div>
+                        </div>
+                        <a href="#" class="title">Haagen-Dazs Caramel Cone Ice</a>
+                        <div class="price mt-1">$179.00</div>
+                        <!-- price-wrap.// -->
+                    </div>
+                </div>
+                <!-- card-product  end// -->
+            </div>
+        </div>
+        <!-- card end// -->
+    </section>
+    <!-- content-main end// -->
+
+
+
+    <%- include('./layouts/userLayout/userAccountFooter.ejs') %>

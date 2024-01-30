@@ -1,5 +1,5 @@
 const { generateToken } = require('../config/jwtToken');
-const User = require('../models/userModel')
+const User = require('../models/userModel');
 const asyncHandler = require("express-async-handler")
 const validateMongoDbId = require('../utils/validateMongodbId')
 const { generateRefreshToken } = require('../config/refreshToken');
@@ -20,13 +20,13 @@ const userHome = asyncHandler(async (req, res) => {
 
     if (categoryIds.length > 0) {
       const productsFemale = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'female' });
-            const productsMale = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'male' });
-            const productsUnisex = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'unisex' });
-           res.render('index', { productsFemale, productsMale, productsUnisex, categories});
+      const productsMale = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'male' });
+      const productsUnisex = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'unisex' });
+      res.render('index', { productsFemale, productsMale, productsUnisex, categories });
     } else {
       // Handle the case when no categories are found
       console.log('No categories found');
-      res.render('index', );
+      res.render('index',);
     }
   } catch (error) {
     // Handle the error appropriately, e.g., log it or send an error response
@@ -52,7 +52,7 @@ const userLogin = asyncHandler(async (req, res) => {
       res.render('userLogin');
     } else {
       // Render 'index' if refreshToken cookie is present
-      res.render('index');
+      res.redirect('/');
     }
   } catch (error) {
     // Handle unexpected errors
@@ -66,22 +66,47 @@ const userLogin = asyncHandler(async (req, res) => {
 
 //Register page
 const userRegister = asyncHandler(async (req, res) => {
-  res.redirect('/login')
+  res.redirect('/login');
 });
 
+//Load  User Account Page
+const userAccount = asyncHandler(async (req, res) => {
+ const id=req.user._id
+
+const user= await User.findById({_id:id});
+  res.render('userAccount',{user});
+});
+
+
+
+//Reset Password page
+const loadCreatePassword = asyncHandler(async (req, res) => {
+  const token = req.params.id;
+
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex")
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+  res.render('resetPassword');
+});
+
+//Reset Password page
+const loadVerifyEmailPage = asyncHandler(async (req, res) => {
+  res.render('verifyEmail');
+});
 
 //Validate form
 const validateUser = asyncHandler(async (req, res) => {
   try {
     const { firstname, password, email, mobile } = req.body;
-
+console.log(req.body);
     let response = {};
 
     // Name Validation
 
-    if (firstname && (firstname.trim() === "" || firstname.length < 3)) {
-      response.fnameStatus =
-        "Name must contain 3 or more letters";
+    if (firstname && (firstname.trim() === "" || firstname.trim().length < 3)) {
+      response.fnameStatus ="Name must contain 3 or more letters";
     } else if (!/^[^\s\d!@#$%^&*(),.?":{}|<>_+=\[\\;\]`~]*[a-zA-ZÀ-ÖØ-öø-ÿ-' ]+[^\s!@#$%^&*(),.?":{}|<>_+=\[\\;\]`~]*$/.test(firstname)) {
       response.fnameStatus = "Please enter the correct Name";
     } else {
@@ -89,22 +114,19 @@ const validateUser = asyncHandler(async (req, res) => {
     }
 
 
-        // Email Validation
-
-        if (email && (email.trim() === "")) {
-          response.fnameStatus =
-            "Please enter email";
-        } else if (!/^[^\s@]+@(?!.*\.[^\s@]+)[a-zA-Z\d-]+\.(com|org|in|net|edu|gov|co|uk)$/.test(email)) {
-          response.emailStatus = "Please enter valid email";
-        } else {
-          response.emailStatus = '';
-        }
-
+    // Email Validation
+    if (email && (email.trim() === "")) {
+      response.fnameStatus =
+        "Please enter email";
+    } else if (!/^[^\s@]+@(?!.*\.[^\s@]+)[a-zA-Z\d-]+\.(com|org|in|net|edu|gov|co|uk)$/.test(email)) {
+      response.emailStatus = "Please enter valid email";
+    } else {
+      response.emailStatus = '';
+    }
     //Mobile Number Validation
 
-    if (mobile && (mobile.trim() === "" || mobile.length <10 || !/^\d{10}$/.test(mobile))) {
-      response.mobileStatus =
-        "Enter valid Number";
+    if (mobile && (mobile.trim() === "" || mobile.length < 10 || !/^\d{10}$/.test(mobile))) {
+      response.mobileStatus = "Enter valid Number";
     } else {
       response.mobileStatus = "";
     }
@@ -116,8 +138,7 @@ const validateUser = asyncHandler(async (req, res) => {
     } else if (password && password.length <= 8) {
       response.passwordStatus = "Password must be at least 8 characters long";
     } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()-_+=])[A-Za-z\d!@#$%^&*()-_+=]{8,}$/.test(password)) {
-      response.passwordStatus =
-        "Password must include lowercase and uppercase letters, numbers, and special characters";
+      response.passwordStatus = "Password must include lowercase and uppercase letters, numbers, and special characters";
     } else {
       response.passwordStatus = "";
     }
@@ -139,22 +160,20 @@ const validateUser = asyncHandler(async (req, res) => {
 const createUser = asyncHandler(async (req, res) => {
   try {
     const { name, mobile, email, password } = req.body;
-    console.log(password);
     // Check if the user already exists
-    const findUser = await User.findOne({ email: email });
-
+    const findUser = await User.findOne({ email: email.trim() });
     if (!findUser) {
-
       // Create new user
-
-      const newUser = await User.create(req.body);
-      sendOTP(newUser);
-
+      const newUser = await User.create({
+        name: name.trim(),
+        mobile: mobile.trim(),
+        email: email.trim(),
+        password: password
+      });
+      sendOTP({ email: newUser.email });
       res.render('otp', { email })
-
     } else {
       req.flash('head', `This Email is Already Regestered Please Login... `);
-
       // User already exists
       res.redirect('/login');
     }
@@ -172,7 +191,7 @@ const createUser = asyncHandler(async (req, res) => {
 const sendOTP = asyncHandler(async ({ email, res }) => {
   try {
     const otp = `${Math.floor(100000 + Math.random() * 900000)}`
-
+    console.log(email);
     const data = {
       to: email,
       text: 'Hey User',
@@ -190,8 +209,6 @@ const sendOTP = asyncHandler(async ({ email, res }) => {
     </div>
 `,
     }
-
-
     // const saltrounds = 10
     // OTP
 
@@ -202,12 +219,9 @@ const sendOTP = asyncHandler(async ({ email, res }) => {
       otp: hashedOtp,
       createdAt: new Date()
     })
-
     // save otp record
     await newOtpVerification.save()
     sendEmail(data);
-
-
   } catch (error) {
     throw new Error(error)
   }
@@ -217,37 +231,22 @@ const sendOTP = asyncHandler(async ({ email, res }) => {
 const resendOTP = asyncHandler(async (req, res) => {
   try {
     const email = req.body.email;
-    console.log(email);
-    // Check if the user already exists
-    const findUser = await User.findOne({ email: email });
+    const resendEmail = {
+      email: email
+    }
+    await mailOTP.deleteOne({ email: email });
+    sendOTP(resendEmail);
+    res.json({ success: true, otp: 'OTP sent successfully', email });
 
-    // if (!findUser) {
-
-    //   // Create new user
-
-    //   const newUser = await User.create(req.body);
-    //   sendOTP(newUser);
-
-    //   res.render('otp',{email})
-
-    // } else {
-    //   req.flash('head', `This Email is Already Regestered Please Login... `);
-
-    //   // User already exists
-    //   res.redirect('/login');
-    // }
   } catch (error) {
     // Handle unexpected errors
     console.error(error);
-    req.flash('invalid', 'Invalid credentials');
+    req.flash('head', 'Please verify your email');
     res.redirect('/register');
   }
 });
 
-
-
 //Verify OTP
-
 const verifyOtp = asyncHandler(async (req, res) => {
   try {
     const email = req.body.email
@@ -255,7 +254,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
     const user = await mailOTP.findOne({ email: email })
     if (!user) {
       req.flash('otp', "otp expired")
-      res.render('otp');     //{ message: "otp expired" }
+      res.render('otp', { email });     //{ message: "otp expired" }
     }
 
     const { otp: hashedOtp } = user;
@@ -267,9 +266,25 @@ const verifyOtp = asyncHandler(async (req, res) => {
       await User.findByIdAndUpdate({ _id: userData._id }, { $set: { verified: true } })
       await mailOTP.deleteOne({ email: email });
 
+      const refreshToken = await generateRefreshToken(userData?._id);
+      // Update user's refresh token in the database
+      const updateUser = await User.findByIdAndUpdate(
+        userData.id,
+        { refreshToken },
+        { new: true }
+      );
+
+      // Set a cookie with the refresh token
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        maxAge: 72 * 60 * 60 * 1000,
+      });
+
+
+
       req.cookies.user_id = userData._id
-      req.flash('head', ' Regestered Successfully Please Login... ');
-      res.redirect('/login');
+     // req.flash('head', ' Regestered Successfully Please Login... ');
+      res.redirect('/');
 
     } else if (hashedOtp) {
 
@@ -327,7 +342,6 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
 
 
 //Handle refresh Token
-
 const handleRefreshToken = asyncHandler(async (req, res) => {
   const cookie = req.cookies
   if (!cookie?.refreshToken) throw new Error("No refresh Token in cookies")
@@ -344,11 +358,8 @@ const handleRefreshToken = asyncHandler(async (req, res) => {
 });
 
 //Logout functionality
-
 const logout = asyncHandler(async (req, res) => {
   try {
-
-
     const cookie = req.cookies
     if (!cookie?.refreshToken) throw new Error("No refresh Token in cookies")
     const refreshToken = cookie.refreshToken
@@ -376,7 +387,6 @@ const logout = asyncHandler(async (req, res) => {
 });
 
 //Update a User
-
 const updateUser = asyncHandler(async (req, res) => {
   const { _id } = req.user
   try {
@@ -488,59 +498,71 @@ const updatePassword = asyncHandler(async (req, res) => {
 });
 
 //Forgot Password Token
-
 const forgotPasswordToken = asyncHandler(async (req, res) => {
-  const { email } = req.body
-  const user = await User.findOne({ email })
-  if (!user) throw new Error('User not found with this email')
   try {
-    const token = await user.createPasswordResetToken()
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    console.log(user);
+    if (!user) {
+      throw new Error('User not found with this email');
+    }
+
+    const token = await user.createPasswordResetToken();
     await user.save();
-    const resetURL = otp
-    //`Link to reset password (10 minute) <a href="http://localhost:3000/api/user/reset-password/${token}">Click here</>`
+
+    // Construct the HTML content of the email
+    const resetLink = `http://localhost:3000/createPassword/${token}`;
+    const emailBody = `
+      <p>Dear User,</p>
+      <p>You have requested to reset your password. Click the link below to reset your password:</p>
+      <h5><a href="${resetLink}">Reset Password</a></h5>
+      <p>This link is valid for 10 minutes.</p>
+      <p>If you did not request this password reset, please ignore this email.</p>
+    `;
+
     const data = {
       to: email,
-      text: 'Hey User',
-      subject: 'coza store OTP ',
-      htm: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
-          <h2 style="color: #007BFF;">Verify Your Email</h2>
-          <p>Please use the following OTP to verify your email:</p>
-          <div style="background-color: #f0f0f0; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
-              <h3 style="margin: 0; color: #007BFF;">${otp}</h3>
-          </div>
-          <p>This OTP is valid for a short period. Do not share it with anyone.</p>
-          <p>If you did not request this verification, please ignore this email.</p>
-          <P style="color: #007BFF;">From Vogue Vista </p>
-      </div>
-  `,
-    }
-    sendEmail(data);
-    res.render('otp')
+      subject: 'Coza Store Password Reset',
+      htm: emailBody,
+    };
 
+    // Assuming you have a synchronous sendEmail function
+    sendEmail(data);
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+//reset Password
+
+const resetPassword = asyncHandler(async (req, res) => {
+  try {
+    const { password } = req.body;
+    const token = req.params.id;
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex")
+    const user = await User.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: Date.now() },
+    })
+    if (!user){
+      req.flash('head','Token Expired Please try again later')
+res.redirect('/login')
+    }
+    user.password = password;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save()
+    req.flash('head', 'Password Created Successfully')
+    res.redirect('/login')
   } catch (error) {
     throw new Error(error)
   }
 });
 
-//reset Password
-
-const resetPassword = asyncHandler(async (req, res) => {
-  const { password } = req.body;
-  const { token } = req.params;
-  const hashedToken = crypto.createHash("sha256").update(token).digest("hex")
-  const user = await User.findOne({
-    passwordResetToken: hashedToken,
-    passwordResetExpires: { $gt: Date.now() },
-  })
-  if (!user) throw new Error('Token Expired Please try again later')
-  user.password = password;
-  user.passwordResetToken = undefined;
-  user.passwordResetExpires = undefined;
-  await user.save()
-  res.json(user);
-
-});
 
 
 module.exports = {
@@ -562,7 +584,9 @@ module.exports = {
   sendOTP,
   resendOTP,
   validateUser,
-
+  loadCreatePassword,
+  loadVerifyEmailPage,
+  userAccount,
 
   // verifySignup
 }

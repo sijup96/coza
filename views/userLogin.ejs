@@ -89,7 +89,7 @@
 					<p style="color:red">
 						<%= messages.login ? messages.login : '' %>
 					</p>
-					<a href="#">Forgot your password?</a>
+					<a href="/forgotPassword">Forgot your password?</a>
 					<button>Sign In</button>
 				</form>
 			</div>
@@ -190,7 +190,7 @@
 					let fname = fNameInput.value;
 
 					fetch('/validate', {
-						method: 'POST',
+						method: 'PATCH',
 						headers: {
 							'Content-Type': 'application/json',
 						},
@@ -219,7 +219,7 @@
 				mobileNumber.addEventListener('change', function () {
 					let mobile = mobileNumber.value;
 					fetch('/validate', {
-						method: 'POST',
+						method: 'PATCH',
 						headers: {
 							'Content-Type': 'application/json',
 						},
@@ -246,7 +246,7 @@
 				email.addEventListener('change', function () {
 					let email = email.value;
 					fetch('/validate', {
-						method: 'POST',
+						method: 'PATCH',
 						headers: {
 							'Content-Type': 'application/json',
 						},
@@ -273,7 +273,7 @@
 				inputPassword.addEventListener('change', function () {
 					let Pfield = inputPassword.value;
 					fetch('/validate', {
-						method: 'POST',
+						method: 'PATCH',
 						headers: {
 							'Content-Type': 'application/json',
 						},

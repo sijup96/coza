@@ -16,7 +16,7 @@ const mailOTPSchema = new mongoose.Schema({
     }
 })
 
-mailOTPSchema.index({ createdAt: 1 }, { expireAfterSeconds: 120 })
+mailOTPSchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 })
 
 module.exports = mongoose.model('mailOTP', mailOTPSchema)
 

@@ -21,12 +21,14 @@
                         <form action="/admin/createCategory" method="post">
                             <div class="mb-4">
                                 <label for="product_name" class="form-label">Name</label>
-                                <input type="text" placeholder="Type here" class="form-control" id="product_name"
-                                    name="title" />
+                                <input type="text" placeholder="Type here" class="form-control" id="title"
+                                    name="title" required/>
+                                    <p style="color:red" id="titleError"></p>
                             </div>
                             <div class="mb-4">
                                 <label class="form-label">Description</label>
-                                <textarea placeholder="Type here" class="form-control" name="description"></textarea>
+                                <textarea placeholder="Type here" class="form-control" name="description" id="description" required></textarea>
+                                <p style="color:red" id="descriptionError"></p>
                             </div>
                             <div class="d-grid">
                                 <button class="btn btn-primary">Create category</button>
@@ -132,5 +134,56 @@
         }
 
     </script>
+
+<!-- Validation -->
+<script>
+    function validateField(fieldName, errorId, regex) {
+        var fieldValue = $('#' + fieldName).val();
+        var errorSpan = $('#' + errorId);
+
+        if (fieldValue && fieldValue.startsWith(' ')) {
+            errorSpan.text('Title should not start with a space.');
+            return;
+        }
+
+        if (!regex.test(fieldValue)) {
+            errorSpan.text('Title  must meet the validation criteria..');
+        } else {
+            errorSpan.text('');
+        }
+    }
+
+    $('#title').on('input', function () {
+        validateField('title', 'titleError', /^[a-zA-Z][a-zA-Z\s]{2,28}[a-zA-Z]$/);
+    });
+
+    function validateDescription(fieldName, errorId) {
+        var fieldValue = $('#' + fieldName).val();
+        var errorSpan = $('#' + errorId);
+
+        if (fieldValue && fieldValue.startsWith(' ')) {
+            errorSpan.text(fieldName + ' should not start with a space.');
+            return;
+        }
+
+        var wordCount = fieldValue.trim().split(/\s+/).filter(function (word) {
+            return word.length > 0;
+        }).length;
+
+        if (wordCount >= 5) {
+            errorSpan.text('');
+        } else {
+            errorSpan.text(fieldName + ' should have more than 5 words.');
+        }
+    }
+
+    $('#description').on('input', function () {
+        validateField('description', 'descriptionError', /^[\s\S]{10,}$/);
+    });
+
+
+
+</script>
+
 
     <%- include('../layouts/adminLayout/_footer.ejs') -%>

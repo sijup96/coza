@@ -1,25 +1,13 @@
 const express = require('express');
-const { createUser,
-   loginUserCtrl,
-   getAllUsers,
-   getUser,
-   deleteUser,
-   updateUser,
-   blockUser,
-   unblockUser,
-   handleRefreshToken,
-   logout,
-   updatePassword,
-   forgotPasswordToken,
-   resetPassword,
-   userHome,
-   userLogin,
-   userRegister, 
-   verifyOtp,sendOTP,
-   } = require('../controller/userCtrl');
-   const { authMiddleware, isAdmin, cacheControl } = require('../middlewares/authMiddleware');
+const { userAccount } = require('../controller/userCtrl');
+const { loadUserAddress } = require('../controller/addressCtrl');
+   const { userMiddleware, cacheControl } = require('../middlewares/authMiddleware');
    const router = express.Router()
 
 
    
-   router.get("/register", userRegister);
+   router.get("/account",userMiddleware, userAccount);
+   router.get("/address",userMiddleware, loadUserAddress);
+   router.get("/createAddress",userMiddleware, loadUserAddress);
+
+   module.exports = router;

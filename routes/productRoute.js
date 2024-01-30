@@ -1,19 +1,19 @@
 const express=require('express')
 const {createProduct, getProduct, getAllProduct, updateProduct, deleteProduct,loadProductDetail, addToWishlist,loadProduct}=require('../controller/productCtrl')
 const router=express.Router()
-const {isAdmin,authMiddleware}=require('../middlewares/authMiddleware')
+const {isAdmin,userMiddleware}=require('../middlewares/authMiddleware')
 
 
 
 router.get('/',loadProduct);
 router.get('/detail/:id',loadProductDetail);
-router.post('/createProduct',authMiddleware,isAdmin,createProduct);
+router.post('/createProduct',isAdmin,createProduct);
 router.get('/getProduct/:id',getProduct);
-router.put('/wishlist',authMiddleware,addToWishlist);
+router.put('/wishlist',userMiddleware,addToWishlist);
 
-router.put('/updateProduct/:id',authMiddleware,isAdmin,updateProduct);
+router.put('/updateProduct/:id',userMiddleware,isAdmin,updateProduct);
 
-router.delete('/deleteProduct/:id',authMiddleware,isAdmin,deleteProduct);
+router.delete('/deleteProduct/:id',userMiddleware,isAdmin,deleteProduct);
 router.get('/getAllProduct',getAllProduct);
 
 

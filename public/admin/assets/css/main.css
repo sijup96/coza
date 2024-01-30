@@ -41,6 +41,7 @@ footer, header, hgroup, menu, nav, section {
 
 body {
   line-height: 1;
+  
 }
 
 ol, ul {
@@ -420,6 +421,7 @@ body {
   font-weight: 400;
   line-height: 1.5;
   color: #4f5d77;
+  
 }
 
 /* --------------------- titles ---------------------- */

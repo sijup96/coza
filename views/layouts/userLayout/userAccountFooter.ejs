@@ -1,0 +1,40 @@
+<footer class="main-footer font-xs">
+    <div class="row pb-30 pt-15">
+        <div class="col-sm-6">
+            <script>
+                document.write(new Date().getFullYear());
+            </script>
+            &copy;COZA STORE .
+        </div>
+        <div class="col-sm-6">
+            <div class="text-sm-end">All rights reserved</div>
+        </div>
+    </div>
+</footer>
+</main>
+<script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
+<script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
+<script src="/assets/js/vendors/select2.min.js"></script>
+<script src="/assets/js/vendors/perfect-scrollbar.js"></script>
+<script src="/assets/js/vendors/jquery.fullscreen.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.slim.min.js"></script>
+
+<!-- Main Script -->
+<script src="/assets/js/main.js?v=1.1" type="text/javascript"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Use plain JavaScript to add the "dark" class to the body
+        document.body.classList.add("dark");
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        // Get the current URL
+        var currentUrl = window.location.pathname;
+
+        // Find the matching menu item and add the "active" class
+        $('.menu-link[href="' + currentUrl + '"]').closest('.menu-item').addClass('active');
+    });
+</script>
+</body>
+</html>
