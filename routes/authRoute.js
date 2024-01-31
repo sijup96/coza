@@ -45,7 +45,7 @@ router.post("/login", cacheControl, loginUserCtrl);
 router.get("/logout", cacheControl, logout)
 
 router.delete("/deleteuser/:id", deleteUser);
-router.put("/updateuser", updateUser);
+
 
 
 router.get("/refresh", handleRefreshToken)

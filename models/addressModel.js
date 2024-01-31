@@ -8,6 +8,10 @@ var addressSchema = new mongoose.Schema({
         // unique:true,
         // index:true,
     },
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+    },
     mobile: {
         type: Number,
     },
@@ -25,6 +29,10 @@ var addressSchema = new mongoose.Schema({
     },
     city: {
         type: String,
+    },
+    default: {
+        type: Boolean,
+        default: false,
     }
 
 }, { timestamps: true });

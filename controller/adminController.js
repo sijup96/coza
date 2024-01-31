@@ -34,13 +34,27 @@ const adminLogin = async (req, res) => {
 // admin dashboard
 
 const adminDashboard = async (req, res) => {
-    try {
-        res.render('admin/admin')
 
-    } catch (error) {
-      res.redirect('/admin');
+  try {
+    // Set headers to prevent caching
+    res.setHeader('Cache-Control', 'no-store, no-cache');
 
+    // Extract cookies from the request
+    const cookies = req.cookies;
+
+    // Check if there is a refreshToken cookie
+    if (!cookies || !cookies.refreshToken) {
+      res.render('admin/adminLogin');
+    } else {
+      res.render('admin/admin');
     }
+  } catch (error) {
+    // Log the error for debugging
+    console.error(error);
+
+    // Redirect to adminLogin in case of an error
+    res.redirect('/admin');
+  }
 };
 
 //admin login

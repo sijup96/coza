@@ -71,10 +71,26 @@ const userRegister = asyncHandler(async (req, res) => {
 
 //Load  User Account Page
 const userAccount = asyncHandler(async (req, res) => {
- const id=req.user._id
+  const accessToken = req.accessToken;
+  try {
+    const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
+    const userId = decodedToken.id;
+    const user = await User.findById({ _id: userId });
 
-const user= await User.findById({_id:id});
-  res.render('userAccount',{user});
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    res.render('userAccount', { user });
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).send('Token expired');
+    }
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).send('Invalid token');
+    }
+
+  }
 });
 
 
@@ -100,13 +116,13 @@ const loadVerifyEmailPage = asyncHandler(async (req, res) => {
 const validateUser = asyncHandler(async (req, res) => {
   try {
     const { firstname, password, email, mobile } = req.body;
-console.log(req.body);
+    console.log(req.body);
     let response = {};
 
     // Name Validation
 
     if (firstname && (firstname.trim() === "" || firstname.trim().length < 3)) {
-      response.fnameStatus ="Name must contain 3 or more letters";
+      response.fnameStatus = "Name must contain 3 or more letters";
     } else if (!/^[^\s\d!@#$%^&*(),.?":{}|<>_+=\[\\;\]`~]*[a-zA-ZÀ-ÖØ-öø-ÿ-' ]+[^\s!@#$%^&*(),.?":{}|<>_+=\[\\;\]`~]*$/.test(firstname)) {
       response.fnameStatus = "Please enter the correct Name";
     } else {
@@ -283,7 +299,7 @@ const verifyOtp = asyncHandler(async (req, res) => {
 
 
       req.cookies.user_id = userData._id
-     // req.flash('head', ' Regestered Successfully Please Login... ');
+      // req.flash('head', ' Regestered Successfully Please Login... ');
       res.redirect('/');
 
     } else if (hashedOtp) {
@@ -388,21 +404,29 @@ const logout = asyncHandler(async (req, res) => {
 
 //Update a User
 const updateUser = asyncHandler(async (req, res) => {
-  const { _id } = req.user
+  const { name, mobile, dob, email } = req.body
+  const accessToken = req.accessToken
   try {
-    const updatedUser = await User.findByIdAndUpdate(
-      _id,
-      {
-        name: req?.body?.name,
-        email: req?.body?.email,
-        mobile: req?.body?.mobile,
-      },
-      {
-        new: true
-      }
-
-    )
-    res.json(updatedUser)
+    const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
+    const userId = decodedToken.id;
+    const user = await User.findById({ _id: userId });
+    if (user) {
+      const updateFields = {
+        $set: {
+          name,
+          mobile,
+          dob
+        },
+      };
+      await User.findOneAndUpdate(
+        { _id: userId },
+        updateFields,
+        { new: true, upsert: true }
+      );
+      res.redirect('/user/account')
+    } else {
+      res.redirect('/user/account')
+    }
   } catch (error) {
     throw new Error(error)
   }
@@ -548,9 +572,9 @@ const resetPassword = asyncHandler(async (req, res) => {
       passwordResetToken: hashedToken,
       passwordResetExpires: { $gt: Date.now() },
     })
-    if (!user){
-      req.flash('head','Token Expired Please try again later')
-res.redirect('/login')
+    if (!user) {
+      req.flash('head', 'Token Expired Please try again later')
+      res.redirect('/login')
     }
     user.password = password;
     user.passwordResetToken = undefined;

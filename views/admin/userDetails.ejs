@@ -108,7 +108,7 @@
    function blockUser(userId) {
   // Send an AJAX request to block the user
   fetch(`/admin/blockUser/${userId}`, {
-    method: 'POST',
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
@@ -131,7 +131,7 @@
 function unblockUser(userId) {
   // Send an AJAX request to unblock the user
   fetch(`/admin/unblockUser/${userId}`, {
-    method: 'POST',
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },

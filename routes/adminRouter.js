@@ -37,8 +37,8 @@ adminRoute.get('/updateCategory/:id', isAdmin, loadUpdateCategory);
 adminRoute.post('/updateCategory', isAdmin, updateCategory);
 
 adminRoute.get('/getAllUsers', isAdmin, getAllUsers);
-adminRoute.post('/blockUser/:id', isAdmin, blockUser);
-adminRoute.post('/unblockUser/:id', isAdmin, unblockUser);
+adminRoute.patch('/blockUser/:id', isAdmin, blockUser);
+adminRoute.patch('/unblockUser/:id', isAdmin, unblockUser);
 
 
 
