@@ -19,7 +19,7 @@
     <style>
         /* Add your custom styles for the active state */
         .menu-item.active {
-            background-color: #e10ae9;
+            background-color: #383e50;
             /* Example background color */
             color: #ffffff;
             /* Example text color */
@@ -29,7 +29,9 @@
 </head>
 
 <body>
-    <div class="screen-overlay"></div>
+    <div class="screen-overlay">
+        
+    </div>
     <aside class="navbar-aside" id="offcanvas_aside">
         <div class="aside-top">
             <a href="/" class="brand-wrap">
@@ -39,6 +41,7 @@
                 <button class="btn btn-icon btn-aside-minimize"> <i
                         class="text-muted material-icons md-menu_open"></i></button>
             </div>
+            
         </div>
         <nav>
             <ul class="menu-aside">
@@ -51,7 +54,7 @@
                     </a>
                 </li>
                 <li class="menu-item ">
-                    <a class="menu-link" href="/user/address">
+                    <a class="menu-link" href="/user/address" id="headAddress">
                         <i class="icon material-icons md-house"></i>
                         <span class="text">My Addresses</span>
                     </a>
@@ -106,41 +109,67 @@
                         class="material-icons md-apps"></i></button>
 
             </div>
+            <div class="menu-desktop" >
+                <ul class="main-menu" style="display: flex; justify-content: space-between; padding: 1em;">
+                    <li>
+                        <a href="/"  style="color: #383e50; padding: 1em;">Home</a>
+                    
+                    </li>
+
+                    <li>
+                        <a href="/products"  style="color: #383e50; padding: 1em;">Shop</a>
+                    </li>
+<!-- 
+                    <li class="label1" data-label1="hot">
+                        <a href="shoping-cart.html">Features</a>
+                    </li> -->
+
+                    <li>
+                        <a href="/blog"  style="color: #383e50; padding: 1em;">Blog</a>
+                    </li>
+
+                </ul>
+            </div>	
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            
             <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    // Get all menu items
-                    var menuItems = document.querySelectorAll('.menu-item');
-            
-                    // Function to set active item
-                    function setActiveItem(item) {
-                        // Remove 'active' class from all menu items
-                        menuItems.forEach(function(innerItem) {
-                            innerItem.classList.remove('active');
-                        });
-            
-                        // Add 'active' class only to the clicked menu item
-                        item.classList.add('active');
-            
-                        // Store the active menu item in localStorage
-                        localStorage.setItem('activeMenuItem', item.querySelector('a').getAttribute('href'));
-                    }
-            
-                    // Add click event listener to each menu item
-                    menuItems.forEach(function(item) {
-                        item.addEventListener('click', function() {
-                            setActiveItem(item);
-                        });
-                    });
-            
-                    // Check if there's a stored active menu item
-                    var storedActiveItem = localStorage.getItem('activeMenuItem');
-                    if (storedActiveItem) {
-                        // Find the corresponding menu item and set it as active
-                        var correspondingItem = document.querySelector('.menu-item a[href="' + storedActiveItem + '"]');
-                        if (correspondingItem) {
-                            setActiveItem(correspondingItem.parentElement);
-                        }
-                    }
-                });
+           document.addEventListener('DOMContentLoaded', function() {
+    // Get all menu items
+    var menuItems = document.querySelectorAll('.menu-item');
+
+    // Function to set active item
+    function setActiveItem(item) {
+        // Remove 'active' class from all menu items
+        menuItems.forEach(function(innerItem) {
+            innerItem.classList.remove('active');
+        });
+
+        // Add 'active' class only to the clicked menu item
+        item.classList.add('active');
+
+        // Store the active menu item in localStorage
+        localStorage.setItem('activeMenuItem', item.querySelector('a').getAttribute('href'));
+    }
+
+    // Add click event listener to each menu item
+    menuItems.forEach(function(item) {
+        item.addEventListener('click', function() {
+            setActiveItem(item);
+        });
+    });
+
+    // Check if there's a stored active menu item
+    var storedActiveItem = localStorage.getItem('activeMenuItem');
+    if (storedActiveItem) {
+        // Find the corresponding menu item and set it as active
+        var correspondingItem = document.querySelector('.menu-item a[href="' + storedActiveItem + '"]');
+        if (correspondingItem) {
+            setActiveItem(correspondingItem.parentElement);
+        } else {
+            // Clear localStorage if the stored active item is not found
+            localStorage.removeItem('activeMenuItem');
+        }
+    }
+});
             </script>
         </header>

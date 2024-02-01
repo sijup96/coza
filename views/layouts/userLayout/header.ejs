@@ -146,7 +146,17 @@
 					<li>
 						<a href="/contact/details">Contact</a>
 					</li>
-
+					
+<li>
+	<a href="/user/account" >
+		My Account
+	</a>
+</li>
+<% if (locals.user) { %>
+	<li><a class="stext-102 cl2 hov-cl1 trans-04" href="/logout">Logout</a></li>
+	<% } else { %>
+		<li><a class="stext-102 cl2 hov-cl1 trans-04" href="/login">Login</a></li>
+		<% } %>
 				</ul>
 
 			</div>
@@ -409,3 +419,4 @@
 				</div>
 			</div>
 		</div>
+	

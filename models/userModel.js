@@ -25,7 +25,7 @@ var userSchema = new mongoose.Schema({
         required: true,
     },
     dob: {
-        type: Date,
+        type: String,
     },
     role: {
         type: String,
@@ -44,6 +44,9 @@ var userSchema = new mongoose.Schema({
         default: false,
     },
     refreshToken: {
+        type: String,
+    },
+    icon: {
         type: String,
     },
     passwordChangedAt: Date,

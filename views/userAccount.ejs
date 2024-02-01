@@ -1,4 +1,5 @@
 <%- include('./layouts/userLayout/userAccountHeader.ejs') %>
+    <script> localStorage.removeItem('activeMenuItem');</script>
     <section class="content-main">
         <div class="content-header">
             <h2 class="content-title">Profile setting</h2>
@@ -6,55 +7,74 @@
         <div class="card">
             <div class="card-body">
                 <div class="row gx-5">
-
                     <div class="col-lg-9">
                         <section class="content-body p-xl-4">
                             <form action="/user/updateUser" method="post">
                                 <div class="row">
                                     <aside class="col-lg-4">
                                         <figure class="text-lg-center">
-                                            <img class="img-lg mb-3 img-avatar" src="/assets/imgs/people/avatar-1.png" alt="User Photo" />
+                                            <img class="img-lg mb-3 img-avatar" id="mainAvatar" src="<%= userData.user.icon %>"
+                                                alt="User Photo" />
                                             <figcaption>
-                                                <a class="btn btn-light rounded font-md" href="#"> <i
-                                                        class="icons material-icons md-backup font-md"></i> Upload
+                                                <a class=" rounded font-md" > <i
+                                                        class="font-md"></i> Click the below Avatar to Update
                                                 </a>
                                             </figcaption>
                                         </figure>
+                                        <hr>
+                                        <div class="row">
+                                            <div class="col-4" style="display:flex">
+                                                <img class="img-avatar" src="/assets/imgs/people/avatar-1.png" alt="User Photo"
+                                                    onclick="changeProfilePhoto('/assets/imgs/people/avatar-1.png')" />
+                                                <img class="img-avatar" src="/assets/imgs/people/avatar-2.png" alt="User Photo"
+                                                    onclick="changeProfilePhoto('/assets/imgs/people/avatar-2.png')" />
+                                                <img class="img-avatar" src="/assets/imgs/people/avatar-3.png" alt="User Photo"
+                                                    onclick="changeProfilePhoto('/assets/imgs/people/avatar-3.png')" />
+                                                <img class="img-avatar" src="/assets/imgs/people/avatar-4.png" alt="User Photo"
+                                                    onclick="changeProfilePhoto('/assets/imgs/people/avatar-4.png')" />
+                                            </div>
+                                        </div>
                                     </aside>
                                     <div class="col-lg-8">
                                         <div class="row gx-3">
                                             <div class="col-6 mb-3">
 
                                                 <label class="form-label">Full Name</label>
-                                                <input class="form-control" type="text" value="<%= user.name %>" name="name" />
+                                                <input class="form-control" type="text"
+                                                    value="<%= userData.user.name %>" name="name" />
                                             </div>
 
                                             <!-- col .// -->
                                             <div class="col-lg-6 mb-3">
                                                 <label class="form-label">Email</label>
-                                                <input class="form-control" type="email" value="<%= user.email %>" name="email" readonly />
+                                                <input class="form-control" type="email"
+                                                    value="<%= userData.user.email %>" name="email" readonly />
                                             </div>
                                             <!-- col .// -->
                                             <div class="col-lg-6 mb-3">
                                                 <label class="form-label">Phone</label>
-                                                <input class="form-control" type="text" value="<%= user.mobile %>" name="mobile" />
+                                                <input class="form-control" type="text"
+                                                    value="<%= userData.user.mobile %>" name="mobile" />
                                             </div>
                                             <!-- col .// -->
                                             <div class="col-lg-6 mb-3">
-                                                <label class="form-label">Birthday</label>
-                                                <input class="form-control" type="date" value="<%= user.dob %>" name="dob"/>
+                                                <label class="form-label">Date Of Birth</label>
+                                                <input class="form-control" type="text" value="<%= userData.user.dob %>"
+                                                    name="dob" />
                                             </div>
 
                                             <div class="row" style="max-width: 920px">
                                                 <div class="col-md">
                                                     <article class="box mb-3 bg-light">
-                                                        <a class="btn float-end btn-light btn-sm rounded font-md"
-                                                            href="#">Change</a>
-                                                        <h6>Address</Address>
-                                                        </h6>
-                                                        <small class="text-muted d-block" style="width: 70%">You can
-                                                            reset or change
-                                                            your password by clicking here</small>
+                                                        <h6>Default Address</Address>
+                                                        </h6><br>
+                                                        <small class="text-muted d-block" style="width: 70%">
+                                                            <%= userData.houseName %><br>
+                                                                <%= userData.street %>, <%= userData.landmark %>, &nbsp;
+                                                                        <%= userData.city %><br>
+                                                                            <%= userData.state %> &nbsp; <%=
+                                                                                    userData.pincode %>
+                                                        </small>
                                                     </article>
                                                 </div>
                                             </div>
@@ -62,15 +82,17 @@
                                             <!-- col .// -->
                                         </div>
                                         <br />
-
+                                        <span style="color:red">
+                                            <%= messages.head ? messages.head : '' %>
+                                        </span>
                                         <button class="btn btn-primary" type="submit">Edit Profile</button>
-        
+
                                         <!-- row.// -->
-                                    </div>  <!-- col.// -->
-                                    
+                                    </div> <!-- col.// -->
+
                                 </div>
                                 <!-- row.// -->
-                             
+
                             </form>
                             <hr class="my-5" />
                             <div class="row" style="max-width: 920px">
@@ -108,4 +130,32 @@
         <!-- card end// -->
     </section>
     <!-- content-main end// -->
+    <script>
+        function changeProfilePhoto(photoUrl) {
+            document.getElementById('mainAvatar').src = photoUrl;
+    
+            // Send AJAX request to update the database
+            fetch('/user/profileIcon', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ photoUrl }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Handle success, if needed
+                console.log(data);
+            })
+            .catch(error => {
+                // Handle error
+                console.error('There was a problem with the fetch operation:', error);
+            });
+        }
+    </script>
     <%- include('./layouts/userLayout/userAccountFooter.ejs') %>

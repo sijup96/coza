@@ -538,17 +538,17 @@ b {
 }
 
 .menu-aside .menu-item .icon {
-  color: #adb5bd;
+  color: #141619e4;
   margin-right: 10px;
   font-size: 24px;
 }
 
 .menu-aside .menu-item.active .icon {
-  color: #3BB77E;
+  color: #15bf09d1;
 }
 
 .menu-aside .menu-item.active .menu-link {
-  background-color: rgba(59, 183, 126, 0.2);
+  background-color: grey
 }
 
 .menu-aside .menu-item.active .submenu a.active {
@@ -559,7 +559,7 @@ b {
   padding: 10px;
   font-weight: 800;
   font-size: 13px;
-  color: #292f46;
+  color: #000;
   border-radius: 0.3rem;
   position: relative;
   line-height: 1;

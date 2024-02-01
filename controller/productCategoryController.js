@@ -55,7 +55,9 @@ const updateCategory = asyncHandler(async (req, res) => {
 
     try {
         validateMongoDbId(_id);
-
+const existCategory= await Category.findById({_id})
+console.log(req.body.title);
+if(existCategory.title != req.body.title){
         const updatedCategory = await Category.findByIdAndUpdate(
             _id,
             req.body,
@@ -65,6 +67,10 @@ const updateCategory = asyncHandler(async (req, res) => {
         const category = Array.isArray(categoryData) ? categoryData : [];
         req.flash('head', `${updatedCategory.title} Category Updated Successfully`);
         res.render('admin/category',{category});
+}else{
+    req.flash('head', 'Category already Exist');
+    res.redirect('/admin/updateCategory/_id');
+}
     } catch (error) {
         console.error(error);
         req.flash('head', 'Error updating category');

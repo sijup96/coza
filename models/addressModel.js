@@ -30,6 +30,9 @@ var addressSchema = new mongoose.Schema({
     city: {
         type: String,
     },
+    state: {
+        type: String,
+    },
     default: {
         type: Boolean,
         default: false,

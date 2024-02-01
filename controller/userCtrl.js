@@ -11,6 +11,7 @@ const mailOTP = require('../models/mailOTP')
 const bcrypt = require('bcrypt');
 const Category = require('../models/prodCategoryModel')
 const Product = require('../models/productModel')
+const Address = require('../models/addressModel')
 
 /* GET home page. */
 const userHome = asyncHandler(async (req, res) => {
@@ -69,19 +70,17 @@ const userRegister = asyncHandler(async (req, res) => {
   res.redirect('/login');
 });
 
-//Load  User Account Page
+//Load  User Profile Page
 const userAccount = asyncHandler(async (req, res) => {
   const accessToken = req.accessToken;
   try {
     const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
     const userId = decodedToken.id;
-    const user = await User.findById({ _id: userId });
-
-    if (!user) {
+    const userData = await Address.findOne({ user: userId,default:true }).populate('user')
+    if (!userData) {
       return res.status(404).send('User not found');
     }
-
-    res.render('userAccount', { user });
+    res.render('userAccount', { userData });
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
       return res.status(401).send('Token expired');
@@ -176,14 +175,15 @@ const validateUser = asyncHandler(async (req, res) => {
 const createUser = asyncHandler(async (req, res) => {
   try {
     const { name, mobile, email, password } = req.body;
+    const newName=name.charAt(0).toUpperCase()+name.slice(1)
     // Check if the user already exists
     const findUser = await User.findOne({ email: email.trim() });
     if (!findUser) {
       // Create new user
       const newUser = await User.create({
-        name: name.trim(),
-        mobile: mobile.trim(),
-        email: email.trim(),
+        name: newName,
+        mobile: mobile,
+        email: email,
         password: password
       });
       sendOTP({ email: newUser.email });
@@ -404,7 +404,8 @@ const logout = asyncHandler(async (req, res) => {
 
 //Update a User
 const updateUser = asyncHandler(async (req, res) => {
-  const { name, mobile, dob, email } = req.body
+  const { name, mobile, dob } = req.body
+  const newName=name.charAt(0).toUpperCase()+name.slice(1)
   const accessToken = req.accessToken
   try {
     const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
@@ -413,7 +414,7 @@ const updateUser = asyncHandler(async (req, res) => {
     if (user) {
       const updateFields = {
         $set: {
-          name,
+          name:newName,
           mobile,
           dob
         },
@@ -423,6 +424,7 @@ const updateUser = asyncHandler(async (req, res) => {
         updateFields,
         { new: true, upsert: true }
       );
+      req.flash('head', 'Profile Udated Successfully')
       res.redirect('/user/account')
     } else {
       res.redirect('/user/account')
@@ -586,7 +588,21 @@ const resetPassword = asyncHandler(async (req, res) => {
     throw new Error(error)
   }
 });
+const updateProfileIcon= asyncHandler(async (req, res) => {
+  try {
+    const {photoUrl}=req.body
+    console.log(photoUrl);
+    const accessToken = req.accessToken;
+const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
+const userId = decodedToken.id;
 
+    await User.findByIdAndUpdate({_id:userId },{$set:{icon:photoUrl}});
+    res.send(photoUrl);
+  } catch (error) {
+    console.error('Error blocking user:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 
 module.exports = {
@@ -611,6 +627,7 @@ module.exports = {
   loadCreatePassword,
   loadVerifyEmailPage,
   userAccount,
+  updateProfileIcon,
 
   // verifySignup
 }
