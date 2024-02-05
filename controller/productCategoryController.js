@@ -1,7 +1,8 @@
 const Category = require('../models/prodCategoryModel');
 const asyncHandler = require('express-async-handler');
 const validateMongoDbId = require('../utils/validateMongodbId');
-const slugify = require('slugify')
+const slugify = require('slugify');
+
 
 //Load Category page
 
@@ -9,7 +10,7 @@ const loadCategory = asyncHandler(async (req, res) => {
     try {
         res.render('admin/category')
     } catch (error) {
-        res.redirect('/admin/admin')
+        res.redirect('/admin')
     }
 })
 
@@ -23,7 +24,7 @@ const loadUpdateCategory = asyncHandler(async (req, res) => {
         const category = await Category.findOne({ _id: id })
         res.render('admin/editCategory', { category })
     } catch (error) {
-        res.redirect('/admin/admin')
+        res.redirect('/admin')
     }
 })
 //Create Category
@@ -31,7 +32,8 @@ const loadUpdateCategory = asyncHandler(async (req, res) => {
 const createCategory = asyncHandler(async (req, res) => {
     try {
 
-        req.body.slug = slugify(req.body.title)
+        req.body.slug = slugify(req.body.title.toLowerCase())
+        req.body.title = req.body.title.charAt(0).toUpperCase() + req.body.title.slice(1)
 
         if (await Category.findOne({ slug: req.body.slug })) {
             req.flash('head', `${req.body.title} Category Already Exist`);
@@ -52,32 +54,53 @@ const createCategory = asyncHandler(async (req, res) => {
 
 const updateCategory = asyncHandler(async (req, res) => {
     const { _id } = req.body;
+    const titleSlug = slugify(req.body.title.toLowerCase());
 
     try {
         validateMongoDbId(_id);
-const existCategory= await Category.findById({_id})
-console.log(req.body.title);
-if(existCategory.title != req.body.title){
+        const checkExist = await Category.findOne({ slug: titleSlug });
+
+        if (checkExist && checkExist._id.toString() !== _id) {
+            req.flash('head', 'Category already Exist');
+            return res.redirect('/admin/updateCategory/' + `${_id}`);
+        }
+        req.body.title = req.body.title.charAt(0).toUpperCase() + req.body.title.slice(1)
         const updatedCategory = await Category.findByIdAndUpdate(
             _id,
-            req.body,
+            {
+                $set: {
+                    title: req.body.title,
+                    slug: titleSlug,
+                    description: req.body.description,
+                }
+            },
             { new: true }
         );
-        const categoryData = await Category.find()
-        const category = Array.isArray(categoryData) ? categoryData : [];
-        req.flash('head', `${updatedCategory.title} Category Updated Successfully`);
-        res.render('admin/category',{category});
-}else{
-    req.flash('head', 'Category already Exist');
-    res.redirect('/admin/updateCategory/_id');
-}
+
+        req.flash('head', `${req.body.title} Category Updated Successfully`);
+        res.redirect('/admin/productCategory');
     } catch (error) {
         console.error(error);
         req.flash('head', 'Error updating category');
         res.redirect('/admin/updateCategory');  // Redirect to an appropriate error page or handle it based on your needs
     }
 });
+// Update Category Status
+const updateCategoryStatus = asyncHandler(async (req, res) => {
+    const id = req.params.id;
+    try {
+        validateMongoDbId(id)
+        const updatedCategory = await Category.findByIdAndUpdate(
+            { _id: id },
+            { $set: { is_listed: req.body.is_listed } },
+            { new: true }
+        );
+        res.json({ success: true })
 
+    } catch (error) {
+        res.json(error)
+    }
+})
 
 
 
@@ -125,4 +148,4 @@ const getAllCategory = asyncHandler(async (req, res) => {
 });
 
 
-module.exports = { createCategory, updateCategory, deleteCategory, getCategory, getAllCategory, loadCategory, loadUpdateCategory }
+module.exports = { createCategory, updateCategory, deleteCategory, getCategory, getAllCategory, loadCategory, loadUpdateCategory, updateCategoryStatus }

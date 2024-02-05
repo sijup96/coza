@@ -6,6 +6,7 @@ const User = require('../models/userModel');
 const fs = require('fs');
 const path = require('path');
 const { error, log } = require('console');
+const Cart = require('./cartCtrl')
 
 
 // Load Product
@@ -13,16 +14,21 @@ const loadProduct = asyncHandler(async (req, res) => {
     try {
         const categories = await Category.find({ is_listed: true });
         const categoryIds = categories.map(category => category._id);
-
+        const accessToken = req.accessToken;
+        let cartData
+        if(accessToken){
+             cartData= await Cart.viewCart(accessToken);
+        }
+        
         if (categoryIds.length > 0) {
             const productsFemale = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'female' });
             const productsMale = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'male' });
             const productsUnisex = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'unisex' });
-            res.render('product', { productsFemale, productsMale, productsUnisex, categories });
+            res.render('product', { productsFemale, productsMale, productsUnisex, categories ,cartData});
         } else {
             // Handle the case when no categories are found
             console.log('No categories found');
-            res.render('index', { productsFemale: [] });
+            res.render('index', { productsFemale: [] ,cartData});
         }
     } catch (error) {
         // Handle the error appropriately, e.g., log it or send an error response
@@ -34,15 +40,17 @@ const loadProduct = asyncHandler(async (req, res) => {
 const loadProductDetail = asyncHandler(async (req, res) => {
     const { id } = req.params;
     try {
+        const accessToken = req.accessToken;
+        const cartData= await Cart.viewCart(accessToken);
         const product = await Product.findById({ _id: id });
         if (product.is_listed == true) {
-            res.render('product-detail', { product });
+            res.render('product-detail', { product , cartData});
         } else {
             res.send(` <script>
              alert('Sorry..., this product was unListed by Admin');
              window.history.back();
           </script>`)
-            res.render('product-detail', { product });
+            res.render('product-detail', { product , cartData});
         }
     } catch (error) {
         // Handle the error or log it
@@ -100,9 +108,7 @@ const loadAllProducts = async (req, res) => {
 
 const createProduct = asyncHandler(async (req, res) => {
     try {
-        if (req.body.title) {
-            req.body.slug = slugify(req.body.title)
-        }
+            req.body.slug = slugify(req.body.title.toLowerCase())
         const [existSlug, existSize, existColor] = await Promise.all([
             Product.findOne({ slug: req.body.slug }),
             Product.findOne({ size: req.body.size }),
@@ -121,7 +127,6 @@ const createProduct = asyncHandler(async (req, res) => {
         const { title, description, quantity, price, category, brand, size, color, sex } = req.body;
         const images = req.files.map((file) => file.originalname);
         const selectedCategory = await Category.findOne({ slug: category });
-        console.log(selectedCategory);
         const newProduct = new Product({
             title,
             description,
@@ -149,11 +154,8 @@ const createProduct = asyncHandler(async (req, res) => {
 
 const updateProduct = asyncHandler(async (req, res) => {
     const { id, title, description, quantity, price, sex, category, brand, size, is_listed } = req.body
-
     try {
-        if (req.body.title) {
-            req.body.slug = slugify(req.body.title)
-        }
+        req.body.slug = slugify(req.body.title.toLowerCase());
         const images = req.files.map((file) => file.originalname);
         const updateFields = {
             $set: {
@@ -211,19 +213,35 @@ const deleteImage = asyncHandler(async (req, res) => {
     try {
         const { selectedImages } = req.body;
 
-        // Perform deletion in the database (example using Mongoose)
-        await Product.updateMany(
-            { images: { $in: selectedImages } },
-            { $pull: { images: { $in: selectedImages } } }
-        );
+        // Find products containing the selected images
+        const products = await Product.find({ images: { $in: selectedImages } });
 
+        // Remove selected images from each product in the database
+        for (const product of products) {
+            product.images = product.images.filter(image => !selectedImages.includes(image));
+            await product.save();
+        }
+
+        // Delete the corresponding image files from the server
+        selectedImages.forEach(async (imageName) => {
+            const imagePath = path.join(__dirname, '..', 'public', 'productImages', imageName);
+
+            try {
+                // Delete the image file
+                await fs.promises.unlink(imagePath);
+            } catch (error) {
+                console.error("Error deleting image file:", error);
+                // Handle the error (send a response or log it)
+            }
+        });
 
         res.status(200).json({ message: "Images deleted successfully" });
     } catch (error) {
         console.error("Error deleting images:", error);
-        res.status(500).json({ error: "Failed to delete images" }); // More informative error message
+        res.status(500).json({ error: "Failed to delete images" });
     }
 });
+
 //get a product
 
 const getProduct = asyncHandler(async (req, res) => {

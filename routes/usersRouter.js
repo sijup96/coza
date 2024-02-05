@@ -1,5 +1,5 @@
 const express = require('express');
-const { userAccount, updateUser, updateProfileIcon } = require('../controller/userCtrl');
+const { userAccount, updateUser, updateProfileIcon, loadCheckout } = require('../controller/userCtrl');
 const { loadUserAddress, loadCreateAddress, createAddress, deleteAddress, defaultAddress, loadEditAddress, editAddress, } = require('../controller/addressCtrl');
    const { userMiddleware, cacheControl } = require('../middlewares/authMiddleware');
    const router = express.Router()
@@ -18,6 +18,7 @@ const { loadUserAddress, loadCreateAddress, createAddress, deleteAddress, defaul
    router.delete("/deleteAddress/:id",userMiddleware, deleteAddress);
    router.put("/makeDefaultAddress/:id",userMiddleware, defaultAddress);
    router.put("/profileIcon",userMiddleware, updateProfileIcon);
+   router.get("/checkout",userMiddleware, loadCheckout);
 
    
 

@@ -4,7 +4,7 @@ const asyncHandler = require('express-async-handler');
 const { Cookie } = require('express-session');
 const { generateToken } = require('../config/jwtToken');
 
-
+//Checking User exist or not
 const userMiddleware = asyncHandler(async (req, res, next) => {
   try {
     const cookie = req.cookies
@@ -33,7 +33,26 @@ const userMiddleware = asyncHandler(async (req, res, next) => {
     next(error);
   }
 });
+//Pass accessToken if user Exist
+const accessToken=asyncHandler(async(req,res,next)=>{
+  try {
+    const cookie = req.cookies
+    if(cookie){
+      const refreshToken = cookie.refreshToken
+      const user = await User.findOne({ refreshToken })
+    const accessToken = generateToken(user._id)
+    req.accessToken = accessToken
+    next() 
+    }else
+    next()
+  
+  } catch (error) {
+    throw new Error(error)
+  }
 
+});
+
+//Check IsAdmin
 const isAdmin = asyncHandler(async (req, res, next) => {
   try {
     const cookie = req.cookies
@@ -57,4 +76,4 @@ const cacheControl = asyncHandler(async (req, res, next) => {
   next();
 });
 
-module.exports = { userMiddleware, isAdmin, cacheControl };
+module.exports = { userMiddleware, isAdmin, cacheControl,accessToken };

@@ -17,12 +17,12 @@ const { createUser,
    userRegister,
    verifyOtp, resendOTP, validateUser, loadVerifyEmailPage, loadCreatePassword,
 } = require('../controller/userCtrl');
-const { userMiddleware, isAdmin, cacheControl } = require('../middlewares/authMiddleware');
+const { userMiddleware, cacheControl, accessToken } = require('../middlewares/authMiddleware');
 const router = express.Router()
 
 
 
-router.get("/", cacheControl, userHome);
+router.get("/", cacheControl,accessToken, userHome);
 router.get("/register", cacheControl, userRegister);
 
 router.post("/register", cacheControl, createUser);

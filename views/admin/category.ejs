@@ -84,6 +84,8 @@
                                                             <a class="dropdown-item"
                                                                 onclick="confirmEdit('<%= category[i]._id %>')">Edit
                                                                 info</a>
+                                                                <a class="dropdown-item text-danger"
+                                                                onclick="updateCategoryStatus('<%= category[i]._id %>', '<%= category[i].is_listed %>')"><%= category[i].is_listed==true?'UnList':'List' %></a>
                                                             <a class="dropdown-item text-danger"
                                                                 onclick="confirmDelete('<%= category[i]._id %>')">Delete</a>
                                                         </div>
@@ -133,6 +135,32 @@
             }
         }
 
+        function updateCategoryStatus(categoryId, currentStatus) {
+    const newStatus = currentStatus === 'true' ? 'false' : 'true';
+
+    fetch(`/admin/updateCategoryStatus/${categoryId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ is_listed: newStatus }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Handle success
+        window.location.reload()
+        // Optionally, you can update the UI or perform additional actions
+    })
+    .catch(error => {
+        // Handle error
+        console.error('There was a problem with the fetch operation:', error);
+    });
+}
     </script>
 
 <!-- Validation -->

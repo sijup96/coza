@@ -4,7 +4,7 @@ const adminRoute = express()
 const { adminLogin, login, adminDashboard, logout } = require('../controller/adminController')
 const { isAdmin } = require('../middlewares/authMiddleware')
 const { createProduct, loadaddProduct, loadAllProducts, deleteProduct, loadUpdateProduct, updateProduct, updateImages, deleteImage } = require('../controller/productCtrl')
-const { createCategory, getAllCategory, deleteCategory, updateCategory, loadUpdateCategory } = require('../controller/productCategoryController')
+const { createCategory, getAllCategory, deleteCategory, updateCategory, loadUpdateCategory, updateCategoryStatus } = require('../controller/productCategoryController')
 const { upload } = require('../config/config')
 const { getAllUsers, blockUser, unblockUser } = require('../controller/userCtrl')
 
@@ -35,6 +35,7 @@ adminRoute.post('/createCategory', isAdmin, createCategory);
 adminRoute.get('/deleteCategory/:id', isAdmin, deleteCategory);
 adminRoute.get('/updateCategory/:id', isAdmin, loadUpdateCategory);
 adminRoute.post('/updateCategory', isAdmin, updateCategory);
+adminRoute.put('/updateCategoryStatus/:id', isAdmin, updateCategoryStatus);
 
 adminRoute.get('/getAllUsers', isAdmin, getAllUsers);
 adminRoute.patch('/blockUser/:id', isAdmin, blockUser);

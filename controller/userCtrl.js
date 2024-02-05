@@ -12,22 +12,28 @@ const bcrypt = require('bcrypt');
 const Category = require('../models/prodCategoryModel')
 const Product = require('../models/productModel')
 const Address = require('../models/addressModel')
+const Cart = require('./cartCtrl')
 
 /* GET home page. */
 const userHome = asyncHandler(async (req, res) => {
   try {
+
     const categories = await Category.find({ is_listed: true });
     const categoryIds = categories.map(category => category._id);
-
+    const accessToken = req.accessToken;
+    let cartData ;
+    if(accessToken){
+       cartData = await Cart.viewCart(accessToken);
+    }
     if (categoryIds.length > 0) {
       const productsFemale = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'female' });
       const productsMale = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'male' });
       const productsUnisex = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'unisex' });
-      res.render('index', { productsFemale, productsMale, productsUnisex, categories });
+      res.render('index', { productsFemale, productsMale, productsUnisex, categories, cartData });
     } else {
       // Handle the case when no categories are found
       console.log('No categories found');
-      res.render('index',);
+      res.render('index', { cartData });
     }
   } catch (error) {
     // Handle the error appropriately, e.g., log it or send an error response
@@ -76,7 +82,7 @@ const userAccount = asyncHandler(async (req, res) => {
   try {
     const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
     const userId = decodedToken.id;
-    const userData = await Address.findOne({ user: userId,default:true }).populate('user')
+    const userData = await Address.findOne({ user: userId, default: true }).populate('user')
     if (!userData) {
       return res.status(404).send('User not found');
     }
@@ -175,7 +181,7 @@ const validateUser = asyncHandler(async (req, res) => {
 const createUser = asyncHandler(async (req, res) => {
   try {
     const { name, mobile, email, password } = req.body;
-    const newName=name.charAt(0).toUpperCase()+name.slice(1)
+    const newName = name.charAt(0).toUpperCase() + name.slice(1)
     // Check if the user already exists
     const findUser = await User.findOne({ email: email.trim() });
     if (!findUser) {
@@ -405,7 +411,7 @@ const logout = asyncHandler(async (req, res) => {
 //Update a User
 const updateUser = asyncHandler(async (req, res) => {
   const { name, mobile, dob } = req.body
-  const newName=name.charAt(0).toUpperCase()+name.slice(1)
+  const newName = name.charAt(0).toUpperCase() + name.slice(1)
   const accessToken = req.accessToken
   try {
     const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
@@ -414,7 +420,7 @@ const updateUser = asyncHandler(async (req, res) => {
     if (user) {
       const updateFields = {
         $set: {
-          name:newName,
+          name: newName,
           mobile,
           dob
         },
@@ -588,21 +594,26 @@ const resetPassword = asyncHandler(async (req, res) => {
     throw new Error(error)
   }
 });
-const updateProfileIcon= asyncHandler(async (req, res) => {
+const updateProfileIcon = asyncHandler(async (req, res) => {
   try {
-    const {photoUrl}=req.body
+    const { photoUrl } = req.body
     console.log(photoUrl);
     const accessToken = req.accessToken;
-const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
-const userId = decodedToken.id;
+    const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
+    const userId = decodedToken.id;
 
-    await User.findByIdAndUpdate({_id:userId },{$set:{icon:photoUrl}});
+    await User.findByIdAndUpdate({ _id: userId }, { $set: { icon: photoUrl } });
     res.send(photoUrl);
   } catch (error) {
     console.error('Error blocking user:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+// Load Checkout Page
+const loadCheckout = asyncHandler(async (req, res) => {
+  res.render('checkout')
+})
 
 
 module.exports = {
@@ -628,6 +639,7 @@ module.exports = {
   loadVerifyEmailPage,
   userAccount,
   updateProfileIcon,
+  loadCheckout
 
   // verifySignup
 }
