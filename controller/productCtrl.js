@@ -199,10 +199,7 @@ const updateProduct = asyncHandler(async (req, res) => {
 const deleteProduct = asyncHandler(async (req, res) => {
     const id = req.params.id
     try {
-        console.log(id);
-        const deleteProduct = await Product.findOneAndDelete({ _id: id })
-        console.log(deleteProduct);
-
+        const deleteProduct = await Product.findByIdAndDelete({ _id: id })
         res.redirect(302, '/admin/products');
     } catch (error) {
         res.render("errorPage");

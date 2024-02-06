@@ -5,8 +5,8 @@ const { loadCart, addToCart, deleteCartProduct, checkQuantity }=require('../cont
 
 router.get('/',userMiddleware,loadCart);
 router.post('/add',userMiddleware,addToCart);
-router.delete('/deleteProduct/:productId',userMiddleware,deleteCartProduct);
-router.post('/checkQuantity',userMiddleware,checkQuantity);
+router.delete('/deleteProduct',userMiddleware,deleteCartProduct);
+router.patch('/checkQuantity',userMiddleware,checkQuantity);
 
 
 

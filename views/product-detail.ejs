@@ -89,7 +89,7 @@
 								</div>
 							</div>
 
-							<div class="flex-w flex-r-m p-b-10">
+							<!-- <div class="flex-w flex-r-m p-b-10">
 								<div class="size-203 flex-c-m respon6">
 									Color
 								</div>
@@ -105,20 +105,20 @@
 										<div class="dropDownSelect2"></div>
 									</div>
 								</div>
-							</div>
+							</div> -->
 
 							<div class="flex-w flex-r-m p-b-10">
 								<div class="size-204 flex-w flex-m respon6-next">
 									<div class="wrap-num-product flex-w m-r-20 m-tb-10">
-										<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
-											<i class="fs-16 zmdi zmdi-minus"></i>
+										<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m" id="minusButton">
+											<i class="fs-16 zmdi zmdi-minus" id="minusButton"></i>
 										</div>
 
 										<input class="mtext-104 cl3 txt-center num-product" type="number"
-											name="num-product" value="1">
+											name="num-product" value="1" readonly>
 
-										<div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
-											<i class="fs-16 zmdi zmdi-plus"></i>
+										<div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m" id="plusButton">
+											<i class="fs-16 zmdi zmdi-plus" id="plusButton"></i>
 										</div>
 									</div>
 
@@ -1113,28 +1113,37 @@
 	</script>
 	<script>
 		$(document).ready(function () {
-			// Capture click event on "Add to cart" button
 			$('.js-addcart-detail').on('click', function () {
-				// Get relevant data
-				var productId = '<%= product._id %>';  // Assuming product._id is the product ID
-				var quantity = $('.num-product').val(); // Assuming .num-product is the input field for quantity
-				// Make AJAX request
+				const productId = '<%= product._id %>';  
+				const quantity = $('.num-product').val();
 				$.ajax({
-					type: 'POST', // or 'GET' depending on your server-side implementation
-					url: '/cart/add', // Replace with your server endpoint URL
+					type: 'POST', 
+					url: '/cart/add', 
 					data: {
 						productId: productId,
 						quantity: quantity
 					},
 					success: function (response) {
-						swal({
+						if(response.success){
+							swal({
+							title: "Success",
+							text: "Product already exist, increased the Quantity",
+							icon: "success"
+						}).then((data) => {
+							// Reload the page after the user clicks "OK"
+							$('.header-cart-content').load(location.href + ' .header-cart-content');
+						});
+						}else{
+							swal({
 							title: "Success",
 							text: "Product added to the cart",
 							icon: "success"
-						}).then(() => {
+						}).then((data) => {
 							// Reload the page after the user clicks "OK"
-							window.location.reload();
+							$('.header-cart-content').load(location.href + ' .header-cart-content');
 						});
+						}
+						
 					},
 					error: function (xhr, status, error) {
 						let errorMessage = "An error occurred";
@@ -1149,6 +1158,35 @@
 				});
 			});
 		});
+	</script>
+
+	<script>
+		$(document).ready(function() {
+    $('#minusButton,#plusButton').click(function() {
+		const productId = '<%= product._id %>'; 
+        const quantity = parseInt($('.num-product').val(), 10);
+        $.ajax({
+            url: '/cart/checkQuantity',
+            method: 'PATCH', 
+            data: { quantity: quantity,
+				productId:productId,
+			},
+            success: function(response) {
+            },
+            error: function(xhr, status, error) {
+				if (xhr.status === 400) {
+					const currentValue = parseInt($('.num-product').val(), 10);
+            swal("Error", "Quantity Exceeded", "error");
+			$('.num-product').val(currentValue-1);
+
+        } else {
+            // For other errors, log to console
+            console.error('Error checking quantity:', error);
+        }
+            }
+        });
+    });
+});
 	</script>
 
 	</body>
