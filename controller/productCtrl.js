@@ -16,19 +16,19 @@ const loadProduct = asyncHandler(async (req, res) => {
         const categoryIds = categories.map(category => category._id);
         const accessToken = req.accessToken;
         let cartData
-        if(accessToken){
-             cartData= await Cart.viewCart(accessToken);
+        if (accessToken) {
+            cartData = await Cart.viewCart(accessToken);
         }
-        
+
         if (categoryIds.length > 0) {
             const productsFemale = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'female' });
             const productsMale = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'male' });
             const productsUnisex = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'unisex' });
-            res.render('product', { productsFemale, productsMale, productsUnisex, categories ,cartData});
+            res.render('product', { productsFemale, productsMale, productsUnisex, categories, cartData });
         } else {
             // Handle the case when no categories are found
             console.log('No categories found');
-            res.render('index', { productsFemale: [] ,cartData});
+            res.render('index', { productsFemale: [], cartData });
         }
     } catch (error) {
         // Handle the error appropriately, e.g., log it or send an error response
@@ -41,16 +41,17 @@ const loadProductDetail = asyncHandler(async (req, res) => {
     const { id } = req.params;
     try {
         const accessToken = req.accessToken;
-        const cartData= await Cart.viewCart(accessToken);
-        const product = await Product.findById({ _id: id });
+        const cartData = await Cart.viewCart(accessToken);
+        const product = await Product.findById({ _id: id })
+
         if (product.is_listed == true) {
-            res.render('product-detail', { product , cartData});
+            res.render('product-detail', { product, cartData });
         } else {
             res.send(` <script>
              alert('Sorry..., this product was unListed by Admin');
              window.history.back();
           </script>`)
-            res.render('product-detail', { product , cartData});
+            res.render('product-detail', { product, cartData });
         }
     } catch (error) {
         // Handle the error or log it
@@ -94,12 +95,11 @@ const loadUpdateProduct = asyncHandler(async (req, res) => {
     }
 });
 
-// Load All Products
+// Admin Load All Products
 const loadAllProducts = async (req, res) => {
     try {
         const productData = await Product.find({});
         const products = Array.isArray(productData) ? productData : [];
-
         res.render('admin/products', { products });
     } catch (error) {
         res.render("errorPage");
@@ -108,7 +108,7 @@ const loadAllProducts = async (req, res) => {
 
 const createProduct = asyncHandler(async (req, res) => {
     try {
-            req.body.slug = slugify(req.body.title.toLowerCase())
+        req.body.slug = slugify(req.body.title.toLowerCase())
         const [existSlug, existSize, existColor] = await Promise.all([
             Product.findOne({ slug: req.body.slug }),
             Product.findOne({ size: req.body.size }),

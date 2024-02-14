@@ -31,38 +31,44 @@ const loadCreateAddress = asyncHandler(async (req, res) => {
 //Create Address
 const createAddress = asyncHandler(async (req, res) => {
   try {
-    const { name, mobile, houseName, street, landmark, pincode, city,state, defaultAddress } = req.body;
+    const { name, mobile, houseName, street, landmark, pincode, city, state, defaultAddress } = req.body;
     const accessToken = req.accessToken;
     const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
     const userId = decodedToken.id;
-    const newName=name.charAt(0).toUpperCase()+name.slice(1)
-    const newHouseName=houseName.charAt(0).toUpperCase()+houseName.slice(1)
-    const newStreet=street.charAt(0).toUpperCase()+street.slice(1)
-    const newLandmark=landmark.charAt(0).toUpperCase()+landmark.slice(1)
-    const newCity=city.charAt(0).toUpperCase()+city.slice(1)
-    const newState=state.charAt(0).toUpperCase()+state.slice(1)
+    const newName = name.charAt(0).toUpperCase() + name.slice(1)
+    const newHouseName = houseName.charAt(0).toUpperCase() + houseName.slice(1)
+    const newStreet = street.charAt(0).toUpperCase() + street.slice(1)
+    const newLandmark = landmark.charAt(0).toUpperCase() + landmark.slice(1)
+    const newCity = city.charAt(0).toUpperCase() + city.slice(1)
+    const newState = state.charAt(0).toUpperCase() + state.slice(1)
     if (userId) {
       // Create new Address
       const newAddress = await Address.create({
-        name:newName,
+        name: newName,
         user: userId,
         mobile,
-        houseName:newHouseName,
-        street:newStreet,
-        landmark:newLandmark,
+        houseName: newHouseName,
+        street: newStreet,
+        landmark: newLandmark,
         pincode,
-        city:newCity,
-        state:newState
+        city: newCity,
+        state: newState
       });
       if (defaultAddress) {
         makeDefaultAddress({ addressId: newAddress._id, userId: userId });
       }
-      req.flash('head', `Address created Successfully`);
-      res.redirect('/user/address')
+      if (newAddress) {
+        res.json({ 'success': true, 'message': 'Address added successfully' });
+
+
+      } else {
+        res.status(404).json({ success: false, message: 'Try again...' });
+
+      }
+
     } else {
-      req.flash('head', `Try again.. `);
-      // User already exists
-      res.redirect('/user/address');
+      res.status(500).json({ success: false, message: 'Try again...' });
+
     }
   } catch (error) {
     // Handle unexpected errors
@@ -89,23 +95,23 @@ const deleteAddress = asyncHandler(async (req, res) => {
   }
 });
 // Make Default Address
-const defaultAddress= asyncHandler(async(req,res)=>{
-  try{
-const addressId=req.params.id
-const accessToken = req.accessToken;
-const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
-const userId = decodedToken.id;
- makeDefaultAddress({addressId,userId})
- res.status(200).json();
-  }catch(error){
+const defaultAddress = asyncHandler(async (req, res) => {
+  try {
+    const addressId = req.params.id
+    const accessToken = req.accessToken;
+    const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
+    const userId = decodedToken.id;
+    makeDefaultAddress({ addressId, userId })
+    res.status(200).json();
+  } catch (error) {
     res.status(500).json();
   }
 });
 // Load edit Address
-const loadEditAddress =asyncHandler(async(req,res)=>{
-  const addressId=req.params.id;
-  const address= await Address.findById({_id:addressId});
-  res.render('editAddress',{address})
+const loadEditAddress = asyncHandler(async (req, res) => {
+  const addressId = req.params.id;
+  const address = await Address.findById({ _id: addressId });
+  res.render('editAddress', { address })
 })
 
 // Make Default Address Function
@@ -117,28 +123,28 @@ const makeDefaultAddress = asyncHandler(async ({ addressId, userId, res }) => {
 // Update Address
 const editAddress = asyncHandler(async (req, res) => {
   try {
-    const addressId=req.params.id
-    const { name, mobile, houseName, street, landmark, pincode, city,state } = req.body;
-    const newName=name.charAt(0).toUpperCase()+name.slice(1)
-    const newHouseName=houseName.charAt(0).toUpperCase()+houseName.slice(1)
-    const newStreet=street.charAt(0).toUpperCase()+street.slice(1)
-    const newLandmark=landmark.charAt(0).toUpperCase()+landmark.slice(1)
-    const newCity=city.charAt(0).toUpperCase()+city.slice(1)
-    const newState=state.charAt(0).toUpperCase()+state.slice(1)
+    const addressId = req.params.id
+    const { name, mobile, houseName, street, landmark, pincode, city, state } = req.body;
+    const newName = name.charAt(0).toUpperCase() + name.slice(1)
+    const newHouseName = houseName.charAt(0).toUpperCase() + houseName.slice(1)
+    const newStreet = street.charAt(0).toUpperCase() + street.slice(1)
+    const newLandmark = landmark.charAt(0).toUpperCase() + landmark.slice(1)
+    const newCity = city.charAt(0).toUpperCase() + city.slice(1)
+    const newState = state.charAt(0).toUpperCase() + state.slice(1)
     if (addressId) {
       // Create new Address
-       await Address.findByIdAndUpdate(
+      await Address.findByIdAndUpdate(
         addressId,
         {
           $set: {
-            name:newName,
+            name: newName,
             mobile,
-            houseName:newHouseName,
-            street:newStreet,
-            landmark:newLandmark,
+            houseName: newHouseName,
+            street: newStreet,
+            landmark: newLandmark,
             pincode,
-            city:newCity,
-            state:newState
+            city: newCity,
+            state: newState
           }
         },
         { new: true } // To return the updated document

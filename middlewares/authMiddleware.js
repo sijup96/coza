@@ -34,18 +34,23 @@ const userMiddleware = asyncHandler(async (req, res, next) => {
   }
 });
 //Pass accessToken if user Exist
-const accessToken=asyncHandler(async(req,res,next)=>{
+const accessToken = asyncHandler(async (req, res, next) => {
   try {
     const cookie = req.cookies
-    if(cookie){
+    if (cookie) {
       const refreshToken = cookie.refreshToken
       const user = await User.findOne({ refreshToken })
-    const accessToken = generateToken(user._id)
-    req.accessToken = accessToken
-    next() 
-    }else
-    next()
-  
+      if (user) {
+        const accessToken = generateToken(user._id)
+        req.accessToken = accessToken
+        next()
+      } else {
+        next()
+      }
+
+    } else
+      next()
+
   } catch (error) {
     throw new Error(error)
   }
@@ -71,9 +76,28 @@ const isAdmin = asyncHandler(async (req, res, next) => {
 
 });
 
+//Check Blocked Status
+const isBlocked = asyncHandler(async (req, res, next) => {
+  try {
+    const cookie = req.cookies
+    if (!cookie?.refreshToken) throw new Error("No refresh Token in cookies")
+    const refreshToken = cookie.refreshToken
+    const user = await User.findOne({ refreshToken })
+    if (user.isBlocked === false) {
+      next()
+
+    } else {
+      res.redirect('/');
+    }
+  } catch (error) {
+    res.redirect('/');
+  }
+
+});
+
 const cacheControl = asyncHandler(async (req, res, next) => {
   res.setHeader('Cache-Control', 'no-store, no-cache');
   next();
 });
 
-module.exports = { userMiddleware, isAdmin, cacheControl,accessToken };
+module.exports = { userMiddleware, isAdmin, cacheControl, accessToken, isBlocked };

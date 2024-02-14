@@ -21,10 +21,11 @@ const userHome = asyncHandler(async (req, res) => {
     const categories = await Category.find({ is_listed: true });
     const categoryIds = categories.map(category => category._id);
     const accessToken = req.accessToken;
-    let cartData ;
-    if(accessToken){
-       cartData = await Cart.viewCart(accessToken);
+    let cartData;
+    if (accessToken) {
+      cartData = await Cart.viewCart(accessToken);
     }
+
     if (categoryIds.length > 0) {
       const productsFemale = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'female' });
       const productsMale = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'male' });
@@ -43,7 +44,6 @@ const userHome = asyncHandler(async (req, res) => {
 });
 
 //Get Login page
-
 const userLogin = asyncHandler(async (req, res) => {
   try {
     // Set headers to prevent caching
@@ -83,10 +83,14 @@ const userAccount = asyncHandler(async (req, res) => {
     const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
     const userId = decodedToken.id;
     const userData = await Address.findOne({ user: userId, default: true }).populate('user')
-    if (!userData) {
-      return res.status(404).send('User not found');
-    }
+    if(userData){
+
     res.render('userAccount', { userData });
+    }else{
+      const userData=await User.findById({_id:userId})
+      console.log(userData);
+      res.render('userAccount', { userData });
+    }
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
       return res.status(401).send('Token expired');
@@ -94,10 +98,8 @@ const userAccount = asyncHandler(async (req, res) => {
     if (error.name === 'JsonWebTokenError') {
       return res.status(401).send('Invalid token');
     }
-
   }
 });
-
 
 
 //Reset Password page
@@ -153,7 +155,6 @@ const validateUser = asyncHandler(async (req, res) => {
     }
 
     // Password Validation
-
     if (password && password.trim() === "") {
       response.passwordStatus = "Password cannot be Empty";
     } else if (password && password.length <= 8) {
@@ -170,8 +171,6 @@ const validateUser = asyncHandler(async (req, res) => {
     res.status(500).send({ error: "Internal Server Error" });
   }
 });
-
-
 
 
 
@@ -400,7 +399,8 @@ const logout = asyncHandler(async (req, res) => {
     res.clearCookie("refreshToken", {
       httpOnly: true,
       secure: true,
-    })
+    });
+    delete res.locals.user;
     res.redirect('/');
 
   } catch (error) {
@@ -410,10 +410,10 @@ const logout = asyncHandler(async (req, res) => {
 
 //Update a User
 const updateUser = asyncHandler(async (req, res) => {
+  try {
   const { name, mobile, dob } = req.body
   const newName = name.charAt(0).toUpperCase() + name.slice(1)
   const accessToken = req.accessToken
-  try {
     const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
     const userId = decodedToken.id;
     const user = await User.findById({ _id: userId });
@@ -467,16 +467,18 @@ const getUser = asyncHandler(async (req, res) => {
 });
 
 //Delete a User
-
 const deleteUser = asyncHandler(async (req, res) => {
-  const { id } = req.params
-  console.log(id);
   try {
-    const deleteaUser = await User.findByIdAndDelete({ _id: id })
-    console.log(deleteaUser);
-    res.json({ deleteaUser })
+    const accessToken = req.accessToken;
+    const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
+    const userId = decodedToken.id;
+    const deletedUser = await User.findByIdAndDelete(userId);
+    if (!deletedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json({ message: 'User deleted successfully' });
   } catch (error) {
-    throw new Error(error)
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
@@ -509,19 +511,22 @@ const unblockUser = asyncHandler(async (req, res) => {
 
 //Update Password
 
-const updatePassword = asyncHandler(async (req, res) => {
-  const { _id } = req.user;
-  const { password } = req.body;
+const changePassword = asyncHandler(async (req, res) => {
   try {
-    validateMongoDbId(_id)
-    const user = await User.findById(_id)
-    if (password) {
-      user.password = password;
-      const updatedPassword = await user.save()
-      console.log(updatedPassword);
-      res.json(updatedPassword)
+  const accessToken = req.accessToken
+        const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET)
+        const userId = decodedToken.id;
+  const {currentPassword, newPassword } = req.body;
+    validateMongoDbId(userId)
+    const user = await User.findById({_id:userId})
+
+    if (user && (await user.isPasswordMatched(currentPassword))) {
+      user.password = newPassword;
+      await user.save()
+      res.json({ message: 'Password updated successfully' });
     } else {
-      res.json(user)
+      res.status(400).json({ error: 'User not found' });
+
     }
   } catch (error) {
     throw new Error(error)
@@ -538,10 +543,8 @@ const forgotPasswordToken = asyncHandler(async (req, res) => {
     if (!user) {
       throw new Error('User not found with this email');
     }
-
     const token = await user.createPasswordResetToken();
     await user.save();
-
     // Construct the HTML content of the email
     const resetLink = `http://localhost:3000/createPassword/${token}`;
     const emailBody = `
@@ -610,10 +613,6 @@ const updateProfileIcon = asyncHandler(async (req, res) => {
   }
 });
 
-// Load Checkout Page
-const loadCheckout = asyncHandler(async (req, res) => {
-  res.render('checkout')
-})
 
 
 module.exports = {
@@ -627,7 +626,7 @@ module.exports = {
   unblockUser,
   handleRefreshToken,
   logout,
-  updatePassword,
+  changePassword,
   forgotPasswordToken,
   resetPassword,
   userRegister,
@@ -639,7 +638,6 @@ module.exports = {
   loadVerifyEmailPage,
   userAccount,
   updateProfileIcon,
-  loadCheckout
 
-  // verifySignup
+
 }

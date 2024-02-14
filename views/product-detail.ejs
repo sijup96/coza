@@ -1,5 +1,29 @@
 <%- include('./layouts/userLayout/header.ejs') %>
+	<style>
+		.cross {
+			position: relative;
+			display: inline-block;
+		}
 
+		.cross::after {
+			content: '';
+			width: 100%;
+			position: absolute;
+			right: 0;
+			top: 40%;
+			border-bottom: 2px solid red;
+			/* Specify the thickness and color of the line */
+		}
+
+		td {
+			padding: 5px;
+
+		}
+
+		table {
+			margin-top: 2em;
+		}
+	</style>
 
 
 	<!-- breadcrumb -->
@@ -62,10 +86,34 @@
 						</h4>
 
 						<span class="mtext-106 cl2">
-							<%= product.price %>rs
+							<span class="mtext-110 cl2 discount-section cross" style="color: red; ">
+								₹ <%= product.price+450 %> </span> &nbsp; ₹<%= product.price %>
+
 						</span>
 
-						<p class="stext-102 cl3 p-t-23">
+						<table class="stext-102 cl3 p-t-23">
+							<tr>
+								<td><strong>Brand:</strong></td>
+								<td>
+									<%= product.brand %>
+								</td>
+							</tr>
+							<tr>
+								<td><strong>Fabric type:</strong></td>
+								<td>Dacron</td>
+							</tr>
+							<tr>
+								<td><strong>Care instructions:</strong></td>
+								<td>Machine Wash</td>
+							</tr>
+							<tr>
+								<td><strong>Origin:</strong></td>
+								<td>Imported</td>
+							</tr>
+
+						</table>
+						<p class="stext-102 cl3 p-t-23" style="line-height: 2em;">
+							<strong>Product Description:</strong><br>
 							<%= product.description %>
 						</p>
 
@@ -109,8 +157,11 @@
 
 							<div class="flex-w flex-r-m p-b-10">
 								<div class="size-204 flex-w flex-m respon6-next">
+									Quantity &nbsp;
+
 									<div class="wrap-num-product flex-w m-r-20 m-tb-10">
-										<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m" id="minusButton">
+										<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m"
+											id="minusButton">
 											<i class="fs-16 zmdi zmdi-minus" id="minusButton"></i>
 										</div>
 
@@ -130,29 +181,29 @@
 							</div>
 						</div>
 
-						<!--  -->
+
 						<div class="flex-w flex-m p-l-100 p-t-40 respon7">
 							<div class="flex-m bor9 p-r-10 m-r-11">
 								<a href="#"
 									class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 js-addwish-detail tooltip100"
 									data-tooltip="Add to Wishlist">
-									<i class="zmdi zmdi-favorite"></i>
+									<!-- <i class="zmdi zmdi-favorite"></i> -->
 								</a>
 							</div>
 
 							<a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100"
 								data-tooltip="Facebook">
-								<i class="fa fa-facebook"></i>
+								<!-- <i class="fa fa-facebook"></i> -->
 							</a>
 
 							<a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100"
 								data-tooltip="Twitter">
-								<i class="fa fa-twitter"></i>
+								<!-- <i class="fa fa-twitter"></i> -->
 							</a>
 
 							<a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100"
 								data-tooltip="Google Plus">
-								<i class="fa fa-google-plus"></i>
+								<!-- <i class="fa fa-google-plus"></i> -->
 							</a>
 						</div>
 					</div>
@@ -184,15 +235,18 @@
 						<div class="tab-pane fade show active" id="description" role="tabpanel">
 							<div class="how-pos2 p-lr-15-md">
 								<p class="stext-102 cl6">
-									Aenean sit amet gravida nisi. Nam fermentum est felis, quis feugiat nunc fringilla
-									sit amet. Ut in blandit ipsum. Quisque luctus dui at ante aliquet, in hendrerit
-									lectus interdum. Morbi elementum sapien rhoncus pretium maximus. Nulla lectus enim,
-									cursus et elementum sed, sodales vitae eros. Ut ex quam, porta consequat interdum
-									in, faucibus eu velit. Quisque rhoncus ex ac libero varius molestie. Aenean tempor
-									sit amet orci nec iaculis. Cras sit amet nulla libero. Curabitur dignissim, nunc nec
-									laoreet consequat, purus nunc porta lacus, vel efficitur tellus augue in ipsum. Cras
-									in arcu sed metus rutrum iaculis. Nulla non tempor erat. Duis in egestas nunc.
-								</p>
+									Versatile Prints
+									Explore different print options to enhance the dress's overall appeal.
+									Some popular choices include floral prints for a feminine touch,
+									abstract prints for a contemporary look, or geometric prints for a modern and
+									structured aesthetic.
+									Ensure that the print is carefully positioned and scaled to complement the dress's
+									silhouette.
+									Incorporate a sophisticated V-neckline into the dress design.
+									A well-executed V-neck can create a flattering and elongating effect,
+									drawing attention to the decolletage.
+									Consider adjusting the depth of the V-neck to suit personal preferences and the
+									overall style of the dress.
 							</div>
 						</div>
 
@@ -1114,36 +1168,36 @@
 	<script>
 		$(document).ready(function () {
 			$('.js-addcart-detail').on('click', function () {
-				const productId = '<%= product._id %>';  
+				const productId = '<%= product._id %>';
 				const quantity = $('.num-product').val();
 				$.ajax({
-					type: 'POST', 
-					url: '/cart/add', 
+					type: 'POST',
+					url: '/cart/add',
 					data: {
 						productId: productId,
 						quantity: quantity
 					},
 					success: function (response) {
-						if(response.success){
+						if (response.success) {
 							swal({
-							title: "Success",
-							text: "Product already exist, increased the Quantity",
-							icon: "success"
-						}).then((data) => {
-							// Reload the page after the user clicks "OK"
-							$('.header-cart-content').load(location.href + ' .header-cart-content');
-						});
-						}else{
+								title: "Success",
+								text: "Product already exist, increased the Quantity",
+								icon: "success"
+							}).then((data) => {
+								// Reload the page after the user clicks "OK"
+								$('.header-cart-content').load(location.href + ' .header-cart-content');
+							});
+						} else {
 							swal({
-							title: "Success",
-							text: "Product added to the cart",
-							icon: "success"
-						}).then((data) => {
-							// Reload the page after the user clicks "OK"
-							$('.header-cart-content').load(location.href + ' .header-cart-content');
-						});
+								title: "Success",
+								text: "Product added to the cart",
+								icon: "success"
+							}).then((data) => {
+								// Reload the page after the user clicks "OK"
+								$('.header-cart-content').load(location.href + ' .header-cart-content');
+							});
 						}
-						
+
 					},
 					error: function (xhr, status, error) {
 						let errorMessage = "An error occurred";
@@ -1161,32 +1215,33 @@
 	</script>
 
 	<script>
-		$(document).ready(function() {
-    $('#minusButton,#plusButton').click(function() {
-		const productId = '<%= product._id %>'; 
-        const quantity = parseInt($('.num-product').val(), 10);
-        $.ajax({
-            url: '/cart/checkQuantity',
-            method: 'PATCH', 
-            data: { quantity: quantity,
-				productId:productId,
-			},
-            success: function(response) {
-            },
-            error: function(xhr, status, error) {
-				if (xhr.status === 400) {
-					const currentValue = parseInt($('.num-product').val(), 10);
-            swal("Error", "Quantity Exceeded", "error");
-			$('.num-product').val(currentValue-1);
+		$(document).ready(function () {
+			$('#minusButton,#plusButton').click(function () {
+				const productId = '<%= product._id %>';
+				const quantity = parseInt($('.num-product').val(), 10);
+				$.ajax({
+					url: '/cart/checkQuantity',
+					method: 'PATCH',
+					data: {
+						quantity: quantity,
+						productId: productId,
+					},
+					success: function (response) {
+					},
+					error: function (xhr, status, error) {
+						if (xhr.status === 400) {
+							const currentValue = parseInt($('.num-product').val(), 10);
+							swal("Error", "Quantity Exceeded", "error");
+							$('.num-product').val(currentValue - 1);
 
-        } else {
-            // For other errors, log to console
-            console.error('Error checking quantity:', error);
-        }
-            }
-        });
-    });
-});
+						} else {
+							// For other errors, log to console
+							console.error('Error checking quantity:', error);
+						}
+					}
+				});
+			});
+		});
 	</script>
 
 	</body>

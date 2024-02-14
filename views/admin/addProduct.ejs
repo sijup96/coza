@@ -10,9 +10,12 @@
             margin-top: 5px;
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js" integrity="sha384-2IqviyrjrJRzmTpXz6OJ3d3e2rOG6FrxLmeML8lT9t0tZqE3MEbbK6c4YR6Duerx" crossorigin="anonymous"></script>
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"
+        integrity="sha512-hvNR0F/e2J7zPPfLC9auFe3/SE0yG4aJCOd/qxew74NN7eyiSKjr7xJJMu1Jy2wf7FXITpWS1E/RY8yzuXN7VA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     <section class="content-main">
         <div class="row">
             <div class="col-6">
@@ -194,10 +197,77 @@
                     </div>
                 </div>
                 <!-- card-product  end// -->
+                <div class="main-container">
+                    <div style="display: flex;">
+                        <div class="img-container">
+                            <img id="image" src="/images/product-01.jpg">
+                            <button id="btn-reset">Reset</button>
+                            <button id="btn-crop">Crop</button>
+                        </div>
+                        <div>
+                            <!-- Block2 -->
+                            <div>
+                                <div>
+                                    <div class="cropped-container">
+
+                                        
+                                        <img src="" id="output"  style="max-width: 350px; margin-left: 5px;">
+                                    
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
             </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     </section> <!-- content-main end// -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"
+        integrity="sha512-9KkIqdfN7ipEW6B6k+Aq20PV31bjODg4AA52W+tYtAE0jE0kMx49bjJ3FgvS56wzmyfMUHbQ4Km2b7l9+Y/+Eg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+        const image = document.getElementById('image');
+        const cropper = new Cropper(image, {
+            aspectRatio: 0,
+            viewMode: 0,
+        });
+
+        document.querySelector('#btn-crop').addEventListener('click', function () {
+            var croppedImage = cropper.getCroppedCanvas().toDataURL("image/png");
+            document.getElementById('output').src = croppedImage;
+            document.querySelector(".cropped-container").style.display = 'flex';
+        });
+
+        document.querySelector('#btn-reset').addEventListener('click', function () {
+            // Reset the cropping area
+            cropper.reset();
+        });
+    </script>
     <script>
         $(function () {
             // Multiple images preview in browser
@@ -215,8 +285,7 @@
                             // Image tag
                             var imgElement = $($.parseHTML('<img>')).attr('src', event.target.result);
 
-                            // Select checkbox
-                            var selectCheckbox = $($.parseHTML('<input type="checkbox" class="select-checkbox">'));
+                        
 
                             // Delete button
                             var deleteButton = $($.parseHTML('<button class="delete-button">Delete</button>')).click(function () {
@@ -225,7 +294,6 @@
 
                             // Append elements to the container
                             imgContainer.append(imgElement);
-                            imgContainer.append(selectCheckbox);
                             imgContainer.append(deleteButton);
 
                             // Append container to the specified place

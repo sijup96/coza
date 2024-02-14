@@ -1949,7 +1949,7 @@ input.num-product::-webkit-inner-spin-button {
 }
 
 .table-shopping-cart .table_row {
-  height: 185px;
+  height: 110px;
 }
 
 .table-shopping-cart .table_row td {
@@ -2196,7 +2196,7 @@ input.num-product::-webkit-inner-spin-button {
 
 .stext-110 {
   font-family: Poppins-Medium;
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.466667;
 }
 
@@ -2720,6 +2720,7 @@ input.num-product::-webkit-inner-spin-button {
 
 .bor10 {
   border: 1px solid #e6e6e6;
+ 
 }
 
 .bor11 {
@@ -2728,6 +2729,7 @@ input.num-product::-webkit-inner-spin-button {
 
 .bor12 {
   border-bottom: 1px dashed #d9d9d9;
+  margin-right: -50px;
 }
 
 .bor13 {

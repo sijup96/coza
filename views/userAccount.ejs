@@ -1,4 +1,12 @@
 <%- include('./layouts/userLayout/userAccountHeader.ejs') %>
+<!-- Bootstrap CSS -->
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap CSS -->
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Bootstrap JS -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
     <script> localStorage.removeItem('activeMenuItem');</script>
     <section class="content-main">
         <div class="content-header">
@@ -7,30 +15,37 @@
         <div class="card">
             <div class="card-body">
                 <div class="row gx-5">
-                    <div class="col-lg-9">
+                    <div class="col-lg-10">
                         <section class="content-body p-xl-4">
                             <form action="/user/updateUser" method="post">
                                 <div class="row">
                                     <aside class="col-lg-4">
                                         <figure class="text-lg-center">
-                                            <img class="img-lg mb-3 img-avatar" id="mainAvatar" src="<%= userData.user.icon %>"
-                                                alt="User Photo" />
+                                            <img class="img-lg mb-3 img-avatar" id="mainAvatar"
+                                                src=" <%= userData && userData.user && userData.user.icon ? userData.user.icon : '/assets/imgs/people/avatar-1.png' %>" alt="User Photo" />
                                             <figcaption>
-                                                <a class=" rounded font-md" > <i
-                                                        class="font-md"></i> Click the below Avatar to Update
+                                                <a class=" rounded font-md"> <i class="font-md"></i> Click the below
+                                                    Avatar to Update
                                                 </a>
                                             </figcaption>
                                         </figure>
                                         <hr>
                                         <div class="row">
-                                            <div class="col-4" style="display:flex">
-                                                <img class="img-avatar" src="/assets/imgs/people/avatar-1.png" alt="User Photo"
+                                            <div class="col-3 " style="display:flex;">
+                                                <img class="img-avatar" src="/assets/imgs/people/avatar-1.png"
+                                                    alt="User Photo"
                                                     onclick="changeProfilePhoto('/assets/imgs/people/avatar-1.png')" />
-                                                <img class="img-avatar" src="/assets/imgs/people/avatar-2.png" alt="User Photo"
+                                                <img class="img-avatar" src="/assets/imgs/people/avatar-2.png"
+                                                    alt="User Photo"
                                                     onclick="changeProfilePhoto('/assets/imgs/people/avatar-2.png')" />
-                                                <img class="img-avatar" src="/assets/imgs/people/avatar-3.png" alt="User Photo"
+                                                <img class="img-avatar" src="/assets/imgs/people/avatar-3.png"
+                                                    alt="User Photo"
                                                     onclick="changeProfilePhoto('/assets/imgs/people/avatar-3.png')" />
-                                                <img class="img-avatar" src="/assets/imgs/people/avatar-4.png" alt="User Photo"
+                                                <img class="img-avatar" src="/assets/imgs/people/avatar-4.png"
+                                                    alt="User Photo"
+                                                    onclick="changeProfilePhoto('/assets/imgs/people/avatar-4.png')" />
+                                                <img class="img-avatar" src="/assets/imgs/people/avatar-4.png"
+                                                    alt="User Photo"
                                                     onclick="changeProfilePhoto('/assets/imgs/people/avatar-4.png')" />
                                             </div>
                                         </div>
@@ -41,25 +56,25 @@
 
                                                 <label class="form-label">Full Name</label>
                                                 <input class="form-control" type="text"
-                                                    value="<%= userData.user.name %>" name="name" />
+                                                    value="<%= userData.user ? userData.user.name : (userData.name ? userData.name : '') %>" name="name" />
                                             </div>
 
                                             <!-- col .// -->
                                             <div class="col-lg-6 mb-3">
                                                 <label class="form-label">Email</label>
                                                 <input class="form-control" type="email"
-                                                    value="<%= userData.user.email %>" name="email" readonly />
+                                                    value="<%= userData.user ? userData.user.email : (userData.email ? userData.email : '') %>" name="email" readonly />
                                             </div>
                                             <!-- col .// -->
                                             <div class="col-lg-6 mb-3">
                                                 <label class="form-label">Phone</label>
                                                 <input class="form-control" type="text"
-                                                    value="<%= userData.user.mobile %>" name="mobile" />
+                                                    value="<%= userData.user ? userData.user.mobile : (userData.mobile ? userData.mobile : '') %>" name="mobile" />
                                             </div>
                                             <!-- col .// -->
                                             <div class="col-lg-6 mb-3">
                                                 <label class="form-label">Date Of Birth</label>
-                                                <input class="form-control" type="text" value="<%= userData.user.dob %>"
+                                                <input class="form-control" type="text" value="<%= userData.user ? userData.user.dob : (userData.dob ? userData.dob : '') %>"
                                                     name="dob" />
                                             </div>
 
@@ -69,11 +84,20 @@
                                                         <h6>Default Address</Address>
                                                         </h6><br>
                                                         <small class="text-muted d-block" style="width: 70%">
-                                                            <%= userData.houseName %><br>
-                                                                <%= userData.street %>, <%= userData.landmark %>, &nbsp;
-                                                                        <%= userData.city %><br>
-                                                                            <%= userData.state %> &nbsp; <%=
-                                                                                    userData.pincode %>
+                                                            <% if(userData){ %>
+                                                                <%= userData.name %><br>
+                                                                    <%= userData.houseName %><br>
+                                                                        <%= userData.street %>, <%= userData.landmark %>
+                                                                                , &nbsp;
+                                                                                <%= userData.city %><br>
+                                                                                    <%= userData.state %> &nbsp; <%=
+                                                                                            userData.pincode %><br>
+                                                                                            phone: <%= userData.mobile
+                                                                                                %>
+                                                                                                <% }else{ %>
+                                                                                                    <p>Set any address
+                                                                                                        as Default</p>
+                                                                                                    <% }%>
                                                         </small>
                                                     </article>
                                                 </div>
@@ -98,7 +122,7 @@
                             <div class="row" style="max-width: 920px">
                                 <div class="col-md">
                                     <article class="box mb-3 bg-light">
-                                        <a class="btn float-end btn-light btn-sm rounded font-md" href="#">Change</a>
+                                        <a class="btn float-end btn-light btn-sm rounded font-md" data-toggle="modal" data-target="#changePasswordModal">Change</a>
                                         <h6>Password</h6>
                                         <small class="text-muted d-block" style="width: 70%">You can reset or change
                                             your password by clicking here</small>
@@ -107,8 +131,7 @@
                                 <!-- col.// -->
                                 <div class="col-md">
                                     <article class="box mb-3 bg-light">
-                                        <a class="btn float-end btn-light rounded btn-sm font-md"
-                                            href="#">Deactivate</a>
+                                        <a class="btn float-end btn-light rounded btn-sm font-md" id="deactivate">Deactivate</a>
                                         <h6>Remove account</h6>
                                         <small class="text-muted d-block" style="width: 70%">Once you delete your
                                             account, there is no going back.</small>
@@ -128,12 +151,100 @@
             <!-- card body end// -->
         </div>
         <!-- card end// -->
-    </section>
+        pekkeregne@gufum.com
     <!-- content-main end// -->
+
+
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="changePasswordForm">
+                    <div class="form-group">
+                        <label for="currentPassword">Current Password</label>
+                        <input type="password" class="form-control" id="currentPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">New Password</label>
+                        <input type="password" class="form-control" id="newPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm New Password</label>
+                        <input type="password" class="form-control" id="confirmPassword" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="changePassword()">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+<!-- Bootstrap JS and jQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+<script>
+    function changePassword() {
+        let currentPassword = document.getElementById('currentPassword').value;
+        let newPassword = document.getElementById('newPassword').value;
+        let confirmPassword = document.getElementById('confirmPassword').value;
+
+        if(newPassword !== confirmPassword){
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'New password and confirm password do not match.',
+            });
+            return;
+    }else{
+fetch('/changePassword',{
+    method:'PUT',
+    headers:{
+        'Content-Type': 'application/json',
+    },
+    body:JSON.stringify({
+        currentPassword:currentPassword,
+        newPassword:newPassword,
+    }),
+})
+.then(response =>{
+    if(response.ok){
+Swal.fire({
+    icon:'success',
+    title:'Success',
+    text:'Password changed Successfully'
+});
+$('#changePasswordModal').modal('hide');
+    }else{
+Swal.fire({
+    icon:'error',
+    title:'error',
+    text:'Enter password correctly'
+}) 
+   }
+})
+    }
+    }
+</script>
+
     <script>
         function changeProfilePhoto(photoUrl) {
             document.getElementById('mainAvatar').src = photoUrl;
-    
+
             // Send AJAX request to update the database
             fetch('/user/profileIcon', {
                 method: 'PUT',
@@ -142,20 +253,52 @@
                 },
                 body: JSON.stringify({ photoUrl }),
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Handle success, if needed
-                console.log(data);
-            })
-            .catch(error => {
-                // Handle error
-                console.error('There was a problem with the fetch operation:', error);
-            });
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Handle success, if needed
+                    console.log(data);
+                })
+                .catch(error => {
+                    // Handle error
+                    console.error('There was a problem with the fetch operation:', error);
+                });
         }
     </script>
+
+<script>
+    $(document).ready(function() {
+        $('#deactivate').click(function() {
+            Swal.fire({
+                title: 'Are you sure?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, deactivate!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // User confirmed, make AJAX request
+                    $.ajax({
+                        url: '/deactivate',
+                        type: 'DELETE',
+                        dataType: 'json',
+                        success: function(response) {
+                            // Handle success response if needed
+                            Swal.fire('Deactivated!', 'Your account has been deactivated.', 'success');
+                        },
+                        error: function(xhr, status, error) {
+                            // Handle error response if needed
+                            Swal.fire('Error!', 'Failed to deactivate your account.', 'error');
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>
     <%- include('./layouts/userLayout/userAccountFooter.ejs') %>

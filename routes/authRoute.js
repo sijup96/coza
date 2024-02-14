@@ -9,20 +9,19 @@ const { createUser,
    unblockUser,
    handleRefreshToken,
    logout,
-   updatePassword,
    forgotPasswordToken,
    resetPassword,
    userHome,
    userLogin,
    userRegister,
-   verifyOtp, resendOTP, validateUser, loadVerifyEmailPage, loadCreatePassword,
+   verifyOtp, resendOTP, validateUser, loadVerifyEmailPage, loadCreatePassword, changePassword,
 } = require('../controller/userCtrl');
 const { userMiddleware, cacheControl, accessToken } = require('../middlewares/authMiddleware');
 const router = express.Router()
 
 
 
-router.get("/", cacheControl,accessToken, userHome);
+router.get("/", cacheControl, accessToken, userHome);
 router.get("/register", cacheControl, userRegister);
 
 router.post("/register", cacheControl, createUser);
@@ -37,14 +36,14 @@ router.get("/createPassword/:id", loadCreatePassword);
 router.post("/forgotPassword", forgotPasswordToken);
 router.post("/createPassword/:id", resetPassword);
 
-router.patch("/reset-password/:token", resetPassword);
-router.put("/password", userMiddleware, updatePassword);
+// router.patch("/reset-password/:token", resetPassword);
+router.put("/changePassword", userMiddleware, changePassword);
 
 router.get("/login", cacheControl, userLogin);
 router.post("/login", cacheControl, loginUserCtrl);
 router.get("/logout", cacheControl, logout)
 
-router.delete("/deleteuser/:id", deleteUser);
+router.delete("/deactivate",userMiddleware, deleteUser);
 
 
 

@@ -1,335 +1,672 @@
 <%- include('./layouts/userLayout/header.ejs') %>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+	<style>
+		.cross {
+			position: relative;
+			display: inline-block;
+		}
+
+		.cross::after {
+			content: '';
+			width: 100%;
+			position: absolute;
+			right: 0;
+			top: 40%;
+			border-bottom: 2px solid red;
+			/* Specify the thickness and color of the line */
+		}
+
+		.address-card {
+			margin-bottom: 20px;
+		}
+
+		.card {
+			border: 1px solid #ddd;
+			border-radius: 5px;
+			padding: 10px;
+			cursor: pointer;
+		}
+
+		.card:hover {
+			box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+		}
+
+		input[type="radio"] {
+			display: none;
+		}
+
+		input[type="radio"]:checked+label .card {
+			border-color: #007bff;
+			box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+			background-color: rgba(137, 149, 171, 0.306);
+		}
 
 
+		@media (max-width: 991px) {
+			.order-lg-first {
+				order: -1;
+			}
+		}
 
-	<!-- Cart -->
-	<div class="wrap-header-cart js-panel-cart">
-		<div class="s-full js-hide-cart"></div>
+		.address-box {
+			border: 1px solid #ccc;
+			padding: 10px;
+			margin-bottom: 10px;
+			cursor: pointer;
+		}
 
-		<div class="header-cart flex-col-l p-l-65 p-r-25">
-			<div class="header-cart-title flex-w flex-sb-m p-b-8">
-				<span class="mtext-103 cl2">
-					Your Cart
-				</span>
+		.address-box:hover {
+			background-color: #f0f0f0;
+		}
 
-				<div class="fs-35 lh-10 cl2 p-lr-5 pointer hov-cl1 trans-04 js-hide-cart">
-					<i class="zmdi zmdi-close"></i>
-				</div>
-			</div>
+		.tick-mark {
+			margin-right: 5px;
+			/* Adjust margin to create space between tick mark and address details */
+			margin-top: -10px;
+			/* Move tick mark above the address box */
+			color: green;
+			float: right;
+			/* Align tick mark to the right */
+		}
 
-			<div class="header-cart-content flex-w js-pscroll">
-				<ul class="header-cart-wrapitem w-full">
-					<li class="header-cart-item flex-w flex-t m-b-12">
-						<div class="header-cart-item-img">
-							<img src="images/item-cart-01.jpg" alt="IMG">
-						</div>
 
-						<div class="header-cart-item-txt p-t-8">
-							<a href="#" class="header-cart-item-name m-b-18 hov-cl1 trans-04">
-								White Shirt Pleat
-							</a>
+		.modal {
+			display: none;
+			position: fixed;
+			z-index: 1000;
+			left: 0;
+			top: 0;
+			/* Set top to 0 to align with the top of the page */
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0, 0, 0, 0.4);
+			overflow: auto;
+		}
 
-							<span class="header-cart-item-info">
-								1 x $19.00
-							</span>
-						</div>
-					</li>
+		.modal-content {
+			background-color: #fff;
+			margin: 0 auto;
+			/* Center horizontally */
+			margin-top: 50px;
+			/* Adjust this value to create space from the top */
+			padding: 20px;
+			border-radius: 8px;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+			max-width: 600px;
+			width: 80%;
+		}
 
-					<li class="header-cart-item flex-w flex-t m-b-12">
-						<div class="header-cart-item-img">
-							<img src="images/item-cart-02.jpg" alt="IMG">
-						</div>
 
-						<div class="header-cart-item-txt p-t-8">
-							<a href="#" class="header-cart-item-name m-b-18 hov-cl1 trans-04">
-								Converse All Star
-							</a>
+		.close {
+			color: #aaa;
+			float: right;
+			font-size: 28px;
+			font-weight: bold;
+		}
 
-							<span class="header-cart-item-info">
-								1 x $39.00
-							</span>
-						</div>
-					</li>
+		.close:hover,
+		.close:focus {
+			color: black;
+			text-decoration: none;
+			cursor: pointer;
+		}
 
-					<li class="header-cart-item flex-w flex-t m-b-12">
-						<div class="header-cart-item-img">
-							<img src="images/item-cart-03.jpg" alt="IMG">
-						</div>
+		/* Form styles */
+		.form-group {
+			margin-bottom: 15px;
+		}
 
-						<div class="header-cart-item-txt p-t-8">
-							<a href="#" class="header-cart-item-name m-b-18 hov-cl1 trans-04">
-								Nixon Porter Leather
-							</a>
+		.form-row {
+			margin-top: 15px;
+		}
 
-							<span class="header-cart-item-info">
-								1 x $17.00
-							</span>
-						</div>
-					</li>
-				</ul>
+		.form-group label {
+			font-weight: bold;
+		}
 
-				<div class="w-full">
-					<div class="header-cart-total w-full p-tb-40">
-						Total: $75.00
-					</div>
+		.form-control {
+			width: 100%;
+			padding: 8px;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+		}
 
-					<div class="header-cart-buttons flex-w w-full">
-						<a href="shoping-cart.html"
-							class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-r-8 m-b-10">
-							View Cart
+		.btn-primary {
+			background-color: #007bff;
+			color: #fff;
+			border: none;
+			padding: 8px 16px;
+			border-radius: 4px;
+			cursor: pointer;
+		}
+
+		.btn-primary:hover {
+			background-color: #0056b3;
+		}
+	</style>
+	<div id="reload">
+		<!-- Shoping Cart -->
+		<form class="bg0 p-t-75 p-b-85">
+
+			<div class="container">
+				<!-- breadcrumb -->
+				<div class="container">
+					<div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+						<a href="/" class="stext-109 cl8 hov-cl1 trans-04">
+							Home
+							<i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+						</a>
+						<a href="/cart" class="stext-109 cl8 hov-cl1 trans-04">
+							Cart
+							<i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
 						</a>
 
-						<a href="shoping-cart.html"
-							class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-b-10">
-							Check Out
-						</a>
+						<span class="stext-109 cl4">
+							Checkout
+						</span>
 					</div>
 				</div>
-			</div>
-		</div>
-	</div>
+				<br>
+				<div style="text-align: center; padding: 2em;">
+					<span>
+						<h1>Checkout</h1>
+					</span>
+				</div>
+				<div class="row">
+
+					<div class="col-lg-10 col-xl-7 m-lr-auto m-b-50">
+						<div class="m-l-25 m-r--38 m-lr-0-xl">
+							<div class="wrap-table-shopping-cart">
+								<table class="table-shopping-cart">
+									<tr class="table_head">
+										<th class="column-1">Product</th>
+										<th class="column-2"></th>
+										<th class="column-3">Price</th>
+										<th class="column-4">Quantity</th>
+										<th class="column-5">Total</th>
+									</tr>
+									<% if(cartData && cartData.products && cartData.products.length> 0) { %>
+										<% cartData.products.forEach(cartProduct=> { %>
+											<% if(cartProduct.product.is_listed===true){ %>
+
+												<tr class="table_row">
+													<td class="column-1">
+														<div class="how-itemcart1">
+															<% if (cartProduct.product && cartProduct.product.images &&
+																cartProduct.product.images.length> 0) { %>
+																<img src="/productImages/<%= cartProduct.product.images[0] %>"
+																	alt="IMG">
+																<% } else { %>
+																	<!-- Handle the case where cartProduct.product or cartProduct.product.images is not defined or has a length of 0 -->
+																	<% } %>
+														</div>
+													</td>
+													<td class="column-2">
+														<% if (cartProduct.product && cartProduct.product.title) { %>
+															<%= cartProduct.product.title %>
+																<% } else { %>
+																	<!-- Handle the case where cartProduct.product or cartProduct.product.title is not defined -->
+																	<% } %>
+													</td>
+													<td class="column-3">₹ <%= cartProduct.product &&
+															cartProduct.product.price%>
+													</td>
+													<td class="column-4">
+														<div class="flex-w " style="justify-content: center;">
+															<!-- <div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m"
+															data-product-id="<%= cartProduct.product._id %>">
+															<i class="fs-16 zmdi zmdi-minus"></i>
+														</div> -->
+															<input class="mtext-104 cl3 txt-center num-product"
+																type="number" name="num-product1"
+																value="<%= cartProduct.quantity %>"
+																data-product-id="<%= cartProduct.product._id %>"
+																readonly>
+															<!-- <div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m"
+															data-product-id="<%= cartProduct.product._id %>">
+															<i class="fs-16 zmdi zmdi-plus"></i>
+														</div> -->
+														</div>
+													</td>
+													<td class="column-5">₹ <%= cartProduct.product &&
+															cartProduct.product.price * cartProduct.quantity %>
+															<input type="hidden" id="total"
+																value="<%= cartProduct.product.price * cartProduct.quantity %>">
+													</td>
+
+												</tr>
+												<% }}) %>
+													<% } else { %>
+														<!-- Handle the case where cartData or cartData.products is not defined or has a length of 0 -->
+														<% } %>
+
+								</table>
+							</div>
+							<div class="flex-w flex-sb-m bor15 p-t-18 p-b-15 p-lr-40 p-lr-15-sm">
+								<div class="flex-w flex-m m-r-20 m-tb-5">
+									<input class="stext-104 cl2 plh4 size-117 bor13 p-lr-20 m-r-10 m-tb-5" type="text"
+										name="coupon" placeholder="Coupon Code">
+
+									<div
+										class="flex-c-m stext-101 cl2 size-118 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-5">
+										Apply coupon
+									</div>
+									<div
+										class="flex-c-m stext-101 cl2 size-119 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-10">
+										<a href="/products">Continue Shopping</a>
 
 
-	<!-- breadcrumb -->
-	<div class="container">
-		<div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
-			<a href="index.html" class="stext-109 cl8 hov-cl1 trans-04">
-				Home
-				<i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
-			</a>
-
-			<span class="stext-109 cl4">
-				Shoping Cart
-			</span>
-		</div>
-	</div>
+									</div>
+								</div>
+								<div id="modal1"
+									class="flex-c-m stext-101 cl2 size-118 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-5 js-show-modal1">
+									Add new shipping Address
+								</div>
 
 
-	<!-- Shoping Cart -->
-	<form class="bg0 p-t-75 p-b-85">
-		<div class="container">
-			<div class="row">
-				<div class="col-lg-10 col-xl-7 m-lr-auto m-b-50">
-					<div class="m-l-25 m-r--38 m-lr-0-xl">
-						<div class="wrap-table-shopping-cart">
-							<table class="table-shopping-cart">
-								<tr class="table_head">
-									<th class="column-1">Product</th>
-									<th class="column-2"></th>
-									<th class="column-3">Price</th>
-									<th class="column-4">Quantity</th>
-									<th class="column-5">Total</th>
-								</tr>
-								<% if(cartData) { %>
-									<% cartData.products.forEach(product=>{ %>
-										<tr class="table_row">
-											<td class="column-1">
-												<div class="how-itemcart1">
-													<img src="/myImages/<%= product.product.images[0] %>" alt="IMG">
-												</div>
-											</td>
-											<td class="column-2">
-												<%= product.product.title %>
-											</td>
-											<td class="column-3">₹ <%= product.product.price %>
-											</td>
-											<td class="column-4">
-												<div class="wrap-num-product flex-w m-l-auto m-r-0">
-													<div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
-														<i class="fs-16 zmdi zmdi-minus"></i>
-													</div>
-												
-													<input class="mtext-104 cl3 txt-center num-product" type="number"
-														name="num-product1" value="<%= product.quantity %>" data-product-id="<%= product.product._id %>">
-													
-													<div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
-														<i class="fs-16 zmdi zmdi-plus"></i>
-													</div>
-												</div>
-												
-											</td>
-											<td class="column-5">₹ <%= product.price %>
-											</td>
-											<td class="column-6">
-												<button class="btn btn-danger"
-													onclick="deleteProduct('<%= product.product._id %>')">Delete</button>
-											</td>
-										</tr>
-										<% }) }%>
-							</table>
-						</div>
-
-						<div class="flex-w flex-sb-m bor15 p-t-18 p-b-15 p-lr-40 p-lr-15-sm">
-							<div class="flex-w flex-m m-r-20 m-tb-5">
-								<input class="stext-104 cl2 plh4 size-117 bor13 p-lr-20 m-r-10 m-tb-5" type="text"
-									name="coupon" placeholder="Coupon Code">
-
-								<div
+								<div id="selectAddressButton"
 									class="flex-c-m stext-101 cl2 size-118 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-5">
-									Apply coupon
+									Select Shipping Address
 								</div>
+
 							</div>
 
-							<div
-								class="flex-c-m stext-101 cl2 size-119 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-10">
-								Update Cart
+						</div>
+						<div class="row">
+							<div class="col-md-6">
+								<ul id="addressList" style="display: none;">
+									<% if(userAddress) { %>
+										<% userAddress.forEach((address, index)=> { %>
+											<li id="selectedAddress-<%= address._id %>">
+												<input type="radio" id="address<%= index + 1 %>" name="selectedAddress"
+													value="<%= address._id %>" class="address-radio">
+												<label for="address<%= index + 1 %>">
+													<div class="card">
+														<div class="card-body">
+															<h5 class="card-title">
+																<%= address.name %>
+															</h5>
+															<p class="card-text">
+																<%= address.houseName %>
+															</p>
+															<p class="card-text">
+																<%= address.street %>, <%= address.landmark %>,
+																		&nbsp;<%= address.city %>
+															</p>
+															<p class="card-text">
+																<%= address.state %> &nbsp; <%= address.pincode %>
+															</p>
+															<p class="card-text"> phone: <%= address.mobile %>
+															</p>
+														</div>
+													</div>
+												</label>
+											</li>
+											<% }) %>
+												<% } %>
+								</ul>
 							</div>
 						</div>
 					</div>
-				</div>
 
-				<div class="col-sm-10 col-lg-7 col-xl-5 m-lr-auto m-b-50">
-					<div class="bor10 p-lr-40 p-t-30 p-b-40 m-l-63 m-r-40 m-lr-0-xl p-lr-15-sm">
-						<h4 class="mtext-109 cl2 p-b-30">
-							Cart Totals
-						</h4>
 
-						<div class="flex-w flex-t bor12 p-b-13">
-							<div class="size-208">
-								<span class="stext-110 cl2">
-									Subtotal:
-								</span>
-							</div>
 
-							<div class="size-209">
-								<span class="mtext-110 cl2">
-									$79.65
-								</span>
-							</div>
-						</div>
+					<div class="col-sm-10 col-lg-7 col-xl-5 m-lr-auto m-b-50">
+						<div class="bor10 p-lr-40 p-t-30 p-b-40 m-l-63 m-r-40 m-lr-0-xl p-lr-15-sm"
+							style="border: 1px solid; ">
+							<h4 class="mtext-109 cl2 p-b-30">
+								PRICE DETAILS
+							</h4>
 
-						<div class="flex-w flex-t bor12 p-t-15 p-b-30">
-							<div class="size-208 w-full-ssm">
-								<span class="stext-110 cl2">
-									Shipping:
-								</span>
-							</div>
-
-							<div class="size-209 p-r-18 p-r-0-sm w-full-ssm">
-								<p class="stext-111 cl6 p-t-2">
-									There are no shipping methods available. Please double check your address, or
-									contact us if you need any help.
-								</p>
-
-								<div class="p-t-15">
-									<span class="stext-112 cl8">
-										Calculate Shipping
+							<div class="flex-w flex-t bor12 p-b-13">
+								<div class="size-208">
+									<span class="stext-110 cl2">
+										Subtotal :
 									</span>
+								</div>
 
-									<div class="rs1-select2 rs2-select2 bor8 bg0 m-b-12 m-t-9">
-										<select class="js-select2" name="time">
-											<option>Select a country...</option>
-											<option>USA</option>
-											<option>UK</option>
-										</select>
-										<div class="dropDownSelect2"></div>
-									</div>
-
-									<div class="bor8 bg0 m-b-12">
-										<input class="stext-111 cl8 plh3 size-111 p-lr-15" type="text" name="state"
-											placeholder="State /  country">
-									</div>
-
-									<div class="bor8 bg0 m-b-22">
-										<input class="stext-111 cl8 plh3 size-111 p-lr-15" type="text" name="postcode"
-											placeholder="Postcode / Zip">
-									</div>
-
-									<div class="flex-w">
-										<div
-											class="flex-c-m stext-101 cl2 size-115 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer">
-											Update Totals
-										</div>
-									</div>
-
+								<div class="size-209 ">
+									<span class="mtext-110 cl2 ">
+										₹ <%= cartData.cartTotal ? cartData.cartTotal: 0.00 %>
+									</span>
 								</div>
 							</div>
-						</div>
 
-						<div class="flex-w flex-t p-t-27 p-b-33">
-							<div class="size-208">
-								<span class="mtext-101 cl2">
-									Total:
-								</span>
+
+							<div class="flex-w flex-t bor12 p-b-13">
+								<div class="size-208">
+									<span class="stext-110 cl2">
+										Discount :
+									</span>
+								</div>
+
+								<div class="size-209">
+									<span class="mtext-110 cl2" style="color: red;">
+										₹ -<%= cartData.discount ? cartData.discount: 0.00 %>
+									</span>
+								</div>
 							</div>
 
-							<div class="size-209 p-t-1">
+
+							<div class="flex-w flex-t bor12 p-b-13">
+								<div class="size-208">
+									<span class="stext-110 cl2">
+										Coupon Applied:
+									</span>
+								</div>
+
+								<div class="size-209">
+									<span class="mtext-110 cl2 discount-section" style="color: red; ">
+										₹ -<%= cartData.discount ? cartData.discount: 0.00 %>
+									</span>
+								</div>
+							</div>
+
+							<div class="flex-w flex-t bor12 p-b-13">
+								<div class="size-208">
+									<span class="stext-110 cl2">
+										Shipping Charge:
+									</span>
+								</div>
+
+								<div class="size-209">
+									<span class="mtext-110 cl2 discount-section cross" style="color: red; ">
+										₹ 100
+									</span> &nbsp;<span style="color: green;">FREE Delivery</span>
+								</div>
+							</div>
+
+							<div class="flex-w flex-t bor12 p-t-15 p-b-30">
+								<div class="size-208 w-full-ssm">
+									<span class="stext-110 cl2">
+										Billing Address:
+									</span>
+								</div>
+
+								<div class="size-209 p-r-18 p-r-0-sm w-full-ssm">
+									<p class="stext-111 cl6 ">
+										<% if(userAddress) { %>
+											<% userAddress.forEach((address)=>{ %>
+												<% if(address.default==true){ %>
+													<%= address.name %><br>
+														<%= address.houseName %><br>
+															<%= address.street %>, <%= address.landmark %>, &nbsp;
+																	<%= address.city %><br>
+																		<%= address.state %> &nbsp; <%= address.pincode
+																				%><br>
+																				phone: <%= address.mobile %>
+																					<% }}) }%>
+									</p>
+
+									<div class="p-t-15">
+
+										<!-- <div class="flex-w">
+											<div
+												class="flex-c-m stext-101 cl2 size-115 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer">
+												Update Totals
+											</div>
+										</div> -->
+
+									</div>
+								</div>
+							</div>
+
+							<div>
+								<div>
+									<span class="stext-110 cl2">
+										Shipping Address:
+									</span>
+								</div>
+
+								<div class="">
+									<p class="stext-111 cl6 p-t-2">
+										Please Select Address
+									</p>
+
+									<div class="p-t-15">
+
+										<!-- <div class="flex-w">
+											<div
+												class="flex-c-m stext-101 cl2 size-115 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer">
+												Update Totals
+											</div>
+										</div> -->
+
+									</div>
+								</div>
+							</div>
+
+
+
+							<div class="flex-w flex-t p-t-27 p-b-33">
+								<div class="size-208">
+									<span>
+										<strong>
+											<h5 style="color: black; font: bold;">Total Payable:</h5>
+										</strong>
+									</span>
+								</div>
+
+								<div class="size-209 p-t-1">
+									<span class="mtext-110 cl2">
+										₹ <%= cartData.cartTotal ? cartData.cartTotal: 0.00 %>
+									</span>
+								</div>
+							</div>
+							<div class="size-110 p-t-1">
 								<span class="mtext-110 cl2">
-									$79.65
+									Only Cash on Delivery Available
 								</span>
 							</div>
+							<button class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer"
+								id="placeOrder">
+								<a href="">Place Order</a>
+							</button>
 						</div>
 
-						<button class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer">
-							Proceed to Checkout
-						</button>
+					</div>
+				</div>
+			</div>
+
+		</form>
+	</div>
+
+
+
+	<!-- Modal1 -->
+	<div class="wrap-modal1 js-modal1 p-t-60 p-b-20">
+		<div class="overlay-modal1 js-hide-modal1"></div>
+
+		<div class="container" id="modal1">
+			<div class="bg0 p-t-60 p-b-30 p-lr-15-lg how-pos3-parent">
+				<button class="how-pos3 hov3 trans-04 js-hide-modal1">
+					<img src="/images/icons/icon-close.png" alt="CLOSE">
+				</button>
+
+				<div class="row" style="margin-left: 3em;">
+					<div class="col-6">
+						<div class="content-header">
+							<h2>Add Address</h2>
+							<form class="modal1" id="addAddress">
+								<!-- Address fields -->
+								<div class="form-group">
+									<label for="name">Name</label>
+									<input type="text" id="name" name="name" class="form-control" required>
+								</div>
+								<div class="form-group">
+									<label for="mobile">Mobile</label>
+									<input type="text" id="mobile" name="mobile" class="form-control">
+								</div>
+								<div class="form-group">
+									<label for="address">House Name</label>
+									<input type="text" id="address" name="houseName" class="form-control" required>
+								</div>
+								<div class="form-group">
+									<label for="landmark">Landmark</label>
+									<input type="text" id="landmark" name="landmark" class="form-control" required>
+								</div>
+								<div class="form-row">
+									<div class="form-group col-md-6">
+										<label for="pinCode">Postal Code</label>
+										<input type="text" id="pinCode" name="pincode" class="form-control" required>
+									</div>
+									<div class="form-group col-md-6">
+										<label for="city">Street</label>
+										<input type="text" id="street" name="street" class="form-control" required>
+									</div>
+									<div class="form-group col-md-6">
+										<label for="city">City</label>
+										<input type="text" id="city" name="city" class="form-control" required>
+									</div>
+									<div class="form-group col-md-6">
+										<label for="state">State</label>
+										<input type="text" id="state" name="state" class="form-control" required>
+									</div>
+								</div>
+								<button type="submit" class="btn btn-primary" id="submitAddress">Save Address</button>
+							</form>
+						</div> <!-- .row end// -->
 					</div>
 				</div>
 			</div>
 		</div>
-	</form>
 
-	
+	</div>
+	</div>
+
+	</div>
+
+
 	<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<script>
-    $(document).ready(function () {
-        $('.num-product').on('input', function () {
-            var input = $(this);
-            var quantity = input.val();
-            var productId = input.data('product-id');
-
-            // Make an Ajax call to check the quantity on the server
-            $.ajax({
-                url: '/cart/checkQuantity',  // Update with your server endpoint
-                type: 'POST',
-                data: {
-                    productId: productId,
-                    quantity: quantity
-                },
-                success: function (response) {
-                    // Handle the response from the server
-                    if (response.success) {
-                        // Quantity is valid, update the UI or perform additional actions
-                        console.log('Quantity is valid');
-                    } else {
-                        // Quantity is not valid, display an error message
-                        console.log('Quantity is not valid');
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Invalid Quantity',
-                            text: 'Please choose a valid quantity.',
-                        });
-                    }
-                },
-                error: function (error) {
-                    // Handle error (e.g., show an error message)
-                    console.log('Error checking quantity:', error);
-                }
-            });
-        });
-    });
-</script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<!-- Add this line in the <head> section of your HTML -->
 
 
 	<script>
-	 function deleteProduct(productId) {
-        $.ajax({
-            url: '/cart/deleteProduct/' + productId,
-            method: 'DELETE',
-            success: function(response) {
-                swal("Success", "Product deleted from the cart", "success");
-            },
-            error: function(error) {
-                // Handle error
-                swal("Error", "Failed to delete product from the cart", "error");
-            }
-        });
-    }
+		$(document).ready(function () {
+			$('#addAddress').submit(function (event) {
+				event.preventDefault();
+				const formData = $(this).serialize();
+				$.ajax({
+					type: 'POST',
+					url: '/user/createAddress',
+					data: formData,
+					success: function (response) {
+						location.reload()
+
+					},
+					error: function (xhr, status, error) {
+						// Handle error response
+						console.error(xhr.responseText);
+					}
+				});
+			});
+		});
 	</script>
 
 
+	<script>
+		document.getElementById('selectAddressButton').addEventListener('click', function () {
+			const addressList = document.getElementById('addressList');
+			addressList.style.display = addressList.style.display === 'none' ? 'block' : 'none';
+
+		});
+
+		const radioAddresses = document.querySelectorAll(".address-radio");
+		radioAddresses.forEach(function (radioAddress) {
+			radioAddress.addEventListener('click', function () {
+				const selectedAddressId = this.value;
+				const allAddresses = document.querySelectorAll('.address-card');
+				allAddresses.forEach(function (address) {
+					address.style.display = 'none';
+				});
+				const selectedAddress = document.querySelector(`#selectedAddress${selectedAddressId}`);
+				selectedAddress.style.display = 'block';
+			});
+		});
+	</script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			const addressRadios = document.querySelectorAll('.address-radio');
+			const shippingAddressParagraph = document.querySelector('.stext-111.cl6.p-t-2');
+
+			addressRadios.forEach(function (radio) {
+				radio.addEventListener('change', function () {
+					if (this.checked) {
+						const selectedAddressId = this.value;
+						const selectedAddress = document.getElementById('selectedAddress-' + selectedAddressId);
+						if (selectedAddress) {
+							shippingAddressParagraph.innerHTML = selectedAddress.innerHTML;
+						}
+					}
+				});
+			});
+		});
+	</script>
+
+
+
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			// Add event listener to the "Place Order" button
+			document.getElementById('placeOrder').addEventListener('click', function (event) {
+				// Prevent the default form submission behavior
+				event.preventDefault();
+
+				// Initialize arrays to store product IDs and total prices
+				let productIds = [];
+				let totalPrice = 0;
+
+				// Iterate over each table row containing product data
+				document.querySelectorAll('.table_row').forEach(function (row) {
+					// Extract product ID from data attribute
+					const productId = row.querySelector('.column-2').dataset.productId;
+					// Extract total price from hidden input field
+					const totalInput = row.querySelector('.column-5').querySelector('input[type="hidden"]');
+					if (totalInput) {
+						const total = parseFloat(totalInput.value);
+						// Add product ID to the array
+						productIds.push(productId);
+						// Accumulate total price
+						totalPrice += total;
+					} else {
+						console.error('Total input element not found in row:', row);
+					}
+				});
+
+				// Check if an address is selected
+				const selectedAddressInput = document.querySelector('input[name="selectedAddress"]:checked');
+				if (!selectedAddressInput) {
+					// Display an error message if no address is selected
+					swal("Error", "Please select an address", "error");
+					return; // Exit the function to prevent further execution
+				}
+
+				// Extract the selected address ID
+				const selectedAddressId = selectedAddressInput.value;
+
+				// Send data to the server via AJAX
+				$.ajax({
+					type: 'POST',
+					url: '/order/create',
+					data: { totalPrice: totalPrice, selectedAddressId: selectedAddressId },
+					success: function (response) {
+						swal("Success", response.success, "success")
+							.then(() => {
+								window.location.href = '/order/detail';
+
+							})
+					},
+					error: function (xhr, status, error) {
+						// Handle error response
+						swal('error', 'Select Products')
+					}
+				});
+			});
+		});
+
+	</script>
 
 
 	<%- include('./layouts/userLayout/footer.ejs') %>

@@ -32,7 +32,7 @@
         <!-- card-header end// -->
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-hover" >
                     <thead>
                         <tr>
                             <th>Users</th>
@@ -48,7 +48,11 @@
                             <td width="30%">
                                 <a href="#" class="itemside">
                                     <div class="left">
-                                        <img src="assets/imgs/people/avatar-1.png" class="img-sm img-avatar" alt="Userpic" />
+                                      <% if(users[i].icon){ %>
+                                        <img src="<%= users[i].icon %>" class="img-sm img-avatar">
+                                        <%}else{%>
+                                          <img src="/assets/imgs/people/avatar-1.png" class="img-sm img-avatar">
+                                          <%}%>
                                     </div>
                                     <div class="info pl-3">
                                         <h6 class="mb-0 title" style="text-decoration: none;">

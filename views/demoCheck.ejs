@@ -1,0 +1,257 @@
+<%- include('./layouts/userLayout/header.ejs') %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+	#addAddress {
+    display: none;
+}
+	
+input[type="radio"] {
+				display: none;
+			}
+	
+			input[type="radio"]:checked+label .card {
+				border-color: #007bff;
+				box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+				background-color: rgba(137, 149, 171, 0.306);
+			}
+	
+	
+			@media (max-width: 991px) {
+			.order-lg-first {
+				order: -1;
+			}
+		}
+		.address-box {
+			border: 1px solid #ccc;
+			padding: 10px;
+			margin-bottom: 10px;
+			cursor: pointer;
+		}
+		.address-box:hover {
+			background-color: #f0f0f0;
+		}
+
+</style>
+	
+
+	<section class="bg0 p-t-104 p-b-116">
+		<div>
+		<h2 class="ltext-105  txt-center">
+			Checkout
+		</h2>
+	</div>
+		<div class="container">
+			<div class="flex-w flex-tr">
+			
+
+				<div class="size-210 bor10 flex-w flex-col-m p-lr-93 p-tb-30 p-lr-15-lg w-full-md">
+					<div class="flex-w w-full p-b-42">
+						<span class="fs-18 cl5 txt-center size-211">
+							<span class="lnr lnr-map-marker"></span>
+						</span>
+
+						<div class="size-212 p-t-2">
+							<span class="mtext-110 cl2">
+								Select Shipping Address
+							</span>
+							<div style="margin-top: 1em;">
+								<ul id="addressList" class="row">
+									<% if(userAddress) { %>
+										<% userAddress.forEach((address, index)=> { %>
+											<li id="selectedAddress-<%= address._id %>" class="col-md-6">
+												<input type="radio" id="address<%= index + 1 %>"
+													name="selectedAddress" value="<%= address._id %>"
+													class="address-radio">
+												<label for="address<%= index + 1 %>">
+													<div class="card">
+														<div class="card-body">
+															<h5 class="card-title">
+																<%= address.name %>
+															</h5>
+															<p class="card-text">
+																<%= address.houseName %>
+															</p>
+															<p class="card-text">
+																<%= address.street %>, <%= address.landmark %>,
+																&nbsp;<%= address.city %>
+															</p>
+															<p class="card-text">
+																<%= address.state %> &nbsp; <%= address.pincode %>
+															</p>
+															<p class="card-text">phone: <%= address.mobile %></p>
+														</div>
+													</div>
+												</label>
+											</li>
+										<% }) %>
+									<% } %>
+								</ul>
+							</div>
+							
+							
+
+
+						</div>
+					</div>
+
+					<div class="flex-w w-full p-b-42">
+						<span class="fs-18 cl5 txt-center size-211">
+							<span class="fas fa-plus"></span>
+						</span>
+
+						<div class="size-212 p-t-2">
+							<span class="mtext-110 cl2 address">
+								Add New Address
+							</span>
+
+							<form id="addAddress" style="display: none;"> 
+								<!-- Address fields -->
+								<div class="form-group">
+									<label for="name">Name</label>
+									<input type="text" id="name" name="name" class="form-control" required>
+								</div>
+								<div class="form-group">
+									<label for="mobile">Mobile</label>
+									<input type="text" id="mobile" name="mobile" class="form-control">
+								</div>
+								<div class="form-group">
+									<label for="address">House Name</label>
+									<input type="text" id="address" name="houseName" class="form-control" required>
+								</div>
+								<div class="form-group">
+									<label for="landmark">Landmark</label>
+									<input type="text" id="landmark" name="landmark" class="form-control" required>
+								</div>
+								<div class="form-row">
+									<div class="form-group col-md-6">
+										<label for="pinCode">Postal Code</label>
+										<input type="text" id="pinCode" name="pincode" class="form-control" required>
+									</div>
+									<div class="form-group col-md-6">
+										<label for="city">Street</label>
+										<input type="text" id="street" name="street" class="form-control" required>
+									</div>
+									<div class="form-group col-md-6">
+										<label for="city">City</label>
+										<input type="text" id="city" name="city" class="form-control" required>
+									</div>
+									<div class="form-group col-md-6">
+										<label for="state">State</label>
+										<input type="text" id="state" name="state" class="form-control" required>
+									</div>
+								</div>
+								<button type="submit" class="btn btn-primary">Save Address</button>
+							</form>
+						</div>
+					</div>
+
+					<div class="flex-w w-full">
+						<span class="fs-18 cl5 txt-center size-211">
+							<span class="lnr lnr-envelope"></span>
+						</span>
+
+						<div class="size-212 p-t-2">
+							<span class="mtext-110 cl2">
+								Sale Support
+							</span>
+
+							<p class="stext-115 cl1 size-213 p-t-18">
+								contact@example.com
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	
+
+	<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+			const addButton = document.querySelector(".address");
+			const addressForm = document.getElementById("addAddress");
+	
+			addButton.addEventListener("click", function(event) {
+				event.preventDefault();
+				addressForm.style.display =addressForm.style.display === 'none' ? 'block' : 'none';
+			});
+		});
+	</script>
+
+
+
+
+
+
+
+
+
+	<script>
+		$(document).ready(function () {
+			$('#addAddress').submit(function (event) {
+				event.preventDefault();
+				const formData = $(this).serialize();
+				$.ajax({
+					type: 'POST',
+					url: '/user/createAddress',
+					data: formData,
+					success: function (response) {
+						Swal.fire({
+                                title: 'Success',
+                                text: response.message,
+                                icon: 'success'
+                            })
+					},
+					error: function (xhr, status, error) {
+						// Handle error response
+						console.error(xhr.responseText);
+					}
+				});
+			});
+		});
+	</script>
+
+
+	<script>
+		document.getElementById('selectAddressButton').addEventListener('click', function () {
+			const addressList = document.getElementById('addressList');
+			addressList.style.display = addressList.style.display === 'none' ? 'block' : 'none';
+
+		});
+
+		const radioAddresses = document.querySelectorAll(".address-radio");
+		radioAddresses.forEach(function (radioAddress) {
+			radioAddress.addEventListener('click', function () {
+				const selectedAddressId = this.value;
+				const allAddresses = document.querySelectorAll('.address-card');
+				allAddresses.forEach(function (address) {
+					address.style.display = 'none';
+				});
+				const selectedAddress = document.querySelector(`#selectedAddress${selectedAddressId}`);
+				selectedAddress.style.display = 'block';
+			});
+		});
+	</script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			const addressRadios = document.querySelectorAll('.address-radio');
+			const shippingAddressParagraph = document.querySelector('.stext-111.cl6.p-t-2');
+
+			addressRadios.forEach(function (radio) {
+				radio.addEventListener('change', function () {
+					if (this.checked) {
+						const selectedAddressId = this.value;
+						const selectedAddress = document.getElementById('selectedAddress-' + selectedAddressId);
+						if (selectedAddress) {
+							shippingAddressParagraph.innerHTML = selectedAddress.innerHTML;
+						}
+					}
+				});
+			});
+		});
+	</script>
+
+	<%- include('./layouts/userLayout/footer.ejs') %>

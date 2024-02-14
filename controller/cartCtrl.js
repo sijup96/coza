@@ -15,9 +15,18 @@ const loadCart = asyncHandler(async (req, res) => {
         const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET)
         const userId = decodedToken.id;
         const cartData = await viewCart(accessToken)
-        console.log(cartData);
         const userAddress = await Address.find({ user: userId, default: true }).populate('user')
+        if(cartData && cartData.products){
+        for (const cartProduct of cartData.products) {
+            if (!cartProduct.product.is_listed) {
+                cartProduct.price = 0;
+                await cartData.save();
+            }
+        }
         res.render('cartPage', { cartData, userAddress })
+    }else{
+        res.render('cartPage', { cartData, userAddress })
+    }
     } catch (error) {
         throw new Error(error)
     }
@@ -34,8 +43,8 @@ const addToCart = asyncHandler(async (req, res) => {
         const userId = decodedToken.id;
 
         // Find Product
-        const selectedProduct = await Product.findById({_id:productId});
-        if (!selectedProduct) {
+        const selectedProduct = await Product.findById({ _id: productId });
+        if (!selectedProduct || selectedProduct.is_listed === false) {
             return res.status(404).json({ error: 'Product not found' });
         }
 
@@ -70,8 +79,9 @@ const addToCart = asyncHandler(async (req, res) => {
             existingCart.products.push({
                 product: productId,
                 quantity: quantity,
-                price:price,
+                price: price,
             });
+
             existingCart.cartTotal += price;
             await existingCart.save();
 
@@ -84,14 +94,44 @@ const addToCart = asyncHandler(async (req, res) => {
 });
 
 //Update Cart
-const updateCart=asyncHandler(async (req,res)=>{
+const updateCart = asyncHandler(async (req, res) => {
     try {
-        
-    } catch (error) {
-        return res.status(500).json({ error: 'Internal Server Error' });
+        const productId = req.body.productId;
+        const quantity = parseInt(req.body.quantity, 10);
 
+        const accessToken = req.accessToken;
+        const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
+        if (!decodedToken) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+        const userId = decodedToken.id;
+        const productDetails = await Product.findById(productId);
+        const existingCart = await Cart.findOne({ userId });
+        const existingProduct = existingCart.products.find(product => product.product.equals(productId));
+
+        if (existingCart && existingProduct && productDetails.is_listed === true) {
+            // Check if requested quantity is within available limits
+            if (quantity <= productDetails.quantity) {
+                const diffQuantity = quantity - existingProduct.quantity;
+
+                existingProduct.quantity = quantity;
+                existingCart.cartTotal += diffQuantity * productDetails.price;
+
+                await existingCart.save();
+
+                return res.status(200).json({ message: 'Quantity updated successfully' });
+            } else {
+                return res.status(400).json({ message: 'Requested quantity exceeds available quantity' });
+            }
+        } else {
+            return res.status(404).json({ message: 'Product not found in the cart' });
+        }
+    } catch (error) {
+        console.error('Error updating cart:', error);
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
-})
+});
+
 //Delete Product From Cart
 const deleteCartProduct = asyncHandler(async (req, res) => {
     try {
@@ -100,19 +140,30 @@ const deleteCartProduct = asyncHandler(async (req, res) => {
         const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
         const userId = decodedToken.id;
         const existingCart = await Cart.findOne({ userId });
+
         if (existingCart) {
-            // Remove the product from the cart
-            existingCart.products = existingCart.products.filter(product => !product.product.equals(productId));
-            await existingCart.save();
-            return res.json({ success: true });
+            // Find the product to be deleted
+            const deletedProduct = existingCart.products.find(product => product.product.equals(productId));
+
+            if (deletedProduct) {
+                // Remove the product from the cart
+                existingCart.products = existingCart.products.filter(product => !product.product.equals(productId));
+                existingCart.cartTotal -= deletedProduct.quantity * deletedProduct.price;
+
+                await existingCart.save();
+                return res.json({ success: true });
+            } else {
+                return res.status(404).json({ success: false, message: 'Product not found in the cart' });
+            }
         } else {
-            res.status(404).json({ success: false, message: 'Cart not found' });
+            return res.status(404).json({ success: false, message: 'Cart not found' });
         }
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, message: 'Internal Server Error' });
+        return res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
-})
+});
+
 
 // View Cart
 const viewCart = async (accessToken) => {
@@ -155,10 +206,27 @@ const checkQuantity = asyncHandler(async (req, res) => {
 });
 
 
+// Load Checkout Page
+const loadCheckout = asyncHandler(async (req, res) => {
+    try {
+        const accessToken = req.accessToken
+        const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET)
+        const userId = decodedToken.id;
+        const cartData = await viewCart(accessToken)
+        const userAddress = await Address.find({ user: userId }).populate('user')
+        res.render('checkout', { cartData, userAddress })
+    } catch (error) {
+        throw new Error(error)
+    }
+});
+
+
 module.exports = {
     loadCart,
     addToCart,
     viewCart,
     deleteCartProduct,
     checkQuantity,
+    updateCart,
+    loadCheckout,
 }

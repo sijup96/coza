@@ -96,38 +96,38 @@ const login = asyncHandler(async (req, res) => {
   }
 });
 
-  // Logout
+// Logout
 
-  const logout = asyncHandler(async (req, res) => {
-    try {
-  
-     
-      const cookie = req.cookies
-      if (!cookie?.refreshToken) throw new Error("No refresh Token in cookies")
-      const refreshToken = cookie.refreshToken
-      const user = await User.findOne({ refreshToken })
-    
-      if (!user) {
-        res.clearCookie("refreshToken", {
-          httpOnly: true,
-          secure: true,
-        });
-        return res.sendStatus(204)//forbidden
-  
-      }
-      await User.findOneAndUpdate({ refreshToken: refreshToken }, {
-        refreshToken: "",
-      });
+const logout = asyncHandler(async (req, res) => {
+  try {
+
+
+    const cookie = req.cookies
+    if (!cookie?.refreshToken) throw new Error("No refresh Token in cookies")
+    const refreshToken = cookie.refreshToken
+    const user = await User.findOne({ refreshToken })
+
+    if (!user) {
       res.clearCookie("refreshToken", {
         httpOnly: true,
         secure: true,
-      })
-      res.redirect('/admin');
-  
-    } catch (error) {
-      res.redirect('/adminLogin');
+      });
+      return res.sendStatus(204)//forbidden
+
     }
-  });
+    await User.findOneAndUpdate({ refreshToken: refreshToken }, {
+      refreshToken: "",
+    });
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: true,
+    })
+    res.redirect('/admin');
+
+  } catch (error) {
+    res.redirect('/adminLogin');
+  }
+});
 
 
-module.exports={adminLogin,login,adminDashboard,logout}
+module.exports = { adminLogin, login, adminDashboard, logout }

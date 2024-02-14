@@ -35,6 +35,7 @@
 	<link rel="stylesheet" type="text/css" href="/css/util.css">
 	<link rel="stylesheet" type="text/css" href="/css/main.css">
 	<!--===============================================================================================-->
+
 </head>
 
 <body class="animsition">
@@ -84,8 +85,7 @@
 						<!-- Icon header -->
 						<div class="wrap-icon-header flex-w flex-r-m h-full">
 							<div class="flex-c-m h-full p-r-25 bor6">
-								<div class="icon-header-item cl0 hov-cl1 trans-04 p-lr-11 icon-header-noti js-show-cart"
-									data-notify="2">
+								<div class="icon-header-item cl0 hov-cl1 trans-04 p-lr-11 icon-header js-show-cart">
 									<i class="zmdi zmdi-shopping-cart"></i>
 								</div>
 							</div>
@@ -96,7 +96,7 @@
 								</div>
 							</div>
 						</div>
-						
+
 					</nav>
 				</div>
 			</div>
@@ -111,8 +111,7 @@
 				<!-- Icon header -->
 				<div class="wrap-icon-header flex-w flex-r-m h-full m-r-15">
 					<div class="flex-c-m h-full p-r-5">
-						<div class="icon-header-item cl2 hov-cl1 trans-04 p-lr-11 icon-header-noti js-show-cart"
-							data-notify="2">
+						<div class="icon-header-item cl2 hov-cl1 trans-04 p-lr-11 icon-header js-show-cart">
 							<i class="zmdi zmdi-shopping-cart"></i>
 						</div>
 					</div>
@@ -146,17 +145,17 @@
 					<li>
 						<a href="/contact/details">Contact</a>
 					</li>
-					
-<li>
-	<a href="/user/account" >
-		My Account
-	</a>
-</li>
-<% if (locals.user) { %>
-	<li><a class="stext-102 cl2 hov-cl1 trans-04" href="/logout">Logout</a></li>
-	<% } else { %>
-		<li><a class="stext-102 cl2 hov-cl1 trans-04" href="/login">Login</a></li>
-		<% } %>
+
+					<li>
+						<a href="/user/account">
+							My Account
+						</a>
+					</li>
+					<% if (locals.user) { %>
+						<li><a class="stext-102 cl2 hov-cl1 trans-04" href="/logout">Logout</a></li>
+						<% } else { %>
+							<li><a class="stext-102 cl2 hov-cl1 trans-04" href="/login">Login</a></li>
+							<% } %>
 				</ul>
 
 			</div>
@@ -344,38 +343,39 @@
 
 				<div class="header-cart-content flex-w js-pscroll">
 					<ul class="header-cart-wrapitem w-full">
-						<% if(cartData && cartData.products && cartData.products.length > 0) { %>
-							<% cartData.products.forEach(product => { %>
+						<% if(cartData && cartData.products && cartData.products.length> 0) { %>
+							<% cartData.products.forEach(product=> { %>
 								<li class="header-cart-item flex-w flex-t m-b-12">
 									<div class="header-cart-item-img">
-										<% if (product.product && product.product.images && product.product.images.length > 0) { %>
+										<% if (product.product && product.product.images &&
+											product.product.images.length> 0) { %>
 											<img src="/productImages/<%= product.product.images[0] %>" alt="IMG">
-										<% } else { %>
-											<!-- Handle the case where product images are not available -->
-										<% } %>
+											<% } else { %>
+
+												<% } %>
 									</div>
-						
+
 									<div class="header-cart-item-txt p-t-8">
 										<a href="#" class="header-cart-item-name m-b-18 hov-cl1 trans-04">
-											<%= product.product && product.product.title ? product.product.title : 'Product Title Not Available' %>
+											<%= product.product && product.product.title ? product.product.title: 'Product Title Not Available' %>
 										</a>
-						
+
 										<span class="header-cart-item-info">
 											<%= product.quantity %> x ₹ <%= product.product && product.product.price ? product.product.price : 'Price Not Available' %>
 										</span>
 									</div>
 								</li>
-							<% }) %>
-						<% } else { %>
-							<!-- Handle the case where cartData or cartData.products is not available or empty -->
-						<% } %>
+								<% }) %>
+									<% } else { %>
 
-						
+										<% } %>
+
+
 					</ul>
 
 					<div class="w-full">
 						<div class="header-cart-total w-full p-tb-40">
-							Total: $75.00
+							Total: ₹ <%= cartData?.cartTotal?? 0.00 %>
 						</div>
 
 						<div class="header-cart-buttons flex-w w-full">
@@ -383,14 +383,17 @@
 								class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-r-8 m-b-10">
 								View Cart
 							</a>
+							<% if (cartData && cartData.cartTotal> 0 && cartData.cartTotal>0) { %>
+								<a href="/cart/checkout"
+									class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-b-10">
+									Check Out
+								</a>
+								<%}else{ %>
 
-							<a href="/user/checkout"
-								class="flex-c-m stext-101 cl0 size-107 bg3 bor2 hov-btn3 p-lr-15 trans-04 m-b-10">
-								Check Out
-							</a>
+
+									<%}%>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-	
