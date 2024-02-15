@@ -454,11 +454,15 @@
 									</span>
 								</div>
 							</div>
-							<div class="size-110 p-t-1">
-								<span class="mtext-110 cl2">
-									Only Cash on Delivery Available
-								</span>
+							<div class="border p-3 mb-5">
+								<h4 class="h mb-3 text-black">Select A Payment Method</h4>
+								<br><br>
+
 							</div>
+
+
+
+
 							<button class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer"
 								id="placeOrder">
 								<a href="">Place Order</a>
@@ -541,6 +545,8 @@
 	<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<!-- Add this line in the <head> section of your HTML -->
+
+
 
 
 	<script>
@@ -639,28 +645,27 @@
 				const selectedAddressInput = document.querySelector('input[name="selectedAddress"]:checked');
 				if (!selectedAddressInput) {
 					// Display an error message if no address is selected
-					swal("Error", "Please select an address", "error");
+					swal("Alert", "Please select an address", "info");
 					return; // Exit the function to prevent further execution
 				}
 
 				// Extract the selected address ID
 				const selectedAddressId = selectedAddressInput.value;
 
-				// Send data to the server via AJAX
 				$.ajax({
 					type: 'POST',
 					url: '/order/create',
 					data: { totalPrice: totalPrice, selectedAddressId: selectedAddressId },
 					success: function (response) {
-						swal("Success", response.success, "success")
-							.then(() => {
-								window.location.href = '/order/detail';
-
-							})
+						swal("success", "Successfully ordered", "success").then(()=>{
+							window.location.href = '/order/thankyou'
+						})
 					},
 					error: function (xhr, status, error) {
-						// Handle error response
-						swal('error', 'Select Products')
+						swal("Alert", "Please add a valid product", 'warning')
+							.then(() => {
+								window.location.href = '/cart'
+							})
 					}
 				});
 			});

@@ -19,8 +19,11 @@ var orderSchema = new mongoose.Schema(
     orderId: {
       type: String,
     },
+    totalPrice:{
+      type:Number,
+    },
     paymentIntent: {},
-    requestReson: {
+    requestReason: {
       type: String,
       default: "Not Request"
     },
@@ -36,9 +39,7 @@ var orderSchema = new mongoose.Schema(
         "Returned",
       ],
     },
-    address: {
-      type: Array,
-    },
+    address: {},
     orderby: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
