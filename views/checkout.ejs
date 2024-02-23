@@ -17,10 +17,6 @@
 			/* Specify the thickness and color of the line */
 		}
 
-		.address-card {
-			margin-bottom: 20px;
-		}
-
 		.card {
 			border: 1px solid #ddd;
 			border-radius: 5px;
@@ -32,11 +28,11 @@
 			box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 		}
 
-		input[type="radio"] {
+		.addressRadio {
 			display: none;
 		}
 
-		input[type="radio"]:checked+label .card {
+		.addressRadio:checked+label .card {
 			border-color: #007bff;
 			box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 			background-color: rgba(137, 149, 171, 0.306);
@@ -58,58 +54,6 @@
 
 		.address-box:hover {
 			background-color: #f0f0f0;
-		}
-
-		.tick-mark {
-			margin-right: 5px;
-			/* Adjust margin to create space between tick mark and address details */
-			margin-top: -10px;
-			/* Move tick mark above the address box */
-			color: green;
-			float: right;
-			/* Align tick mark to the right */
-		}
-
-
-		.modal {
-			display: none;
-			position: fixed;
-			z-index: 1000;
-			left: 0;
-			top: 0;
-			/* Set top to 0 to align with the top of the page */
-			width: 100%;
-			height: 100%;
-			background-color: rgba(0, 0, 0, 0.4);
-			overflow: auto;
-		}
-
-		.modal-content {
-			background-color: #fff;
-			margin: 0 auto;
-			/* Center horizontally */
-			margin-top: 50px;
-			/* Adjust this value to create space from the top */
-			padding: 20px;
-			border-radius: 8px;
-			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-			max-width: 600px;
-			width: 80%;
-		}
-
-
-		.close {
-			color: #aaa;
-			float: right;
-			font-size: 28px;
-			font-weight: bold;
-		}
-
-		.close:hover,
-		.close:focus {
-			color: black;
-			text-decoration: none;
-			cursor: pointer;
 		}
 
 		/* Form styles */
@@ -143,6 +87,43 @@
 
 		.btn-primary:hover {
 			background-color: #0056b3;
+		}
+
+		.expandable {
+			border: 1px solid #ccc;
+			margin-bottom: 20px;
+		}
+
+		.expand-btn {
+			background-color: #f0f0f0;
+			border: none;
+			padding: 10px;
+			cursor: pointer;
+		}
+
+		.content {
+			display: none;
+			padding: 10px;
+		}
+
+		.address-container {
+			height: 300px;
+			/* Set a fixed height for the container */
+			overflow-y: auto;
+			/* Enable vertical scrolling */
+		}
+
+		.flex-list {
+			display: flex;
+			flex-direction: column;
+			/* Display items vertically */
+			padding: 0;
+			/* Remove default padding */
+		}
+
+		.flex-list li {
+			margin-bottom: 10px;
+			/* Add spacing between items */
 		}
 	</style>
 	<div id="reload">
@@ -259,56 +240,61 @@
 
 									</div>
 								</div>
-								<div id="modal1"
-									class="flex-c-m stext-101 cl2 size-118 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-5 js-show-modal1">
-									Add new shipping Address
-								</div>
-
-
-								<div id="selectAddressButton"
-									class="flex-c-m stext-101 cl2 size-118 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-5">
-									Select Shipping Address
-								</div>
-
+					
 							</div>
+							<div class="row">
+								<div class="col">
+									<button type="button" class="btn btn-primary rounded-pill px-4 py-2" data-toggle="modal" data-target="#addAddressModal">
+										<i class="fas fa-map-marker-alt mr-2"></i> Add New Address
+									</button>
+									<div id="selectAddressButton"
+										class="flex-c-m stext-101 cl2 size-118 bg8 bor13  p-lr-15 trans-04 pointer m-tb-5">
+										Select Shipping Address
+									</div>
+									<div class="address-container">
+										<ul id="addressList" class="flex-list">
+											<% if(userAddress) { %>
+												<% userAddress.forEach((address, index)=> { %>
+													<li id="selectedAddress-<%= address._id %>">
+														<input type="radio" class="addressRadio"
+															id="address<%= index + 1 %>" name="selectedAddress"
+															value="<%= address._id %>" class="address-radio">
+														<label for="address<%= index + 1 %>">
+															<div class="card">
+																<div class="card-body">
+																	<strong class="card-title">
+																		<%= address.name %>
+																	</strong>&emsp;
+																	<p>
+																		<%= address.houseName %>&nbsp;
+																			<%= address.street %>, <%= address.landmark
+																					%>,
+																					&nbsp;<%= address.city %>
+																						&nbsp;<%= address.state %>
+																							&nbsp; <%= address.pincode
+																								%><br>
+																								phone: <%=
+																									address.mobile %>
+																	</p>
+																</div>
+																<a href="#" style="text-align: end;"
+																	onclick="editAddress('<%= address._id %>')"
+																	data-toggle="modal"
+																	data-target="#exampleModalCenter">edit address</a>
+															</div>
+														</label>
 
-						</div>
-						<div class="row">
-							<div class="col-md-6">
-								<ul id="addressList" style="display: none;">
-									<% if(userAddress) { %>
-										<% userAddress.forEach((address, index)=> { %>
-											<li id="selectedAddress-<%= address._id %>">
-												<input type="radio" id="address<%= index + 1 %>" name="selectedAddress"
-													value="<%= address._id %>" class="address-radio">
-												<label for="address<%= index + 1 %>">
-													<div class="card">
-														<div class="card-body">
-															<h5 class="card-title">
-																<%= address.name %>
-															</h5>
-															<p class="card-text">
-																<%= address.houseName %>
-															</p>
-															<p class="card-text">
-																<%= address.street %>, <%= address.landmark %>,
-																		&nbsp;<%= address.city %>
-															</p>
-															<p class="card-text">
-																<%= address.state %> &nbsp; <%= address.pincode %>
-															</p>
-															<p class="card-text"> phone: <%= address.mobile %>
-															</p>
-														</div>
-													</div>
-												</label>
-											</li>
-											<% }) %>
-												<% } %>
-								</ul>
+													</li>
+													<% }) %>
+														<% } %>
+										</ul>
+									</div>
+								</div>
 							</div>
 						</div>
+
 					</div>
+
 
 
 
@@ -376,69 +362,6 @@
 									</span> &nbsp;<span style="color: green;">FREE Delivery</span>
 								</div>
 							</div>
-
-							<div class="flex-w flex-t bor12 p-t-15 p-b-30">
-								<div class="size-208 w-full-ssm">
-									<span class="stext-110 cl2">
-										Billing Address:
-									</span>
-								</div>
-
-								<div class="size-209 p-r-18 p-r-0-sm w-full-ssm">
-									<p class="stext-111 cl6 ">
-										<% if(userAddress) { %>
-											<% userAddress.forEach((address)=>{ %>
-												<% if(address.default==true){ %>
-													<%= address.name %><br>
-														<%= address.houseName %><br>
-															<%= address.street %>, <%= address.landmark %>, &nbsp;
-																	<%= address.city %><br>
-																		<%= address.state %> &nbsp; <%= address.pincode
-																				%><br>
-																				phone: <%= address.mobile %>
-																					<% }}) }%>
-									</p>
-
-									<div class="p-t-15">
-
-										<!-- <div class="flex-w">
-											<div
-												class="flex-c-m stext-101 cl2 size-115 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer">
-												Update Totals
-											</div>
-										</div> -->
-
-									</div>
-								</div>
-							</div>
-
-							<div>
-								<div>
-									<span class="stext-110 cl2">
-										Shipping Address:
-									</span>
-								</div>
-
-								<div class="">
-									<p class="stext-111 cl6 p-t-2">
-										Please Select Address
-									</p>
-
-									<div class="p-t-15">
-
-										<!-- <div class="flex-w">
-											<div
-												class="flex-c-m stext-101 cl2 size-115 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer">
-												Update Totals
-											</div>
-										</div> -->
-
-									</div>
-								</div>
-							</div>
-
-
-
 							<div class="flex-w flex-t p-t-27 p-b-33">
 								<div class="size-208">
 									<span>
@@ -456,17 +379,28 @@
 							</div>
 							<div class="border p-3 mb-5">
 								<h4 class="h mb-3 text-black">Select A Payment Method</h4>
-								<br><br>
 
+								<div class="expandable">
+									<button class="expand-btn">Online Payment</button>
+									<div class="content">
+										<span>Secure, seamless, and just a click away!</span>
+										<button id="rzp-button1" class="btn btn-primary"> Pay Online</button>
+
+									</div>
+								</div>
+								<div class="expandable">
+									<button class="expand-btn">Cash On Delivery</button>
+									<div class="content">
+										<span>
+											Enjoy the ease of Cash on Delivery for stress-free shopping.</span>
+										<button
+											class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer"
+											id="placeOrder">
+											<a href="">Place Order</a>
+										</button>
+									</div>
+								</div>
 							</div>
-
-
-
-
-							<button class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer"
-								id="placeOrder">
-								<a href="">Place Order</a>
-							</button>
 						</div>
 
 					</div>
@@ -475,203 +409,475 @@
 
 		</form>
 	</div>
-
-
-
-	<!-- Modal1 -->
-	<div class="wrap-modal1 js-modal1 p-t-60 p-b-20">
-		<div class="overlay-modal1 js-hide-modal1"></div>
-
-		<div class="container" id="modal1">
-			<div class="bg0 p-t-60 p-b-30 p-lr-15-lg how-pos3-parent">
-				<button class="how-pos3 hov3 trans-04 js-hide-modal1">
-					<img src="/images/icons/icon-close.png" alt="CLOSE">
-				</button>
-
-				<div class="row" style="margin-left: 3em;">
-					<div class="col-6">
-						<div class="content-header">
-							<h2>Add Address</h2>
-							<form class="modal1" id="addAddress">
-								<!-- Address fields -->
-								<div class="form-group">
-									<label for="name">Name</label>
-									<input type="text" id="name" name="name" class="form-control" required>
-								</div>
-								<div class="form-group">
-									<label for="mobile">Mobile</label>
-									<input type="text" id="mobile" name="mobile" class="form-control">
-								</div>
-								<div class="form-group">
-									<label for="address">House Name</label>
-									<input type="text" id="address" name="houseName" class="form-control" required>
-								</div>
-								<div class="form-group">
-									<label for="landmark">Landmark</label>
-									<input type="text" id="landmark" name="landmark" class="form-control" required>
-								</div>
-								<div class="form-row">
-									<div class="form-group col-md-6">
-										<label for="pinCode">Postal Code</label>
-										<input type="text" id="pinCode" name="pincode" class="form-control" required>
-									</div>
-									<div class="form-group col-md-6">
-										<label for="city">Street</label>
-										<input type="text" id="street" name="street" class="form-control" required>
-									</div>
-									<div class="form-group col-md-6">
-										<label for="city">City</label>
-										<input type="text" id="city" name="city" class="form-control" required>
-									</div>
-									<div class="form-group col-md-6">
-										<label for="state">State</label>
-										<input type="text" id="state" name="state" class="form-control" required>
-									</div>
-								</div>
-								<button type="submit" class="btn btn-primary" id="submitAddress">Save Address</button>
-							</form>
-						</div> <!-- .row end// -->
-					</div>
+	<!-- Edit Address Modal -->
+	<div class="modal" id="exampleModalCenter" role="dialog" aria-labelledby="exampleModalCenterTitle"
+		aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLongTitle">Edit Address</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
 				</div>
+				<div class="modal-body">
+					<div class="content-header text-center">
+						<h2>Edit Address</h2>
+					</div>
+					<form class="modal1" id="editAddress">
+						<div class="form-group">
+							<input type="hidden" id="addressId">
+							<label for="name">Name</label>
+							<input type="text" id="editName" name="name" class="form-control" required>
+						</div>
+						<div class="form-group">
+							<label for="mobile">Mobile</label>
+							<input type="text" id="editMobile" name="mobile" class="form-control">
+						</div>
+						<div class="form-group">
+							<label for="houseName">House Name</label>
+							<input type="text" id="editHouseName" name="houseName" class="form-control" required>
+						</div>
+						<div class="form-group">
+							<label for="landmark">Landmark</label>
+							<input type="text" id="editLandmark" name="landmark" class="form-control" required>
+						</div>
+						<div class="form-row">
+							<div class="form-group col-md-6">
+								<label for="pinCode">Postal Code</label>
+								<input type="text" id="editPinCode" name="pincode" class="form-control" required>
+							</div>
+							<div class="form-group col-md-6">
+								<label for="street">Street</label>
+								<input type="text" id="editStreet" name="street" class="form-control" required>
+							</div>
+							<div class="form-group col-md-6">
+								<label for="city">City</label>
+								<input type="text" id="editCity" name="city" class="form-control" required>
+							</div>
+							<div class="form-group col-md-6">
+								<label for="state">State</label>
+								<input type="text" id="editState" name="state" class="form-control" required>
+							</div>
+						</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary">Save changes</button>
+				</div>
+				</form>
 			</div>
 		</div>
-
 	</div>
+	<!-- Add Address Modal -->
+	<div class="modal" id="addAddressModal" role="dialog" aria-labelledby="addAddressModalTitle" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="addAddressModalTitle">Add Address</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="content-header text-center">
+						<h2>Add Address</h2>
+					</div>
+					<form class="modal1" id="addAddressForm">
+						<div class="form-group">
+							<label for="name">Name</label>
+							<input type="text" id="name" name="name" class="form-control" required>
+						</div>
+						<div class="form-group">
+							<label for="mobile">Mobile</label>
+							<input type="text" id="mobile" name="mobile" class="form-control">
+						</div>
+						<div class="form-group">
+							<label for="houseName">House Name</label>
+							<input type="text" id="houseName" name="houseName" class="form-control" required>
+						</div>
+						<div class="form-group">
+							<label for="landmark">Landmark</label>
+							<input type="text" id="landmark" name="landmark" class="form-control" required>
+						</div>
+						<div class="form-row">
+							<div class="form-group col-md-6">
+								<label for="pinCode">Postal Code</label>
+								<input type="text" id="pinCode" name="pincode" class="form-control" required>
+							</div>
+							<div class="form-group col-md-6">
+								<label for="street">Street</label>
+								<input type="text" id="street" name="street" class="form-control" required>
+							</div>
+							<div class="form-group col-md-6">
+								<label for="city">City</label>
+								<input type="text" id="city" name="city" class="form-control" required>
+							</div>
+							<div class="form-group col-md-6">
+								<label for="state">State</label>
+								<input type="text" id="state" name="state" class="form-control" required>
+							</div>
+						</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary" id="addAddressButton">Add Address</button>
+				</div>
+				</form>
+			</div>
+		</div>
 	</div>
 
-	</div>
+	<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script>
+		$(document).ready(function () {
+			$('#exampleModalCenter .modal-footer .btn-primary').click(function () {
+				const addressId = $('#addressId').val();
+				const formData = {
+					name: $('#editName').val(),
+					mobile: $('#editMobile').val(),
+					houseName: $('#editHouseName').val(),
+					landmark: $('#editLandmark').val(),
+					pincode: $('#editPinCode').val(),
+					street: $('#editStreet').val(),
+					city: $('#editCity').val(),
+					state: $('#editState').val()
+				};
+				$.ajax({
+					url: `/user/editAddress/${addressId}`,
+					type: 'PUT',
+					contentType: 'application/json',
+					data: JSON.stringify(formData),
+					success: function (response) {
+						if (response.success) {
+							Swal.fire({
+								title: 'Success',
+								text: response.message,
+								icon: 'success'
+							}).then((result) => {
+								if (result.isConfirmed) {
+									$('#exampleModalCenter').modal('hide');
+									$('#addressList').load(location.href + ' #addressList');
+								}
+							});
 
+						} else {
+							Swal.fire('Alert', response.message, 'info');
+						}
 
+					},
+					error: function (xhr, status, error) {
+						console.error('Error saving address:', error);
+						// Handle error (e.g., display error message to the user)
+					}
+				});
+			});
+		});
+	</script>
+	<script>
+		function editAddress(addressId) {
+			fetch(`/user/getAddress/${addressId}`)
+				.then(response => {
+					if (!response.ok) {
+						swal.fire('alert', 'Please try again..', 'info')
+					}
+					return response.json();
+				})
+				.then(addressData => {
+					document.getElementById('addressId').value = addressData._id;
+					document.getElementById('editName').value = addressData.name;
+					document.getElementById('editMobile').value = addressData.mobile;
+					document.getElementById('editHouseName').value = addressData.houseName;
+					document.getElementById('editLandmark').value = addressData.landmark;
+					document.getElementById('editPinCode').value = addressData.pincode;
+					document.getElementById('editStreet').value = addressData.street;
+					document.getElementById('editCity').value = addressData.city;
+					document.getElementById('editState').value = addressData.state;
+				})
+				.catch(error => {
+					console.error('There was a problem with the fetch operation:', error);
+				});
+		}
+	</script>
+	<script>
+		$(document).ready(function () {
+			// Attach click event listener to the "Save changes" button
+			$('#exampleModalCenter').on('click', '.btn-primary', function () {
+				// Serialize form data
+				var formData = $('#editAddress').serialize();
+
+				// Make AJAX request
+				$.ajax({
+					type: 'POST',
+					url: '/user/editAddress/', // Replace with your API endpoint
+					data: formData,
+					success: function (response) {
+						// Handle success response
+						console.log('Changes saved successfully:', response);
+
+						// Close the modal
+						$('#exampleModalCenter').modal('hide');
+					},
+					error: function (xhr, status, error) {
+						// Handle error response
+						console.error('Error saving changes:', error);
+					}
+				});
+			});
+		});
+	</script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			const addressList = document.getElementById('addressList');
+			if (addressList.children.length > 3) {
+				addressList.style.scrollSnapType = 'y mandatory'; /* Enable snapping */
+				addressList.style.msScrollSnapType = 'mandatory y'; /* For IE/Edge */
+				addressList.style.scrollBehavior = 'smooth'; /* Smooth scrolling */
+			}
+		});
+	</script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			const expandButtons = document.querySelectorAll('.expand-btn');
+
+			expandButtons.forEach(function (button) {
+				button.addEventListener('click', function (event) {
+					event.preventDefault(); // Prevent page refresh
+
+					const content = this.nextElementSibling;
+					const otherContents = document.querySelectorAll('.content');
+
+					// Collapse all other expandable sections
+					otherContents.forEach(function (otherContent) {
+						if (otherContent !== content) {
+							otherContent.style.display = 'none';
+						}
+					});
+
+					// Toggle display of the clicked content
+					content.style.display = content.style.display === 'block' ? 'none' : 'block';
+				});
+			});
+		});
+
+	</script>
+	<script>
+		var options = {
+			"key": "rzp_test_m7scdXTvPyrkkT", // Enter the Key ID generated from the Dashboard
+			"amount": '<%= cartData.cartTotal %>' * 100,
+			"currency": "INR",
+			"description": "COZA STORE",
+			"image": "https://s3.amazonaws.com/rzp-mobile/images/rzp.jpg",
+			"prefill":
+			{
+				"email": "<%= cartData.userId.email %>",
+				"contact": "<%= cartData.userId.mobile %>",
+			},
+			config: {
+				display: {
+					blocks: {
+						utib: { //name for Axis block
+							name: "Pay using Axis Bank",
+							instruments: [
+								{
+									method: "card",
+									issuers: ["UTIB"]
+								},
+								{
+									method: "netbanking",
+									banks: ["UTIB"]
+								},
+							]
+						},
+						other: { //  name for other block
+							name: "Other Payment modes",
+							instruments: [
+								{
+									method: "card",
+									issuers: ["ICIC"]
+								},
+								{
+									method: 'netbanking',
+								}
+							]
+						}
+					},
+					hide: [
+						{
+							method: "upi"
+						}
+					],
+					sequence: ["block.utib", "block.other"],
+					preferences: {
+						show_default_blocks: false // Should Checkout show its default blocks?
+					}
+				}
+			},
+			"handler": function (response) {
+				Swal.fire({
+					icon: 'success',
+					title: 'Payment Successful',
+					text: 'Payment ID: ' + response.razorpay_payment_id,
+				}).then(() => {
+					placeOrder('online', response.razorpay_payment_id);
+				})
+			},
+			"modal": {
+				"ondismiss": function () {
+					Swal.fire({
+						title: 'Are you sure?',
+						text: "You want to close the form?",
+						icon: 'question',
+						showCancelButton: true,
+						confirmButtonColor: '#3085d6',
+						cancelButtonColor: '#d33',
+						confirmButtonText: 'Yes, close it!',
+						cancelButtonText: 'No, cancel!'
+					}).then((result) => {
+						if (result.isConfirmed) {
+							console.log("Checkout form closed by the user");
+						} else {
+							rzp1.open();
+						}
+					});
+				}
+			}
+		};
+		var rzp1 = new Razorpay(options);
+		document.getElementById('rzp-button1').onclick = function (e) {
+			e.preventDefault();
+			const selectedAddressInput = document.querySelector('input[name="selectedAddress"]:checked');
+			const total = '<%= cartData.cartTotal %>'
+			if (!selectedAddressInput) {
+				swal("Alert", "Please select an address", "info");
+				return;
+			} else if (total < 1) {
+				swal("Alert", "Please add Product", "info");
+				return;
+			}
+			rzp1.open();
+
+		}
+	</script>
+	<script>
+		document.getElementById('razorpayButton').addEventListener('click', function () {
+			// Show the Razorpay payment popup
+			document.getElementById('razorpayPopup').style.display = 'block';
+		});
+		document.getElementsByClassName('close')[0].addEventListener('click', function () {
+			// Show the Razorpay payment popup
+			document.getElementById('razorpayPopup').style.display = 'none';
+		});
+	</script>
 	<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<!-- Add this line in the <head> section of your HTML -->
 
 
 
-
 	<script>
-		$(document).ready(function () {
-			$('#addAddress').submit(function (event) {
-				event.preventDefault();
-				const formData = $(this).serialize();
-				$.ajax({
-					type: 'POST',
-					url: '/user/createAddress',
-					data: formData,
-					success: function (response) {
-						location.reload()
+$(document).ready(function() {
+    $('#addAddressButton').click(function() {
+        // Gather form data
+        const formData = {
+            name: $('#name').val(),
+            mobile: $('#mobile').val(),
+            houseName: $('#houseName').val(),
+            landmark: $('#landmark').val(),
+            pincode: $('#pinCode').val(),
+            street: $('#street').val(),
+            city: $('#city').val(),
+            state: $('#state').val()
+        };
+        $.ajax({
+            url: '/user/createAddress',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            success: function(response) {
+				if (response.success) {
+					Swal.fire({
+								title: 'Success',
+								text: response.message ,
+								icon: 'success'
+							}).then((result) => {
+								if (result.isConfirmed) {
+									$('#addAddressModal').modal('hide');
+									$('#addressList').load(location.href + ' #addressList');
+								}
+							});
 
-					},
-					error: function (xhr, status, error) {
-						// Handle error response
-						console.error(xhr.responseText);
-					}
-				});
-			});
-		});
-	</script>
-
-
-	<script>
-		document.getElementById('selectAddressButton').addEventListener('click', function () {
-			const addressList = document.getElementById('addressList');
-			addressList.style.display = addressList.style.display === 'none' ? 'block' : 'none';
-
-		});
-
-		const radioAddresses = document.querySelectorAll(".address-radio");
-		radioAddresses.forEach(function (radioAddress) {
-			radioAddress.addEventListener('click', function () {
-				const selectedAddressId = this.value;
-				const allAddresses = document.querySelectorAll('.address-card');
-				allAddresses.forEach(function (address) {
-					address.style.display = 'none';
-				});
-				const selectedAddress = document.querySelector(`#selectedAddress${selectedAddressId}`);
-				selectedAddress.style.display = 'block';
-			});
-		});
-	</script>
-	<script>
-		document.addEventListener('DOMContentLoaded', function () {
-			const addressRadios = document.querySelectorAll('.address-radio');
-			const shippingAddressParagraph = document.querySelector('.stext-111.cl6.p-t-2');
-
-			addressRadios.forEach(function (radio) {
-				radio.addEventListener('change', function () {
-					if (this.checked) {
-						const selectedAddressId = this.value;
-						const selectedAddress = document.getElementById('selectedAddress-' + selectedAddressId);
-						if (selectedAddress) {
-							shippingAddressParagraph.innerHTML = selectedAddress.innerHTML;
+						} else {
+							Swal.fire('Alert', response.message, 'info');
 						}
-					}
-				});
-			});
-		});
+            },
+            error: function(xhr, status, error) {
+                console.error('Error adding address:', error);
+                // Handle error (e.g., display error message to the user)
+            }
+        });
+    });
+});
+
 	</script>
-
-
 
 	<script>
 		document.addEventListener('DOMContentLoaded', function () {
-			// Add event listener to the "Place Order" button
 			document.getElementById('placeOrder').addEventListener('click', function (event) {
-				// Prevent the default form submission behavior
 				event.preventDefault();
-
-				// Initialize arrays to store product IDs and total prices
-				let productIds = [];
-				let totalPrice = 0;
-
-				// Iterate over each table row containing product data
-				document.querySelectorAll('.table_row').forEach(function (row) {
-					// Extract product ID from data attribute
-					const productId = row.querySelector('.column-2').dataset.productId;
-					// Extract total price from hidden input field
-					const totalInput = row.querySelector('.column-5').querySelector('input[type="hidden"]');
-					if (totalInput) {
-						const total = parseFloat(totalInput.value);
-						// Add product ID to the array
-						productIds.push(productId);
-						// Accumulate total price
-						totalPrice += total;
-					} else {
-						console.error('Total input element not found in row:', row);
-					}
-				});
-
-				// Check if an address is selected
-				const selectedAddressInput = document.querySelector('input[name="selectedAddress"]:checked');
-				if (!selectedAddressInput) {
-					// Display an error message if no address is selected
-					swal("Alert", "Please select an address", "info");
-					return; // Exit the function to prevent further execution
-				}
-
-				// Extract the selected address ID
-				const selectedAddressId = selectedAddressInput.value;
-
-				$.ajax({
-					type: 'POST',
-					url: '/order/create',
-					data: { totalPrice: totalPrice, selectedAddressId: selectedAddressId },
-					success: function (response) {
-						swal("success", "Successfully ordered", "success").then(()=>{
-							window.location.href = '/order/thankyou'
-						})
-					},
-					error: function (xhr, status, error) {
-						swal("Alert", "Please add a valid product", 'warning')
-							.then(() => {
-								window.location.href = '/cart'
-							})
-					}
-				});
+				placeOrder('Cash on Delivery');
 			});
 		});
 
+		function placeOrder(...payment) {
+			// Initialize arrays to store product IDs and total prices
+			let productIds = [];
+			let totalPrice = 0;
+			// Iterate over each table row containing product data
+			document.querySelectorAll('.table_row').forEach(function (row) {
+				// Extract product ID from data attribute
+				const productId = row.querySelector('.column-2').dataset.productId;
+				// Extract total price from hidden input field
+				const totalInput = row.querySelector('.column-5').querySelector('input[type="hidden"]');
+				if (totalInput) {
+					const total = parseFloat(totalInput.value);
+					// Add product ID to the array
+					productIds.push(productId);
+					// Accumulate total price
+					totalPrice += total;
+				} else {
+					console.error('Total input element not found in row:', row);
+				}
+			});
+			// Check if an address is selected
+			const selectedAddressInput = document.querySelector('input[name="selectedAddress"]:checked');
+			if (!selectedAddressInput) {
+				// Display an error message if no address is selected
+				swal("Alert", "Please select an address", "info");
+				return; // Exit the function to prevent further execution
+			}
+			// Extract the selected address ID
+			const selectedAddressId = selectedAddressInput.value;
+			$.ajax({
+				type: 'POST',
+				url: '/order/create',
+				data: { totalPrice: totalPrice, selectedAddressId: selectedAddressId, paymentMethod: payment[0], paymentId: payment[1] },
+				success: function (response) {
+					swal("Success", "Order placed successfully", "success").then(() => {
+						window.location.href = '/order/thankyou';
+					});
+				},
+				error: function (xhr, status, error) {
+					swal("Alert", "Please add a valid product", 'warning')
+						.then(() => {
+							window.location.href = '/cart';
+						});
+				}
+			});
+		}
 	</script>
+
 
 
 	<%- include('./layouts/userLayout/footer.ejs') %>

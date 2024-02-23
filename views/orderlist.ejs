@@ -1,12 +1,14 @@
 <%- include('./layouts/userLayout/userAccountHeader.ejs') %>
-
-
-
+    <style>
+        .clickable-row:hover {
+            cursor: pointer;
+        }
+    </style>
     <section class="content-main">
         <div class="content-header">
             <div>
                 <h2 class="content-title card-title">Order List</h2>
-                <p>Lorem ipsum dolor sit amet.</p>
+                <p>Here is the List of all Orders.</p>
             </div>
             <div>
                 <input type="text" placeholder="Search order ID" class="form-control bg-white" />
@@ -39,110 +41,50 @@
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>#ID</th>
-                                <th scope="col">Product Name</th>
-                                <th scope="col">Total</th>
-                                <th scope="col">Status</th>
-                                <th scope="col">Date</th>
-                                <th scope="col" class="text-end">Action</th>
-                            </tr>
-                        </thead>
+
                         <tbody>
-                            <% if(orderList && orderList.length> 0) { %>
+                            <% if (orderList && orderList.length> 0) { %>
                                 <% orderList.forEach(order=> { %>
-                                    <tr>
+                                    <tr class="clickable-row"
+                                        onclick="redirectToOrderDetail('<%= order._id %>')">
                                         <td>
-                                            <%= order.orderId %>
+                                            <% if(order){ %>
+                                                <img src="/productImages/<%= order.items[0].product_id.images[0] %>"
+                                                    class="img-md img-avatar">
+                                                <%}else{%>
+                                                    <img src="/assets/imgs/people/avatar-1.png"
+                                                        class="img-sm img-avatar">
+                                                    <%}%>
+
                                         </td>
-                                        <td>
-                                            <b>
-                                                <% order.products.forEach(product=> { %>
-                                                    <% if (product && product.product && product.product.title) { %>
-                                                      <li> <%= product.product.title %></li>
-                                                            <% } %>
-                                                                <% }); %>
-                                            </b>
+                                        <td><b><span style="font-weight: bold;"> Product Name</span><br>
+                                                <%= order.items[0].product_id.title %><br>
+                                                and (<%= order.items.length-1 %>) other
+                                            </b><br>
+
                                         </td>
-                                        <td>$<%= order.totalPrice %>
+                                        <td><span style="font-weight: bold;">SHIP TO </span><br>
+                                            <%= order.user_name %>
                                         </td>
-                                        <td><span class="badge rounded-pill alert-warning">Pending</span></td>
-                                        <td>
-                                            <%= formatDate(order.createdAt) %>
-                                        </td> <!-- Display createdAt date -->
-                                        <td class="text-end">
-                                            <a href="#" class="btn btn-md rounded font-sm">Detail</a>
-                                            <div class="dropdown">
-                                                <a href="#" data-bs-toggle="dropdown"
-                                                    class="btn btn-light rounded btn-sm font-sm">
-                                                    <i class="material-icons md-more_horiz"></i>
-                                                </a>
-                                                <div class="dropdown-menu">
-                                                    <a class="dropdown-item" href="#">View detail</a>
-                                                    <a class="dropdown-item" href="#">Edit info</a>
-                                                    <a class="dropdown-item text-danger" href="#">Delete</a>
-                                                </div>
-                                            </div>
-                                            <!-- dropdown //end -->
+                                        <td><span style="font-weight: bold;">Price</span><br>₹ <%= order.total_amount %>
                                         </td>
+                                        <td><span style="font-weight: bold;">Status</span><br><span class="badge rounded-pill alert-warning">
+                                                <%= order.status %>
+                                            </span></td>
+                                        <td><span style="font-weight: bold;">Order Placed </span><br>
+                                            <%= formatDate(order.date) %>
+                                        </td>
+
                                     </tr>
+
                                     <% }); %>
-                                        <% } %>
+                                      
+                                            <% } %>
 
-                                            <% function formatDate(dateString) { const date=new Date(dateString)
-                                                 const options={ day: '2-digit' , month: 'short' , year: 'numeric' }; 
-                                                 return date.toLocaleDateString('en-GB', options).replace(',', '' ); } %>
-
-
-
-
-
-                                                <tr>
-                                                    <td>1233</td>
-                                                    <td><b>Esther Howard</b></td>
-                                                    <td>$12.00</td>
-                                                    <td><span class="badge rounded-pill alert-danger">Canceled</span>
-                                                    </td>
-                                                    <td>03.07.2020</td>
-                                                    <td class="text-end">
-                                                        <a href="#" class="btn btn-md rounded font-sm">Detail</a>
-                                                        <div class="dropdown">
-                                                            <a href="#" data-bs-toggle="dropdown"
-                                                                class="btn btn-light rounded btn-sm font-sm"> <i
-                                                                    class="material-icons md-more_horiz"></i> </a>
-                                                            <div class="dropdown-menu">
-                                                                <a class="dropdown-item" href="#">View detail</a>
-                                                                <a class="dropdown-item" href="#">Edit info</a>
-                                                                <a class="dropdown-item text-danger" href="#">Delete</a>
-                                                            </div>
-                                                        </div>
-                                                        <!-- dropdown //end -->
-                                                    </td>
-                                                </tr>
-
-                                                <tr>
-                                                    <td>2323</td>
-                                                    <td><b>Jenny Wilson</b></td>
-                                                    <td>$589.99</td>
-                                                    <td><span class="badge rounded-pill alert-success">Received</span>
-                                                    </td>
-                                                    <td>22.05.2020</td>
-                                                    <td class="text-end">
-                                                        <a href="#" class="btn btn-md rounded font-sm">Detail</a>
-                                                        <div class="dropdown">
-                                                            <a href="#" data-bs-toggle="dropdown"
-                                                                class="btn btn-light rounded btn-sm font-sm"> <i
-                                                                    class="material-icons md-more_horiz"></i> </a>
-                                                            <div class="dropdown-menu">
-                                                                <a class="dropdown-item" href="#">View detail</a>
-                                                                <a class="dropdown-item" href="#">Edit info</a>
-                                                                <a class="dropdown-item text-danger" href="#">Delete</a>
-                                                            </div>
-                                                        </div>
-                                                        <!-- dropdown //end -->
-                                                    </td>
-                                                </tr>
+                                                <% function formatDate(dateString) { const date=new Date(dateString);
+                                                    const options={ day: '2-digit' , month: 'short' , year: 'numeric' };
+                                                    return date.toLocaleDateString('en-GB', options).replace(',', '' );
+                                                    } %>
 
                         </tbody>
                     </table>
@@ -174,7 +116,6 @@
                 <script>
                     document.write(new Date().getFullYear());
                 </script>
-                &copy; Nest - HTML Ecommerce Template .
             </div>
             <div class="col-sm-6">
                 <div class="text-sm-end">All rights reserved</div>
@@ -189,6 +130,12 @@
     <script src="/assets/js/vendors/jquery.fullscreen.min.js"></script>
     <!-- Main Script -->
     <script src="/assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script>
+        function redirectToOrderDetail(orderId) {
+            window.location.href = '/order/detail?orderId=' + orderId;
+        }
+
+    </script>
     </body>
 
     </html>

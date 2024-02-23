@@ -45,7 +45,7 @@ const addToCart = asyncHandler(async (req, res) => {
 
         // Find Product
         const selectedProduct = await Product.findById({ _id: productId });
-        if (!selectedProduct || selectedProduct.is_listed === false) {
+        if (!selectedProduct || selectedProduct.is_listed === false || Product.quantity==0) {
             return res.status(404).json({ error: 'Product not found' });
         }
 
@@ -114,7 +114,7 @@ const updateCart = asyncHandler(async (req, res) => {
             // Check if requested quantity is within available limits
             if (quantity <= productDetails.quantity) {
                 const diffQuantity = quantity - existingProduct.quantity;
-
+                
                 existingProduct.quantity = quantity;
                 existingCart.cartTotal += diffQuantity * productDetails.price;
 
@@ -171,7 +171,7 @@ const viewCart = async (accessToken) => {
     try {
         const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
         const userId = decodedToken.id;
-        const cartData = await Cart.findOne({ userId }).populate('products.product');
+        const cartData = await Cart.findOne({ userId }).populate('products.product').populate('userId')
         return cartData;
     } catch (error) {
         throw new Error(error);
@@ -215,6 +215,7 @@ const loadCheckout = asyncHandler(async (req, res) => {
         const userId = decodedToken.id;
         const cartData = await viewCart(accessToken)
         const userAddress = await Address.find({ user: userId }).populate('user')
+
         res.render('checkout', { cartData, userAddress })
     } catch (error) {
         throw new Error(error)

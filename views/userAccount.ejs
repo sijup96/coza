@@ -27,6 +27,7 @@
                                                 <a class=" rounded font-md"> <i class="font-md"></i> Click the below
                                                     Avatar to Update
                                                 </a>
+                                                <input type="file" class="btn btn-light rounded font-md" id="uploadInput" accept="image/*">
                                             </figcaption>
                                         </figure>
                                         <hr>
@@ -151,7 +152,7 @@
             <!-- card body end// -->
         </div>
         <!-- card end// -->
-        pekkeregne@gufum.com
+      
     <!-- content-main end// -->
 
 
@@ -195,7 +196,54 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function () {
+    $('#cropButton').on('click', function (event) {
+        event.preventDefault(); // Prevent the default form submission behavior
 
+        // Your cropping logic here...
+        var fileInput = document.getElementById('profileImage');
+        var files = fileInput.files;
+        if (files.length === 0) {
+            alert('Please select an image.');
+            return;
+        }
+
+        var image = new Image();
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            image.src = e.target.result;
+            image.onload = function () {
+                // Initialize Cropper
+                var cropper = new Cropper(image, {
+                    aspectRatio: 1, // Adjust aspect ratio as needed
+                    crop: function (e) {
+                        // Output the cropped image data
+                        var canvas = cropper.getCroppedCanvas();
+                        var croppedImage = canvas.toDataURL('image/jpeg'); // Adjust format as needed
+                        // Display the cropped image
+                        displayCroppedImage(croppedImage);
+                        // Optionally, save the cropped image to the server
+                        // saveCroppedImage(croppedImage);
+                    }
+                });
+            };
+        };
+        reader.readAsDataURL(files[0]);
+    });
+
+    // Function to display the cropped image
+    function displayCroppedImage(croppedImage) {
+        var imgElement = document.createElement('img');
+        imgElement.src = croppedImage;
+        // Clear previous cropped image
+        var container = document.getElementById('croppedImageContainer');
+        container.innerHTML = '';
+        // Append the new cropped image
+        container.appendChild(imgElement);
+    }
+});
+</script>
 
 <script>
     function changePassword() {

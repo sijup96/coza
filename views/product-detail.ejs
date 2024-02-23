@@ -82,9 +82,12 @@
 				<div class="col-md-6 col-lg-5 p-b-30">
 					<div class="p-r-50 p-t-5 p-lr-0-lg">
 						<h4 class="mtext-105 cl2 js-name-detail p-b-14">
-							<%= product.title %>
+							<%= product.title %>	
+							<% if(product.quantity == 0){ %>
+								<span style="color: red;"> ( out of stock )</span>
+								<%}%>
 						</h4>
-
+					
 						<span class="mtext-106 cl2">
 							<span class="mtext-110 cl2 discount-section cross" style="color: red; ">
 								₹ <%= product.price+450 %> </span> &nbsp; ₹<%= product.price %>

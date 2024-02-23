@@ -1,33 +1,34 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
-var orderSchema = new mongoose.Schema(
+const orderSchema = new Schema(
   {
-    products: [
-      {
-        product: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Product",
-        },
-        quantity: Number,
-        price: Number,
-        offer: {
-          type: String,
-          default: false,
-        }
-      },
-    ],
+    user_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User", // Make sure this matches the name of your User model
+      // required: true,
+    },
     orderId: {
+      type: String
+    },
+    delivery_address: {},
+    user_name: {
       type: String,
+      // required: true,
     },
-    totalPrice:{
-      type:Number,
+    total_amount: {
+      type: Number,
+      // required: true,
     },
-    paymentIntent: {},
-    requestReason: {
+    date: {
       type: String,
-      default: "Not Request"
+      // required: true,
     },
-    orderStatus: {
+    expected_delivery: {
+      type: String,
+      // required: true,
+    },
+    status: {
       type: String,
       default: "Not Processed",
       enum: [
@@ -39,20 +40,61 @@ var orderSchema = new mongoose.Schema(
         "Returned",
       ],
     },
-    address: {},
-    orderby: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+    payment: {
+      type: String,
+      // required: true,
     },
-
-
-    expectedDelivery: {
+    paymentId: {
       type: String,
     },
+    totalDiscountAmount: {
+      type: Number,
+    },
+    couponApplied: {
+      type: Boolean,
+    },
+    coupon_name: {
+      type: String,
+    },
+    items: [
+      {
+        product_id: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "product",
+          // required: true,
+        },
+        orderId: {
+          type: String
+        },
+        quantity: {
+          type: Number,
+          // required: true,
+        },
+        price: {
+          type: Number,
+          // required: true,
+        },
+        total_price: {
+          type: Number,
+          // required: true,
+        },
+        offerPercentage: {
+          type: Number,
+        },
+        couponDiscountTotal: {
+          type: Number,
+        },
+        ordered_status: {
+          type: String,
+          default: "placed",
+        },
+        cancellationReason: {
+          type: String,
+        },
+      },
+    ],
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 module.exports = mongoose.model("Order", orderSchema);

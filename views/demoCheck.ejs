@@ -254,4 +254,282 @@ input[type="radio"] {
 		});
 	</script>
 
+
+
+<script>
+	const createOrder = asyncHandler(async (req, res) => {
+    try {
+        const accessToken = req.accessToken;
+        if (!accessToken) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+        const { totalPrice, selectedAddressId } = req.body;
+        if (!totalPrice || !selectedAddressId) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+        const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
+        const userId = decodedToken.id;
+        const userAddress = await Address.findById(selectedAddressId);
+        if (!userAddress) {
+            return res.status(400).json({ error: 'Invalid address' });
+        }
+        const cartData = await cart.viewCart(accessToken);
+        const isValidCart = cartData.products.every((productItem) => {
+            return (
+                productItem.quantity > 0 &&
+                productItem.quantity <= productItem.product.quantity &&
+                productItem.product.is_listed === true
+            );
+        });
+
+        if (!isValidCart || cartData.cartTotal <= 0) {
+            return res.status(400).json({ error: 'Cart is empty' });
+        }
+        const unlistedProducts = cartData.products.filter(item => !item.product.is_listed);
+        if (unlistedProducts.length > 0) {
+            return res.status(400).json({ error: 'One or more products are unlisted' });
+        }
+        const id = orderid.generate();
+
+        const orderItems = cartData.products.map(item => ({
+            product_id: item.product._id,
+            quantity: item.quantity,
+            price: item.product.price,
+            total_price: item.quantity * item.product.price,
+            // You can add other fields like offerPercentage, couponDiscountTotal, ordered_status, cancellationReason here if needed
+        }));
+
+        const order = new Order({
+            user_id: userId,
+            order_id: id,
+            delivery_address: userAddress.delivery_address, // Assuming 'delivery_address' is a string field in the 'Address' model
+            user_name: userAddress.user_name, // Assuming 'user_name' is a string field in the 'Address' model
+            total_amount: totalPrice,
+            date: new Date().toISOString(), // Assuming you want to save the current date
+            expected_delivery: 'Calculate based on your business logic',
+            status: 'placed', // Assuming default status is 'placed'
+            payment: 'Pending', // Assuming default payment status is 'Pending'
+            paymentId: 'Pending', // You may update this based on the payment gateway's response
+            items: orderItems,
+        });
+
+        await order.save();
+        cartData.products = [];
+        cartData.cartTotal = 0;
+        await cartData.save();
+        res.status(200).json({ message: 'Order created successfully' });
+    } catch (error) {
+        console.error('Error creating order:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+</script>
+
+
+
 	<%- include('./layouts/userLayout/footer.ejs') %>
+
+
+
+
+
+
+
+	<% if (orderList && orderList.length > 0) { %>
+		<% orderList.forEach(order => { %>
+			<% order.items.forEach(item => { %>
+				<tr>
+					<td>
+						<a class="itemside" href="#"></a>
+						<div class="left">
+							<% if(item){ %>
+							  <img src="/productImages/<%= item.product_id.images[0] %>" class="img-md img-avatar">
+							  <%}else{%>
+								<img src="/assets/imgs/people/avatar-1.png" class="img-sm img-avatar">
+								<%}%>
+						  </div>
+						  <div class="info">
+							<h6>Product Title</h6>
+							<h4 cla ss="mb-0"><%= item.product_id.title %></h4>
+							<p></p>
+						  </div>
+						</a>
+					</td>
+					<td>
+						<b><%= item.product_id.title %></b>
+					</td>
+					<td>$<%= item.total_price %></td>
+					<td><span class="badge rounded-pill alert-warning">Pending</span></td>
+					<td><%= formatDate(order.date) %></td> <!-- Display createdAt date -->
+					<td class="text-end">
+						<a href="#" class="btn btn-md rounded font-sm">Detail</a>
+						<div class="dropdown">
+							<a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm">
+								<i class="material-icons md-more_horiz"></i>
+							</a>
+							<div class="dropdown-menu">
+								<a class="dropdown-item" href="#">View detail</a>
+								<a class="dropdown-item" href="#">Edit info</a>
+								<a class="dropdown-item text-danger" href="#">Delete</a>
+							</div>
+						</div>
+						<!-- dropdown //end -->
+					</td>
+				</tr>
+			<% }); %>
+		<% }); %>
+	<% } %>
+	
+	<% function formatDate(dateString) { 
+		const date = new Date(dateString);
+		const options = { day: '2-digit', month: 'short', year: 'numeric' };
+		return date.toLocaleDateString('en-GB', options).replace(',', ''); 
+	} %>
+	
+	<!-- <section class="content-main">
+        <div class="row">
+            <div class="col-6">
+                <div class="content-header">
+                    <h2 class="content-title">Add New Product</h2>
+                    <form action="/admin/addProduct" method="post" enctype="multipart/form-data">
+                        <p style="color:red">
+                            <%= messages.head ? messages.head : '' %>
+                        </p>
+                        <div>
+                            <button class="btn btn-md rounded font-sm hover-up">Publich</button>
+                        </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <h6>1. General info</h6>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="mb-4">
+                                    <label class="form-label">Product title</label>
+                                    <input type="text" placeholder="Type here" class="form-control" name="title"
+                                        id="title" required>
+                                    <p style="color:red" id="titleError"></p>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label">Description</label>
+                                    <textarea placeholder="Type here" class="form-control" rows="4" name="description"
+                                        id="description" required></textarea>
+                                    <p style="color:red" id="descriptionError"></p>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Brand name</label>
+                                    <select class="form-select" name="brand" required>
+                                        <option value="gucci">Gucci</option>
+                                        <option value="chanel">Chanel</option>
+                                        <option value="nike">Nike</option>
+                                        <option value="zara">Zara</option>
+                                        <option value="adidas">Adidas</option>
+                                        <option value="louis-vuitton">Louis Vuitton</option>
+                                        <option value="prada">Prada</option>
+                                        <option value="balenciaga">Balenciaga</option>
+                                        <option value="givenchy">Givenchy</option>
+                                        <option value="versace">Versace</option>
+                                        <option value="ralph-lauren">Ralph Lauren</option>
+                                        <option value="tommy-hilfiger">Tommy Hilfiger</option>
+                                        <option value="calvin-klein">Calvin Klein</option>
+                                        <option value="hm">H&M</option>
+                                        <option value="forever-21">Forever 21</option>
+                                    </select>
+                                    <p style="color:red">
+                                        <%= messages.brand ? messages.brand : '' %>
+                                    </p>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Size</label>
+                                    <select class="form-select" name="size">
+                                        <option value="s">S</option>
+                                        <option value="m">M</option>
+                                        <option value="l">L</option>
+                                        <option value="xl">XL</option>
+                                        <option value="xxl">XXL</option>
+                                    </select>
+                                    <p style="color:red">
+                                        <%= messages.size ? messages.size : '' %>
+                                    </p>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Gender</label>
+                                    <select class="form-select" name="sex">
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="unisex">Unisex</option>
+                                    </select>
+                                    <p style="color:red">
+                                        <%= messages.size ? messages.size : '' %>
+                                    </p>
+                                </div>
+
+                                <hr class="mb-4 mt-0">
+                               
+
+                                <hr class="mb-4 mt-0">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <h6>5. Media</h6>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="mb-4">
+                                            <label class="form-label">Images</label>
+                                            <!-- <input class="form-control" type="file" name="images" id="fileUpload"
+                                                multiple> -->
+                                            <input type="file" multiple id="gallery-photo-add" name="images">
+
+                                            <p style="color:red">
+                                                <%= messages.image ? messages.image : '' %>
+                                            </p>
+                                        </div>
+                                    </div> <!-- col.// -->
+                                    
+                                    </form>
+                                </div> <!-- .row end// -->
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="card">
+                    <div class="">
+                        <div class="col-lg-2 gallery" style="display: flex;"></div>
+                        <!-- Button to delete selected images -->
+                    </div>
+                </div>
+                <!-- card-product  end// -->
+
+
+            </div>
+
+
+            <div class="main-container col-lg-2">
+                <div style="display: flex;">
+                    <div class="img-container">
+                        <!-- <img id="image" src="/images/product-01.jpg"> -->
+                        <!-- <button id="btn-reset">Reset</button>
+                        <button id="btn-crop">Crop</button> -->
+                    </div>
+                    <div>
+                        <!-- Block2 -->
+                        <div>
+                            <div>
+                                <div class="cropped-container">
+                                    <img src="" id="output" style="max-width: 300px; margin-left: 5px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </section>  -->

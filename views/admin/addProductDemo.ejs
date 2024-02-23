@@ -1,0 +1,438 @@
+<%- include('../layouts/adminLayout/_header.ejs') -%>
+    <style>
+        .image-container {
+            display: inline-block;
+            margin: 5px;
+        }
+
+        .delete-button {
+            display: block;
+            margin-top: 5px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"
+        integrity="sha512-hvNR0F/e2J7zPPfLC9auFe3/SE0yG4aJCOd/qxew74NN7eyiSKjr7xJJMu1Jy2wf7FXITpWS1E/RY8yzuXN7VA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <section class="content-main">
+        <form method="post">
+            <div class="row">
+                <div class="col-9">
+                    <div class="content-header">
+                        <h2 class="content-title">Add New Product</h2>
+                        <p style="color:red">
+                            <%= messages.head ? messages.head : '' %>
+                        </p>
+                        <div>
+                            <button id="publishButton" class="btn btn-md rounded font-sm hover-up">Publich</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <label for="product_title" class="form-label">Product title</label>
+                                <input type="text" placeholder="Type here" class="form-control" id="title" name="title"
+                                    required />
+                                <span id="nameError" class="text-danger"></span>
+                            </div>
+                            <div class="row gx-3">
+                                <div class="col-md-4 mb-3">
+                                    <label for="product_sku" class="form-label">Brand Name</label>
+                                    <input type="text" placeholder="Type here" class="form-control" id="brand"
+                                        name="brand" />
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Gender</label>
+                                    <select class="form-select" name="sex" id="sex">
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="unisex">Unisex</option>
+                                    </select>
+                                    <p style="color:red">
+                                        <%= messages.size ? messages.size : '' %>
+                                    </p>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Size</label>
+                                    <select class="form-select" name="size" id="size">
+                                        <option disabled>select size</option>
+                                        <option value="s">S</option>
+                                        <option value="m">M</option>
+                                        <option value="l">L</option>
+                                        <option value="xl">XL</option>
+                                        <option value="xxl">XXL</option>
+                                    </select>
+                                    <p style="color:red">
+                                        <%= messages.size ? messages.size : '' %>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row gx-3">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Price</label>
+                                    <input type="text" placeholder="₹" class="form-control" name="price" id="price"
+                                        pattern="\d+(\.\d{1,2})?" required>
+                                    <span id="priceError" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="product_sku" class="form-label">Quantity</label>
+                                    <input type="text" placeholder="Enter Quantity" class="form-control" name="quantity"
+                                        id="quantity" pattern="\d+(\.\d{1,2})?" required>
+                                    <span id="quantityError" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Categories</label>
+                                <select class="form-select" name="category" id="category">
+
+                                    <% if(category.length> 0){ %>
+                                        <% for(let i=0; i < category.length; i++){ %>
+                                            <option value="<%= category[i].slug %>">
+                                                <%= category[i].title %>
+                                            </option>
+                                            <% } %>
+                                                <% }else{ %>
+                                                    <option> Not found </option>
+                                                    <% } %>
+                                </select>
+                                <p style="color:red">
+                                    <%= messages.category ? messages.category : '' %>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- card end// -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div>
+                                <label for="description">Description</label>
+                                <textarea placeholder="Type here" class="form-control" rows="4" name="description"
+                                    id="description" required></textarea>
+                                <p style="color:red" id="descriptionError"></p>
+                            </div>
+                        </div>
+
+
+
+                    </div>
+
+
+                    <!-- card end// -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div>
+                                <label class="form-label">Images</label>
+                                <input type="file" id="gallery-photo-add" accept="image/*" name="images" multiple
+                                    required />
+                                <span id="imageError" class="text-danger"></span>
+                                <div class="gallery"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- card end// -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <img src="" alt="" id="output" width="250px">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div id="finalCroppedContainer">
+                                <!-- Images will be dynamically added here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <!-- card end// -->
+    </section>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"
+        integrity="sha512-9KkIqdfN7ipEW6B6k+Aq20PV31bjODg4AA52W+tYtAE0jE0kMx49bjJ3FgvS56wzmyfMUHbQ4Km2b7l9+Y/+Eg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+        $(function () {
+            var croppers = [];
+            var croppedImages = [];
+            function loadCroppedImages(croppedImagesArray) {
+                $('#finalCroppedContainer').empty(); // Clear previous images
+
+                // Loop through the array of cropped images
+                croppedImagesArray.forEach(function (croppedImageObj) {
+                    var imgElement = $('<img class="cropped-image" style="margin-right: 5px; margin-bottom: 5px;">').attr('src', croppedImageObj.croppedImage);
+                    $('#finalCroppedContainer').append(imgElement);
+                });
+            }
+            // Function to update cropped image data in the array
+            function updateCroppedImageData(fileName, newBlob, newCroppedImage) {
+                // Find the index of the image data in the array
+                var index = croppedImages.findIndex(function (imgData) {
+                    return imgData.fileName === fileName;
+                });
+
+                if (index !== -1) {
+                    // Update the image data
+                    croppedImages[index].blob = newBlob;
+                    croppedImages[index].croppedImage = newCroppedImage;
+                }
+            }
+
+            // Multiple images preview in browser
+            var imagesPreview = function (input, placeToInsertImagePreview) {
+                if (input.files.length >= 4) {
+                    for (var i = 0; i < 4; i++) {
+                        var reader = new FileReader();
+                        var file = input.files[i]; // Store the current file object
+
+                        reader.onload = (function (file) {
+                            return function (event) {
+                                // Create an image container
+                                var imgContainer = $('<div class="image-container col-md-3">'); // Use col-md-3 for each image container to ensure four images in a row
+
+                                // Image tag
+                                var imgElement = $('<img style="max-width: 75%;">').attr('src', event.target.result);
+
+                                // Reset button
+                                var reset = $('<button class="btn-reset">Reset</button>').click(function () {
+                                    var index = $(this).parents('.image-container').index();
+                                    croppers[index].reset();
+                                });
+
+                                var crop = $('<button class="btn-crop">Crop</button>').click(async function () {
+                                    var index = $(this).parents('.image-container').index();
+                                    var fileName = file.name; // Access the original file name
+                                    var croppedCanvas = croppers[index].getCroppedCanvas();
+                                    var croppedImage = croppedCanvas.toDataURL("image/png");
+
+                                    // Convert data URL to Blob
+                                    var blob = await new Promise((resolve, reject) => {
+                                        croppedCanvas.toBlob((blob) => {
+                                            resolve(blob);
+                                        }, 'image/png');
+                                    });
+
+                                    // Check if the image is already cropped
+                                    var existingIndex = croppedImages.findIndex(function (imgData) {
+                                        return imgData.fileName === fileName;
+                                    });
+
+                                    if (existingIndex !== -1) {
+                                        // If the image is already cropped, update its data
+                                        updateCroppedImageData(fileName, blob, croppedImage);
+                                    } else {
+                                        // If it's a new image, add it to the array
+                                        croppedImages.push({
+                                            fileName: fileName,
+                                            blob: blob,
+                                            croppedImage: croppedImage
+                                        });
+                                    }
+
+                                    // Display the cropped images
+                                    loadCroppedImages(croppedImages);
+
+                                    // Display the cropped image
+                                    $('#output').attr('src', croppedImage);
+
+                                    // Show the container with the cropped image
+                                    $('.cropped-container').css('display', 'flex');
+                                });
+
+                                // Delete button
+                                var deleteButton = $('<button class="delete-button">Delete</button>').click(function () {
+                                    $(this).parents('.image-container').remove(); // Remove the image container when the delete button is clicked
+                                });
+
+                                // Append elements to the container
+                                imgContainer.append(imgElement);
+                                imgContainer.append(deleteButton);
+                                imgContainer.append(reset);
+                                imgContainer.append(crop);
+
+                                // Append container to the specified place
+                                imgContainer.appendTo(placeToInsertImagePreview);
+
+                                // Initialize Cropper after the image has loaded
+                                var cropper = new Cropper(imgElement[0], {
+                                    aspectRatio: NaN,
+                                    viewMode: 1,
+                                    cropBoxResizable: false,
+                                    cropBoxWidth: 250,
+                                    cropBoxHeight: 320
+                                });
+
+                                // Store the cropper instance
+                                croppers.push(cropper);
+                            };
+                        })(file);
+
+                        reader.readAsDataURL(file);
+                    }
+                } else {
+
+                }
+            };
+
+            $('#gallery-photo-add').on('change', function () {
+                imagesPreview(this, '.gallery'); // Corrected selector to match the class used for the gallery
+            });
+
+            // Handle the delete action for selected images
+            $('#delete-selected').on('click', function () {
+                $('.image-container:has(input:checked)').remove();
+            });
+
+            // Function to get all cropped image data
+            function getAllCroppedImageData() {
+                return croppedImages;
+            }
+        });
+
+
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            let flag = 1;
+
+            function validateDescription(fieldName, errorId) {
+                var fieldValue = $('#' + fieldName).val().trim();
+                var errorSpan = $('#' + errorId);
+
+                if (fieldValue && fieldValue.startsWith(' ')) {
+                    flag = 0;
+                    errorSpan.text(fieldName + ' should not start with a space.');
+                    return;
+                }
+
+                var wordCount = fieldValue.trim().split(/\s+/).filter(function (word) {
+                    return word.length > 0;
+                }).length;
+
+                if (wordCount >= 5) {
+                    flag = 1;
+                    errorSpan.text('');
+                } else {
+                    flag = 0;
+                    errorSpan.text(fieldName + ' should have more than 5 words.');
+                }
+            }
+
+            function validateProductName(productName) {
+                const nameRegex = /^[a-zA-Z\s]+$/;
+                if (!nameRegex.test(productName)) {
+                    flag = 0;
+                    $('#nameError').html('Name should only contain alphabets');
+                    return false;
+                } else {
+                    flag = 1;
+                    $('#nameError').html('');
+                    return true;
+                }
+            }
+
+            function validatePrice(price) {
+                const numericRegex = /^[0-9]+$/;
+                if (!numericRegex.test(price) || parseFloat(price) <= 0) {
+                    flag = 0;
+                    $('#priceError').html('Price should be a positive numeric value');
+                    return false;
+                } else {
+                    flag = 1;
+                    $('#priceError').html('');
+                    return true;
+                }
+            }
+
+            function validateQuantity(quantity) {
+                const numericRegex = /^[0-9]+$/;
+                if (!numericRegex.test(quantity) || parseInt(quantity) < 0) {
+                    flag = 0;
+                    $('#quantityError').html('Stock Quantity should be a non-negative integer');
+                    return false;
+                } else {
+                    flag = 1;
+                    $('#quantityError').html('');
+                    return true;
+                }
+            }
+
+            function validateImages() {
+                var fileInput = document.getElementById('gallery-photo-add');
+                var files = fileInput.files;
+
+                if (files.length < 4) {
+                    flag = 0;
+                    $('#imageError').html('Please select at least four images.');
+                    return false;
+                } else {
+                    flag = 1;
+                    $('#imageError').html('');
+                    return true;
+                }
+            }
+
+            $('#publishButton').on('click', function (event) {
+        event.preventDefault(); // Prevent the default form submission behavior
+
+        let productName = $('#title').val().trim();
+        let price = $('#price').val();
+        let quantity = $('#quantity').val();
+        validateDescription('description', 'descriptionError');
+        validateProductName(productName);
+        validatePrice(price);
+        validateQuantity(quantity);
+        validateImages();
+        if (flag === 1) {
+            // Create an array of image data to send
+            var imageData = [];
+            $('.cropped-image').each(function () {
+                imageData.push($(this).attr('src'));
+            });
+            console.log(imageData);
+
+            $.ajax({
+                url: "/admin/addProduct",
+                type: "POST",
+                data: {
+                    title: productName,
+                    description: $('#description').val().trim(),
+                    price: price,
+                    quantity: quantity,
+                    brand: $('#brand').val(),
+                    category: $('#category').val(),
+                    sex: $('#sex').val(),
+                    size: $('#size').val(),
+                    images: imageData
+                },
+                success: function (response) {
+                    console.log("Publish successful");
+                    // Optionally, perform additional actions here
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error:", error);
+                    // Optionally, display an error message to the user
+                }
+            });
+        }
+            });
+
+        });
+
+
+    </script>
+
+
+
+    <%- include('../layouts/adminLayout/_footer.ejs') -%>

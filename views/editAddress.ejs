@@ -90,6 +90,34 @@
                 <!-- card-product  end// -->
             </div>
     </section> <!-- content-main end// -->
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('form').submit(function(event) {
+                event.preventDefault(); 
+                var formData = $(this).serialize();
+                $.ajax({
+                    type: 'PUT',
+                    url: $(this).attr('action'),
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                swal.fire('Success', response.message, 'success')
+                .then(()=>{
+                    window.location.href = '/user/address';
+                })
+               
+            } else {
+                swal.fire('Error', response.message, 'error');
+            }
+        },
+        error: function(xhr, status, error) {
+            swal.fire('Error', 'An error occurred while processing your request. Please try again later.', 'error');
+            console.error(xhr.responseText);
+        }
+                });
+            });
+        });
+    </script>
 
     <%- include('./layouts/userLayout/userAccountFooter.ejs') %>

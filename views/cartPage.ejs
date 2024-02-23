@@ -42,7 +42,7 @@
 									<% if(cartData && cartData.products && cartData.products.length> 0) { %>
 										<% cartData.products.forEach(cartProduct=> { %>
 											<% if(cartProduct.product.is_listed === true){ %>
-											<tr class="table_row">
+											<tr class="table_row itemrow<%= cartProduct.product._id %>">
 												<td class="column-1">
 													<div class="how-itemcart1">
 														<% if (cartProduct.product && cartProduct.product.images &&
@@ -61,7 +61,10 @@
 														<a href="/products/detail/<%= cartProduct.product._id %>"
 															style="color: black;">
 															<%= cartProduct.product.title %>
-														</a>
+														</a><br>
+														<% if(cartProduct.product.quantity == 0) {%>
+														<span style="color: red;"> out of stock</span>
+														<%}%>
 														<% } else { %>
 															<!-- Handle the case where cartProduct.product or cartProduct.product.title is not defined -->
 															<% } %>
@@ -87,8 +90,9 @@
 														</div>
 													</div>
 												</td>
-												<td class="column-5">₹ <%= cartProduct.product &&
+												<td class="column-5">₹ <span id="productTotal<%= cartProduct.product._id %>"><%= cartProduct.product &&
 														cartProduct.product.price * cartProduct.quantity %>
+													</span>
 												</td>
 												<td class="column-6">
 													<button class="btn btn-danger delete-btn"
@@ -202,7 +206,7 @@
 									</span>
 								</div>
 
-								<div class="size-209">
+								<div class="total size-209">
 									<% if (cartData && cartData.cartTotal) { %>
 										<span class="mtext-110 cl2">
 											₹ <%= cartData.cartTotal %>
@@ -245,13 +249,20 @@
 
 	<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+	$(document).ready(function() {
+    $('#editAddressLink').click(function(event) {
+        event.preventDefault(); // Prevent default link behavior
+        $('.wrap-modal2').show(); // Show the edit address modal
+    });
+});
+</script>
 	<script>
 		function showToast() {
 			Swal.fire({
 				title: "Information",
-				text: "Add Product to cart to continue..",
+				text: "Add a valid product to cart to continue..",
 				icon: "info"
 			});
 		}
@@ -312,8 +323,9 @@
 						quantity: quantity
 					},
 					success: function (response) {
-						//$('.wrap-header-cart').load(location.href + ' .wrap-header-cart');
-						location.reload()
+						$('.total').load(location.href + ' .total');
+						$(`#productTotal${productId}`).load(location.href + ` #productTotal${productId}`);
+						// location.reload()
 					},
 					error: function (xhr, status, error) {
 						if (xhr.status === 400) {

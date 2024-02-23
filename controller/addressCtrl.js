@@ -18,6 +18,19 @@ const loadUserAddress = asyncHandler(async (req, res) => {
     throw new Error(error)
   }
 });
+//Get a Address 
+const getAddress = asyncHandler(async (req, res) => {
+  try {
+    const addressId=req.params.id;
+    const addressData= await Address.findById(addressId);
+    if(!addressData){
+      return res.status(404).json({error:'Address not found'});
+    }
+    res.json(addressData);
+  } catch (error) {
+    throw new Error(error)
+  }
+});
 
 //Load Create Address
 const loadCreateAddress = asyncHandler(async (req, res) => {
@@ -58,12 +71,9 @@ const createAddress = asyncHandler(async (req, res) => {
         makeDefaultAddress({ addressId: newAddress._id, userId: userId });
       }
       if (newAddress) {
-        res.json({ 'success': true, 'message': 'Address added successfully' });
-
-
+        res.status(200).json({ success: true, message: 'Address added successfully' });
       } else {
         res.status(404).json({ success: false, message: 'Try again...' });
-
       }
 
     } else {
@@ -149,12 +159,11 @@ const editAddress = asyncHandler(async (req, res) => {
         },
         { new: true } // To return the updated document
       );
-      req.flash('head', `Address edited Successfully`);
-      res.redirect('/user/address')
+      res.status(200).json({ success: true, message: 'Address edited successfully' });
+
     } else {
-      req.flash('head', `Try again.. `);
-      // User already exists
-      res.redirect('/user/address');
+      res.status(400).json({ success: false, message: 'Failed to edit address. Please try again.' });
+
     }
   } catch (error) {
     // Handle unexpected errors
@@ -171,4 +180,5 @@ module.exports = {
   defaultAddress,
   loadEditAddress,
   editAddress,
+  getAddress,
 }

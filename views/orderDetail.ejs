@@ -1,0 +1,236 @@
+<%- include('./layouts/userLayout/userAccountHeader.ejs') %>
+<%
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const options = { weekday: 'short', month: 'short', day: '2-digit', year: 'numeric', hour: 'numeric', minute: 'numeric' };
+    return date.toLocaleDateString('en-US', options);
+}
+%>
+        <section class="content-main">
+            <div class="content-header">
+                <div>
+                    <h2 class="content-title card-title">Order detail</h2>
+                    <p>Details for Order ID: #<%= orderDetail.orderId %></p>
+                </div>
+            </div>
+            <div class="card">
+                <header class="card-header">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6 col-md-6 mb-lg-0 mb-15">
+                            <span> <i class="material-icons md-calendar_today"></i> <b><%= formatDate(orderDetail.date) %></b> </span> <br />
+                            <small class="text-muted">Order ID: #<%= orderDetail.orderId %></small>
+                        </div>
+                        <div class="col-lg-6 col-md-6 ms-auto text-md-end">
+                            <% if(orderDetail.status !== "Delivered") { %>
+                                <% if(orderDetail.status !=='Cancelled'){ %>
+                                    <a class="btn btn-primary" style="background-color: red;" href="#" id="cancelOrderButton">Cancel Order</a>
+                                    <% }%>
+                                
+                                <% }else{ %>
+                                <a class="btn btn-primary" style="background-color: red;" href="#">Return Order</a>
+                                <a class="btn btn-secondary print ms-2" href="#"><i class="icon material-icons md-print"></i></a>
+
+                           <% } %>
+                        </div>
+                    </div>
+                </header>
+                <!-- card-header end// -->
+                <div class="card-body">
+                    <div class="row mb-50 mt-20 order-info-wrap">
+                       
+                        <!-- col// -->
+                        <div class="col-md-4">
+                            <article class="icontext align-items-start">
+                                <span class="icon icon-sm rounded-circle bg-primary-light">
+                                    <i class="text-primary material-icons md-local_shipping"></i>
+                                </span>
+                                <div class="text">
+                                    <h6 class="mb-1">Order info</h6>
+                                    <p class="mb-1">
+                                        Shipping: Fargo express <br />
+                                        Pay method: <%= orderDetail.payment %> <br />
+                                        Status: <% if(orderDetail.status == 'Cancelled' || orderDetail.status == 'Returned'){ %>
+                                            <b style="color: red;"><%= orderDetail.status %></b>
+                                            <% }else if(orderDetail.status == 'Delivered'){ %>
+                                                <b style="color:green;"><%= orderDetail.status %></b>
+                                                <%}else{ %>
+                                                    <b style="color:rgb(8, 8, 8);"><%= orderDetail.status %></b> 
+                                               <% } %>
+                                    </p>
+                                    
+                                </div>
+                            </article>
+                        </div>
+                        <!-- col// -->
+                        <div class="col-md-4">
+                            <article class="icontext align-items-start">
+                                <span class="icon icon-sm rounded-circle bg-primary-light">
+                                    <i class="text-primary material-icons md-place"></i>
+                                </span>
+                                <div class="text">
+                                    <h6 class="mb-1">Deliver to</h6>
+                                    <p class="mb-1">
+                                     <%= orderDetail.user_name %><br>
+                                        <%= orderDetail.delivery_address.houseName %>,<%= orderDetail.delivery_address.street %> <br>
+                                     <%= orderDetail.delivery_address.city %> &nbsp;<%= orderDetail.delivery_address.pincode %> <br />
+                                    </p>                                   
+                                </div>
+                            </article>
+                        </div>
+                        <!-- col// -->
+                    </div>
+                    <!-- row // -->
+                    <div class="row">
+                        <div class="col-lg-7">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th width="40%">Product</th>
+                                            <th width="20%">Unit Price</th>
+                                            <th width="20%">Quantity</th>
+                                            <th width="20%" class="text-end">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% if(orderDetail.items && orderDetail.items.length > 0){ %>
+                                            <% orderDetail.items.forEach((product) =>{ %>
+                                        <tr>
+                                            <td>
+                                                <a class="itemside" href="#">
+                                                    <div class="left">
+                                                        <img src="/productImages/<%= product.product_id.images[0] %>" width="40" height="40" class="img-xs" alt="Item" />
+                                                    </div>
+                                                    <div class="info"><%= product.product_id.title %></div>
+                                                </a>
+                                            </td>
+                                            <td>₹<%= product.price %></td>
+                                            <td><%= product.quantity %></td>
+                                            <td class="text-end">₹ <%= product.total_price %></td>
+                                        </tr>
+                                        <%})}%>
+                                        <tr>
+                                            <td colspan="4">
+                                                <article class="float-end">
+                                                    <dl class="dlist">
+                                                        <dt>Subtotal:</dt>
+                                                        <dd>$973.35</dd>
+                                                    </dl>
+                                                    <dl class="dlist">
+                                                        <dt>Shipping cost:</dt>
+                                                        <dd>$10.00</dd>
+                                                    </dl>
+                                                    <dl class="dlist">
+                                                        <dt>Grand total:</dt>
+                                                        <dd><b class="h5">₹ <%= orderDetail.total_amount %></b></dd>
+                                                    </dl>
+                                                    <dl class="dlist">
+                                                        <dt class="text-muted">Status:</dt>
+                                                        <dd>
+                                                            <span class="badge rounded-pill alert-success text-success"><%= orderDetail.payment %></span>
+                                                        </dd>
+                                                    </dl>
+                                                </article>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- table-responsive// -->
+                        </div>
+                        <!-- col// -->
+                        <div class="col-lg-1"></div>
+                        <div class="col-lg-4">
+                            <div class="box shadow-sm bg-light">
+                                <h6 class="mb-15">Payment info</h6>
+                                <% if(orderDetail.payment == 'online'){%>
+                                <p>
+                                    <img src="/assets/imgs/card-brands/3.png" class="border" height="20" /> <b style="font-size:medium; ;"> &nbsp;Razorpay</b> <br />
+                                    Payment ID:&nbsp; <%= orderDetail.paymentId %>><br />
+                                    Phone: +91 <b><%= orderDetail.delivery_address.mobile %> </b>
+                                </p>
+                                <%}else{ %>
+                                    <p>
+                                        <img src="/assets/imgs/card-brands/3.png" class="border" height="20" /> <b style="font-size:medium; ;"> &nbsp;Razorpay</b> <br />
+                                        Payment ID:&nbsp; <%= orderDetail.paymentId %>><br />
+                                        Phone: +91 <b><%= orderDetail.delivery_address.mobile %> </b>
+                                    </p>
+                                    <% } %>
+                            </div>
+                            <div class="h-25 pt-4">
+                                <div class="mb-3">
+                                    <label>Notes</label>
+                                    <textarea class="form-control" name="notes" id="notes" placeholder="Type some note"></textarea>
+                                </div>
+                                <button class="btn btn-primary">Save note</button>
+                            </div>
+                        </div>
+                        <!-- col// -->
+                    </div>
+                </div>
+                <!-- card-body end// -->
+            </div>
+            <!-- card end// -->
+        </section>
+        <footer class="main-footer font-xs">
+            <div class="row pb-30 pt-15">
+                <div class="col-sm-6">
+                    <script>
+                        document.write(new Date().getFullYear());
+                    </script>
+                   
+                </div>
+                <div class="col-sm-6">
+                    <div class="text-sm-end">All rights reserved</div>
+                </div>
+            </div>
+        </footer>
+    </main>
+    <script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/vendors/select2.min.js"></script>
+    <script src="/assets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="/assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <!-- Main Script -->
+    <script src="/assets/js/main.js?v=1.1" type="text/javascript"></script>
+
+    <script>
+        document.getElementById('cancelOrderButton').addEventListener('click', function(event) {
+            event.preventDefault(); 
+            swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you want to cancel this order?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, cancel it!',
+            cancelButtonText: 'No, keep it'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('/order/cancel/<%= orderDetail._id %>', {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        swal.fire('Success', 'Order canceled successfully', 'success')
+                        .then(()=>{
+                            window.location.href = '/order/list';                        })
+                    } else {
+                        swal.fire('Error', 'Failed to cancel order', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error canceling order:', error);
+                    swal.fire('Error', 'An error occurred while canceling the order', 'error');
+                });
+            }
+        });
+        });
+    </script>
+
+</body>
+</html>
