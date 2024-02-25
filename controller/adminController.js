@@ -2,7 +2,7 @@ const User = require('../models/userModel')
 const bcrypt = require('bcrypt')
 const asyncHandler = require("express-async-handler")
 const { generateRefreshToken } = require('../config/refreshToken');
-
+const Order = require('../models/orderModel')
 
 //const category = require('../model/category')
 
@@ -129,5 +129,58 @@ const logout = asyncHandler(async (req, res) => {
   }
 });
 
+//Load Orders
+const loadOrders = asyncHandler(async (req, res) => {
+  try {
+    const orderList = await Order.find().populate({
+      path: 'items',
+      populate: {
+        path: 'product_id',
+        model: 'Product'
+      }
+    });
+    res.render('admin/orders', { orderList })
+  } catch (error) {
+    throw new Error(error)
+  }
+});
+//Load Order Details
+const loadOrderDetail = asyncHandler(async (req, res) => {
+  try {
+    const orderId = req.query.orderId
+    const orderDetail = await Order.findById({ _id: orderId }).populate({
+      path: 'items',
+      populate: {
+        path: 'product_id',
+        model: 'Product'
+      }
+    }).populate('user_id')
+    res.render('admin/orderDetails', { orderDetail })
+  } catch (error) {
+    throw new Error(error)
+  }
+});
+//Change Order Status
+const changeOrderStatus = asyncHandler(async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const status = req.body.status;
+    const orderDetail = await Order.findByIdAndUpdate({ _id: orderId }, {
+      $set: {
+        status: status
+      }
+    });
+    if (orderDetail) {
+      res.status(200).json({ success: true, message: 'Status saved successfully' });
+    } else {
+      res.status(400).json({ success: false, message: 'Status Not saved' });
+    }
+  } catch (error) {
+    console.error('Error changing order status:', error);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+});
 
-module.exports = { adminLogin, login, adminDashboard, logout }
+
+
+module.exports = { adminLogin, login, adminDashboard, logout, loadOrders, loadOrderDetail, changeOrderStatus }

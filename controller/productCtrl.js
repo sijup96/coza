@@ -156,6 +156,13 @@ const updateProduct = asyncHandler(async (req, res) => {
     const { id, title, description, quantity, price, sex, category, brand, size, is_listed } = req.body
     try {
         req.body.slug = slugify(req.body.title.toLowerCase());
+        const existingProduct = await Product.findById({ _id: id })
+
+        if (existingProduct.slug ==req.body.slug && existingProduct.size == size && existingProduct.is_listed == is_listed) {
+            req.flash('title', 'Product already exists');
+
+            return res.redirect('/admin/updateProduct/' + id);
+        }
         const images = req.files.map((file) => file.originalname);
         const updateFields = {
             $set: {

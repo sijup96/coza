@@ -597,6 +597,8 @@ const resetPassword = asyncHandler(async (req, res) => {
     throw new Error(error)
   }
 });
+
+//Upadte profile Icon
 const updateProfileIcon = asyncHandler(async (req, res) => {
   try {
     const { photoUrl } = req.body
@@ -612,8 +614,6 @@ const updateProfileIcon = asyncHandler(async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
-
-
 
 module.exports = {
   userHome, userLogin, createUser,
@@ -638,6 +638,5 @@ module.exports = {
   loadVerifyEmailPage,
   userAccount,
   updateProfileIcon,
-
-
+  
 }

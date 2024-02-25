@@ -99,7 +99,7 @@ function formatDate(dateString) {
                                             <td>
                                                 <a class="itemside" href="#">
                                                     <div class="left">
-                                                        <img src="/productImages/<%= product.product_id.images[0] %>" width="40" height="40" class="img-xs" alt="Item" />
+                                                        <img src="/productImages/<%= product.product_id.images[0] %>" width="50" height="50" class="img-md" alt="Item" />
                                                     </div>
                                                     <div class="info"><%= product.product_id.title %></div>
                                                 </a>
@@ -151,8 +151,7 @@ function formatDate(dateString) {
                                 </p>
                                 <%}else{ %>
                                     <p>
-                                        <img src="/assets/imgs/card-brands/3.png" class="border" height="20" /> <b style="font-size:medium; ;"> &nbsp;Razorpay</b> <br />
-                                        Payment ID:&nbsp; <%= orderDetail.paymentId %>><br />
+                                     <b style="font-size:medium; ;"> &nbsp;Cash on Delivery</b> <br />
                                         Phone: +91 <b><%= orderDetail.delivery_address.mobile %> </b>
                                     </p>
                                     <% } %>

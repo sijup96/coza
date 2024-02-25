@@ -17,17 +17,17 @@ const loadCart = asyncHandler(async (req, res) => {
         const userId = decodedToken.id;
         const cartData = await viewCart(accessToken)
         const userAddress = await Address.find({ user: userId, default: true }).populate('user')
-        if(cartData && cartData.products){
-        for (const cartProduct of cartData.products) {
-            if (!cartProduct.product.is_listed) {
-                cartProduct.price = 0;
-                await cartData.save();
+        if (cartData && cartData.products) {
+            for (const cartProduct of cartData.products) {
+                if (!cartProduct.product.is_listed) {
+                    cartProduct.price = 0;
+                    await cartData.save();
+                }
             }
+            res.render('cartPage', { cartData, userAddress })
+        } else {
+            res.render('cartPage', { cartData, userAddress })
         }
-        res.render('cartPage', { cartData, userAddress })
-    }else{
-        res.render('cartPage', { cartData, userAddress })
-    }
     } catch (error) {
         throw new Error(error)
     }
@@ -45,7 +45,7 @@ const addToCart = asyncHandler(async (req, res) => {
 
         // Find Product
         const selectedProduct = await Product.findById({ _id: productId });
-        if (!selectedProduct || selectedProduct.is_listed === false || Product.quantity==0) {
+        if (!selectedProduct || selectedProduct.is_listed === false || Product.quantity == 0) {
             return res.status(404).json({ error: 'Product not found' });
         }
 
@@ -67,6 +67,9 @@ const addToCart = asyncHandler(async (req, res) => {
             // Check if adding quantity exceeds available stock
             if ((existingProduct.quantity + quantity) > selectedProduct.quantity) {
                 return res.status(400).json({ error: 'Exceeds available stock' });
+            }
+            if (selectedProduct.quantity == 0) {
+                return res.status(400).json({ error: 'Out of stock' });
             }
 
             // Update existing product quantity and cart total
@@ -114,7 +117,7 @@ const updateCart = asyncHandler(async (req, res) => {
             // Check if requested quantity is within available limits
             if (quantity <= productDetails.quantity) {
                 const diffQuantity = quantity - existingProduct.quantity;
-                
+
                 existingProduct.quantity = quantity;
                 existingCart.cartTotal += diffQuantity * productDetails.price;
 
@@ -207,20 +210,32 @@ const checkQuantity = asyncHandler(async (req, res) => {
 });
 
 
-// Load Checkout Page
 const loadCheckout = asyncHandler(async (req, res) => {
     try {
-        const accessToken = req.accessToken
-        const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET)
+        const accessToken = req.accessToken;
+        const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
         const userId = decodedToken.id;
-        const cartData = await viewCart(accessToken)
-        const userAddress = await Address.find({ user: userId }).populate('user')
+        const cartData = await viewCart(accessToken);
+        const userAddress = await Address.find({ user: userId }).populate('user');
 
-        res.render('checkout', { cartData, userAddress })
+        const isValid = cartData.products.every((item) => {
+            return (
+                item.quantity > 0 &&
+                item.quantity <= item.product.quantity &&
+                item.product.is_listed === true
+            );
+        });
+        if (!isValid) {
+            req.flash('head',' Product is unListed or Out of stock')
+            return res.redirect('/cart')
+        }
+        res.render('checkout', { cartData, userAddress });
     } catch (error) {
-        throw new Error(error)
+        console.error('Error loading checkout page:', error);
+        res.status(500).render('error', { message: 'Internal Server Error' });
     }
 });
+
 
 
 module.exports = {

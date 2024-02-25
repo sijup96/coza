@@ -55,11 +55,14 @@ const createOrder = asyncHandler(async (req, res) => {
         }
         const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
         const userId = decodedToken.id;
+        const userData = await User.findById(userId);
         const { totalPrice, selectedAddressId, paymentMethod, paymentId } = req.body;
+
         if (!totalPrice || !selectedAddressId) {
             return res.status(400).json({ error: 'Missing required fields' });
         }
         const delivery_address = await Address.findById(selectedAddressId);
+
         if (!delivery_address) {
             return res.status(400).json({ error: 'Invalid address' });
         }
@@ -93,7 +96,7 @@ const createOrder = asyncHandler(async (req, res) => {
             user_id: userId,
             orderId: orderid.generate(),
             delivery_address: delivery_address,
-            user_name: delivery_address.name,
+            user_name: userData.name,
             total_amount: totalPrice,
             date: new Date().toISOString(),
             expected_delivery: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),

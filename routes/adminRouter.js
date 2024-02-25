@@ -1,7 +1,7 @@
 const express = require('express')
 const adminRoute = express()
 
-const { adminLogin, login, adminDashboard, logout } = require('../controller/adminController')
+const { adminLogin, login, adminDashboard, logout, loadOrders,loadOrderDetail, changeOrderStatus } = require('../controller/adminController')
 const { isAdmin } = require('../middlewares/authMiddleware')
 const { createProduct, loadaddProduct, loadAllProducts, deleteProduct, loadUpdateProduct, updateProduct, updateImages, deleteImage } = require('../controller/productCtrl')
 const { createCategory, getAllCategory, deleteCategory, updateCategory, loadUpdateCategory, updateCategoryStatus } = require('../controller/productCategoryController')
@@ -40,6 +40,10 @@ adminRoute.put('/updateCategoryStatus/:id', isAdmin, updateCategoryStatus);
 adminRoute.get('/getAllUsers', isAdmin, getAllUsers);
 adminRoute.patch('/blockUser/:id', isAdmin, blockUser);
 adminRoute.patch('/unblockUser/:id', isAdmin, unblockUser);
+
+adminRoute.get('/orders', isAdmin, loadOrders);
+adminRoute.get('/orderDetail', isAdmin, loadOrderDetail);
+adminRoute.put('/changeOrderStatus/:id', isAdmin, changeOrderStatus);
 
 
 

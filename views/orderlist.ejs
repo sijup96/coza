@@ -59,12 +59,13 @@
                                         </td>
                                         <td><b><span style="font-weight: bold;"> Product Name</span><br>
                                                 <%= order.items[0].product_id.title %><br>
-                                                and (<%= order.items.length-1 %>) other
+                                               <% if(order.items.length >1){ %> and (<%= order.items.length-1 %>) other <% }%>
                                             </b><br>
 
                                         </td>
-                                        <td><span style="font-weight: bold;">SHIP TO </span><br>
-                                            <%= order.user_name %>
+                                        <td><span style="font-weight: bold;">Ship to </span><br>
+                                            <%= order.user_name %><br>
+                                            <%=  order.delivery_address.city %>
                                         </td>
                                         <td><span style="font-weight: bold;">Price</span><br>₹ <%= order.total_amount %>
                                         </td>
