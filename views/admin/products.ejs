@@ -107,18 +107,36 @@
 
     <script>
 
-        function confirmDelete(productId) {
-            const result = confirm("Are you sure you want to delete this product?");
-            if (result) {
-                window.location.href = "/admin/deleteProduct/" + productId;
-            }
+function confirmDelete(productId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'You are about to delete this product. Are you sure you want to proceed?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "/admin/deleteProduct/" + productId;
         }
+    });
+}
         function confirmEdit(productId) {
-            const result = confirm("Are you sure you want to edit this product?");
-            if (result) {
-                window.location.href = "/admin/updateProduct/" + productId;
-            }
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'You are about to edit this product. Are you sure you want to proceed?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, edit it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "/admin/updateProduct/" + productId;
         }
+    });
+}
 
 
     </script>

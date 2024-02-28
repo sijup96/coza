@@ -13,6 +13,7 @@ const Category = require('../models/prodCategoryModel')
 const Product = require('../models/productModel')
 const Address = require('../models/addressModel')
 const Cart = require('./cartCtrl')
+const Wishlist = require('../models/wishListModel')
 
 /* GET home page. */
 const userHome = asyncHandler(async (req, res) => {
@@ -21,20 +22,20 @@ const userHome = asyncHandler(async (req, res) => {
     const categories = await Category.find({ is_listed: true });
     const categoryIds = categories.map(category => category._id);
     const accessToken = req.accessToken;
+    const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
+    const userId = decodedToken.id;
     let cartData;
     if (accessToken) {
       cartData = await Cart.viewCart(accessToken);
     }
-
+    const wishlistedProducts = await Wishlist.findOne({ userId: userId })
     if (categoryIds.length > 0) {
       const productsFemale = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'female' });
       const productsMale = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'male' });
       const productsUnisex = await Product.find({ category: { $in: categoryIds }, is_listed: true, sex: 'unisex' });
-      res.render('index', { productsFemale, productsMale, productsUnisex, categories, cartData });
+      res.render('index', { productsFemale, productsMale, productsUnisex, categories, cartData, wishlistedProducts });
     } else {
-      // Handle the case when no categories are found
-      console.log('No categories found');
-      res.render('index', { cartData });
+      res.render('index', { cartData, wishlistedProducts });
     }
   } catch (error) {
     // Handle the error appropriately, e.g., log it or send an error response
@@ -83,11 +84,11 @@ const userAccount = asyncHandler(async (req, res) => {
     const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
     const userId = decodedToken.id;
     const userData = await Address.findOne({ user: userId, default: true }).populate('user')
-    if(userData){
+    if (userData) {
 
-    res.render('userAccount', { userData });
-    }else{
-      const userData=await User.findById({_id:userId})
+      res.render('userAccount', { userData });
+    } else {
+      const userData = await User.findById({ _id: userId })
       console.log(userData);
       res.render('userAccount', { userData });
     }
@@ -411,9 +412,9 @@ const logout = asyncHandler(async (req, res) => {
 //Update a User
 const updateUser = asyncHandler(async (req, res) => {
   try {
-  const { name, mobile, dob } = req.body
-  const newName = name.charAt(0).toUpperCase() + name.slice(1)
-  const accessToken = req.accessToken
+    const { name, mobile, dob } = req.body
+    const newName = name.charAt(0).toUpperCase() + name.slice(1)
+    const accessToken = req.accessToken
     const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
     const userId = decodedToken.id;
     const user = await User.findById({ _id: userId });
@@ -472,8 +473,9 @@ const deleteUser = asyncHandler(async (req, res) => {
     const accessToken = req.accessToken;
     const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
     const userId = decodedToken.id;
-    const deletedUser = await User.findByIdAndDelete(userId);
-    if (!deletedUser) {
+    const deactivatedUser = await User.findByIdAndUpdate(userId, { isBlocked: true }, { new: true });
+
+    if (!deactivatedUser) {
       return res.status(404).json({ message: 'User not found' });
     }
     res.json({ message: 'User deleted successfully' });
@@ -513,12 +515,12 @@ const unblockUser = asyncHandler(async (req, res) => {
 
 const changePassword = asyncHandler(async (req, res) => {
   try {
-  const accessToken = req.accessToken
-        const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET)
-        const userId = decodedToken.id;
-  const {currentPassword, newPassword } = req.body;
+    const accessToken = req.accessToken
+    const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET)
+    const userId = decodedToken.id;
+    const { currentPassword, newPassword } = req.body;
     validateMongoDbId(userId)
-    const user = await User.findById({_id:userId})
+    const user = await User.findById({ _id: userId })
 
     if (user && (await user.isPasswordMatched(currentPassword))) {
       user.password = newPassword;
@@ -638,5 +640,5 @@ module.exports = {
   loadVerifyEmailPage,
   userAccount,
   updateProfileIcon,
-  
+
 }

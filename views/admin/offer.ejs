@@ -1,0 +1,410 @@
+<%- include('../layouts/adminLayout/_header.ejs') -%>
+    <section class="content-main">
+        <div class="content-header">
+            <div>
+                <h2 class="content-title card-title">Offer Details</h2>
+
+            </div>
+            <h3 style="color:red">
+                <%= messages.head ? messages.head : '' %>
+            </h3>
+           
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <form id="offerForm" action="/offer/create" method="post">
+                            <div class="mb-4">
+                                <label for="product_name" class="form-label">Offer Name</label>
+                                <input type="text" placeholder="Type here" class="form-control" id="offerName"
+                                    name="offerName" required/>
+                                    <p style="color:red" id="nameError"></p>
+                            </div>
+                            <div class="mb-4">
+                                <label for="product_name" class="form-label">Offer Percentage</label>
+                                <input type="number" placeholder="Type here" class="form-control" id="percentage"
+                                    name="percentage" required/>
+                                    <p style="color:red" id="percentageError"></p>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Description</label>
+                                <textarea placeholder="Type here" class="form-control" name="description" id="description" required></textarea>
+                                <p style="color:red" id="descriptionError"></p>
+                            </div>
+                            <div class="mb-4">
+                                <label for="product_name" class="form-label">Starting Date</label>
+                                <input type="date" placeholder="Type here" class="form-control" id="startingDate"
+                                    name="startingDate" required/>
+                                    <p style="color:red" id="titleError"></p>
+                            </div>
+                            <div class="mb-4">
+                                <label for="product_name" class="form-label">Expiry Date</label>
+                                <input type="date" placeholder="Type here" class="form-control" id="expiryDate"
+                                    name="expiryDate" required/>
+                                    <p style="color:red" id="expiryDateError"></p>
+                            </div>
+                            <div class="d-grid">
+                                <button class="btn btn-primary">Create Offer</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="table-responsive">
+
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">
+
+                                        </th>
+                                        <th>No.</th>
+                                        <th>Name</th>
+
+                                        <th>Description</th>
+                                        <th>Percentage</th>
+                                        <th>Starting Date</th>
+                                        <th>Expiry Date</th>
+                                        <th>Status</th>
+                                        <th class="text-end">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if(offerDetail && offerDetail.length > 0) { %>
+                                        <% for(let i=0,n=1; i < offerDetail.length;i++,n++){ %>
+
+                                            <tr>
+                                                <td class="text-center">
+                                                    <!-- <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" />
+                                        </div> -->
+                                                </td>
+                                                <td>
+                                                    <%= n %>
+                                                </td>
+                                                <td><h6>
+                                                        <%= offerDetail[i].offerName %>
+                                                </h6></td>
+
+                                                <td><h6>
+                                                    <%= offerDetail[i].description %>
+                                                </h6>
+                                                </td>
+
+                                                <td><h6>
+                                                    <%= offerDetail[i].percentage %> %
+                                                </h6>
+                                                </td>
+                                                <td><h6>
+                                                    <%= offerDetail[i].startingDate.toLocaleDateString() %> 
+                                                </h6>
+                                                </td>
+                                                <td><h6>
+                                                    <%= offerDetail[i].expiryDate.toLocaleDateString() %> 
+                                                </h6>
+                                                </td>
+                                                <td><h6>
+                                                    <%= offerDetail[i].is_listed==true?'Listed':'UnListed' %>
+                                                </h6>
+                                                </td>
+                                                <td class="text-end">
+                                                    <div class="dropdown">
+                                                        <a href="#" data-bs-toggle="dropdown"
+                                                            class="btn btn-light rounded btn-sm font-sm"> <i
+                                                                class="material-icons md-more_horiz"></i> </a>
+                                                        <div class="dropdown-menu">
+                                                            <a class="dropdown-item"
+                                                            onclick="editAddress('<%= offerDetail[i]._id %>')"
+                                                            data-toggle="modal"
+                                                            data-target="#exampleModalCenter">Edit info</a>
+                                                                <a class="dropdown-item text-danger"
+                                                                onclick="updateOfferStatus('<%= offerDetail[i]._id %>', '<%= offerDetail[i].is_listed %>')"><%= offerDetail[i].is_listed==true?'UnList':'List' %></a>
+                                                            <a class="dropdown-item text-danger"
+                                                                onclick="confirmDelete('<%= offerDetail[i]._id %>')">Delete</a>
+                                                        </div>
+                                                    </div>
+                                                    <!-- dropdown //end -->
+                                                </td>
+                                            </tr>
+                                            <% } %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="5">Offers not found</td>
+                                                    </tr>
+                                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- .col// -->
+                </div>
+                <!-- .row // -->
+            </div>
+            <!-- card body .// -->
+        </div>
+        <!-- card .// -->
+    </section>
+   <!-- Edit Address Modal -->
+<div class="modal" id="exampleModalCenter" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content dark-mode"> <!-- Assuming dark-mode class is already applied for dark mode -->
+            <div class="modal-header bg-dark text-white"> <!-- Adjust header background and text color -->
+                <h5 class="modal-title" id="exampleModalLongTitle">Edit Offer</h5>
+                <button type="button" class="close text-black" data-dismiss="modal" aria-label="Close"> <!-- Adjust close button color -->
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body bg-secondary text-white"> <!-- Adjust body background and text color -->
+                <div class="content-header text-center">
+                    <h2>Edit Offer</h2>
+                </div>
+                <form class="modal1" id="editAddress">
+                    <div class="form-group">
+                        <input type="hidden" id="offerId">
+                        <label for="offerName" class="text-white font-weight-bold">Offer Name</label> <!-- Bold label -->
+                        <input type="text" id="editOfferName" name="offerName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="percentage" class="text-white font-weight-bold">Percentage</label> <!-- Bold label -->
+                        <input type="text" id="editPercentage" name="percentage" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="description" class="text-white font-weight-bold">Description</label> <!-- Bold label -->
+                        <input type="text" id="editDescription" name="description" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="startingDate" class="text-white font-weight-bold">Starting Date</label> <!-- Bold label -->
+                        <input type="date" id="editStartingDate" name="startingDate" class="form-control" required>
+                    </div>
+                        <div class="form-group">
+                            <label for="expiryDate" class="text-white font-weight-bold">Expiry Date</label> <!-- Bold label -->
+                            <input type="date" id="editExpiryDate" name="expiryDate" class="form-control" required>
+                        </div>
+            </div>
+            <div class="modal-footer bg-dark"> <!-- Adjust footer background color -->
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+    <!-- include jquery -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Include DataTables -->
+    <script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <!-- <script src="/admin/sweetalert2/dist/sweetalert2.min.js"></script> -->
+
+    <script>
+		function editAddress(offerId) {
+			fetch(`/offer/getOffer/${offerId}`)
+				.then(response => {
+					if (!response.ok) {
+						Swal.fire('alert', 'Please try again..', 'info')
+					}
+					return response.json();
+				})
+				.then(offerData => {
+					document.getElementById('offerId').value = offerData._id;
+					document.getElementById('editOfferName').value = offerData.offerName;
+					document.getElementById('editPercentage').value = offerData.percentage;
+					document.getElementById('editDescription').value = offerData.description;
+					document.getElementById('editStartingDate').value = offerData.startingDate;
+					document.getElementById('editExpiryDate').value = offerData.expiryDate;
+				})
+				.catch(error => {
+					console.error('There was a problem with the fetch operation:', error);
+				});
+		}
+	</script>
+<script>
+    $(document).ready(function(){
+        $('#offerForm').submit(function(event){
+            event.preventDefault();
+            const formData=$(this).serialize();
+            $.ajax({
+                type:'POST',
+                url:'/offer/create',
+                data:formData,
+                success: function(response) {
+    if (response.success) {
+        Swal.fire({
+            title: 'Success',
+            text: response.message,
+            icon: 'success'
+        }).then(() => {
+            window.location.reload();
+        });
+    } else {
+        Swal.fire({
+            title: 'Alert',
+            text: response.message,
+            icon: 'info'
+        });
+    }
+},
+error: function(xhr, status, error) {
+    console.error(xhr.responseText);
+    Swal.fire({
+        title: 'Error',
+        text: 'An error occurred',
+        icon: 'error'
+    });
+}
+            })
+        })
+    })
+</script>
+
+
+    <script>
+function confirmDelete(offerId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'You are about to delete this Offer. Are you sure you want to proceed?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('/offer/delete', {
+    method: 'DELETE',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ offerId: offerId })
+})
+.then(response => response.json())
+.then(data => {
+    if (data.success) {
+        Swal.fire({
+            title: 'Success',
+            text: data.message,
+            icon: 'success'
+        })
+        .then(() => {
+            location.reload();
+        });
+    } else {
+        Swal.fire({
+            title: 'Failed',
+            text: data.message,
+            icon: 'error'
+        });
+    }
+})
+.catch(error => {
+    console.error('Error:', error);
+    Swal.fire({
+        title: 'Error',
+        text: 'An error occurred',
+        icon: 'error'
+    });
+       })
+        }
+    });
+}
+
+function confirmEdit(categoryId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'You are about to edit this category. Are you sure you want to proceed?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, edit it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "/admin/updateCategory/" + categoryId;
+        }
+    });
+}
+
+
+        function updateOfferStatus(offerId, currentStatus) {
+    const newStatus = currentStatus === 'true' ? 'false' : 'true';
+
+    fetch(`/offer/updateStatus`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ is_listed: newStatus ,offerId:offerId}),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Handle success
+        window.location.reload()
+        // Optionally, you can update the UI or perform additional actions
+    })
+    .catch(error => {
+        // Handle error
+        console.error('There was a problem with the fetch operation:', error);
+    });
+}
+    </script>
+
+<!-- Validation -->
+<script>
+    function validateField(fieldName, errorId, regex) {
+        var fieldValue = $('#' + fieldName).val();
+        var errorSpan = $('#' + errorId);
+
+        if (fieldValue && fieldValue.startsWith(' ')) {
+            errorSpan.text('Title should not start with a space.');
+            return;
+        }
+
+        if (!regex.test(fieldValue)) {
+            errorSpan.text('Title  must meet the validation criteria..');
+        } else {
+            errorSpan.text('');
+        }
+    }
+
+    $('#title').on('input', function () {
+        validateField('title', 'titleError', /^[a-zA-Z][a-zA-Z\s]{2,28}[a-zA-Z]$/);
+    });
+
+    function validateDescription(fieldName, errorId) {
+        var fieldValue = $('#' + fieldName).val();
+        var errorSpan = $('#' + errorId);
+
+        if (fieldValue && fieldValue.startsWith(' ')) {
+            errorSpan.text(fieldName + ' should not start with a space.');
+            return;
+        }
+
+        var wordCount = fieldValue.trim().split(/\s+/).filter(function (word) {
+            return word.length > 0;
+        }).length;
+
+        if (wordCount >= 5) {
+            errorSpan.text('');
+        } else {
+            errorSpan.text(fieldName + ' should have more than 5 words.');
+        }
+    }
+
+    $('#description').on('input', function () {
+        validateField('description', 'descriptionError', /^[\s\S]{10,}$/);
+    });
+
+
+
+</script>
+
+
+    <%- include('../layouts/adminLayout/_footer.ejs') -%>

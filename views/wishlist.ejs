@@ -1,0 +1,189 @@
+<%- include('./layouts/userLayout/userAccountHeader.ejs') %>
+    <style>
+        .image:hover {
+            cursor: pointer;
+        }
+        .attractive-button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.attractive-button:hover {
+  background-color: #45a049; /* Darker Green */
+}
+    </style>
+    <section class="content-main">
+        <div class="content-header">
+            <div>
+                <h2 class="content-title card-title">WishList</h2>
+                <p>Here is the Wishlist.</p>
+            </div>
+            <div>
+                <input type="text" placeholder="Search order ID" class="form-control bg-white" />
+            </div>
+        </div>
+        <div class="card mb-4">
+            <header class="card-header">
+                <div class="row gx-3">
+                    <div class="col-lg-4 col-md-6 me-auto">
+                        <input type="text" placeholder="Search..." class="form-control" />
+                    </div>
+                    <div class="col-lg-2 col-6 col-md-3">
+                        <select class="form-select">
+                            <option>Status</option>
+                            <option>Active</option>
+                            <option>Disabled</option>
+                            <option>Show all</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-2 col-6 col-md-3">
+                        <select class="form-select">
+                            <option>Show 20</option>
+                            <option>Show 30</option>
+                            <option>Show 40</option>
+                        </select>
+                    </div>
+                </div>
+            </header>
+            <!-- card-header end// -->
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+
+                        <tbody>
+                            <% if (userWishlist && userWishlist.products.length > 0) { %>
+                                <% userWishlist.products.forEach(item => { %>
+                                    <tr class="clickable-row" id="row<%= item.product._id %>">
+                                        <td class="image" onclick="redirectToProductDetail('<%= item.product._id %>')">
+                                            <% if (item && item.product && item.product.images && item.product.images.length > 0) { %>
+                                                <img src="/productImages/<%= item.product.images[0] %>" class="img-md ">
+                                            <% } else { %>
+                                                <img src="/assets/imgs/people/avatar-1.png" class="img-sm img-avatar">
+                                            <% } %>
+                                        </td>
+                                        <td class="image" onclick="redirectToProductDetail('<%= item.product._id %>')">
+                                            <b><span style="font-weight: bold; font-size: medium;"> Product Name : </span>
+                                               <span style="font-weight: bold; font-size: large;"><%= item.product.title %> </span> 
+                                            </b>
+                                        </td>
+                                        <td>
+                                            <b><span style="font-weight: bold; font-size: medium;"> Product Size : </span>
+                                                <span style="font-weight: bold; font-size: large;"><%= item.product.size.toUpperCase() %> </span> 
+                                             </b>
+                                        </td>
+                                      
+                                        <td>
+                                            <b><span style="font-weight: bold; font-size: medium;"> Product Price : </span>
+                                                <span style="font-weight: bold; font-size: large;"><%= item.price %> </span> 
+                                            </b>
+                                        </td>
+                                        <td>
+                                           
+                                        </td>
+                                        <td style="text-align: center;">
+                                        <span style="font-weight: bold;">Remove From Wishlist  </span><br>
+                                        <button class="attractive-button" id="removeButton" onclick="removeFromWishlist('<%= item.product._id %>')">Remove</button>
+
+                                               
+                                        
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            <% } %>
+
+                                            
+
+                        </tbody>
+                    </table>
+                </div>
+                <!-- table-responsive //end -->
+            </div>
+            <!-- card-body end// -->
+        </div>
+        <!-- card end// -->
+        <div class="pagination-area mt-15 mb-50">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-start">
+                    <li class="page-item active"><a class="page-link" href="#">01</a></li>
+                    <li class="page-item"><a class="page-link" href="#">02</a></li>
+                    <li class="page-item"><a class="page-link" href="#">03</a></li>
+                    <li class="page-item"><a class="page-link dot" href="#">...</a></li>
+                    <li class="page-item"><a class="page-link" href="#">16</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </section>
+    <!-- content-main end// -->
+    <footer class="main-footer font-xs">
+        <div class="row pb-30 pt-15">
+            <div class="col-sm-6">
+                <script>
+                    document.write(new Date().getFullYear());
+                </script>
+            </div>
+            <div class="col-sm-6">
+                <div class="text-sm-end">All rights reserved</div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
+    <script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/vendors/select2.min.js"></script>
+    <script src="/assets/js/vendors/perfect-scrollbar.js"></script>
+    <script src="/assets/js/vendors/jquery.fullscreen.min.js"></script>
+    <!-- Main Script -->
+    <script src="/assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script>
+        function redirectToProductDetail(productId) {
+            window.location.href = '/products/detail/' + productId;
+        }
+
+    </script>
+    <script>
+       function removeFromWishlist(productId) {
+    
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Do you want to remove this product from your wishlist?",
+            icon: "warning",
+            buttons: ["Cancel", "Remove"],
+            dangerMode: true,
+        })
+        .then((willRemove) => {
+            if (willRemove) {
+                // User confirmed, proceed with AJAX request
+                $.ajax({
+                    type: 'PUT',
+                    url: '/wishList/update',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ productId: productId }),
+                    success: function(response) {
+                        $(`#row${productId}`).remove();
+                    },
+                    error: function(xhr, status, error) {
+                        // Handle error response
+                        console.error(xhr.responseText);
+                    }
+                });
+            }
+        });
+}
+
+    </script>
+    </body>
+
+    </html>

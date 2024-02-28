@@ -21,45 +21,45 @@
                                 <div class="mb-4">
                                     <label class="form-label">Full Name</label>
                                     <input type="text" placeholder="Type here" class="form-control" name="name"
-                                        value="<%= address.name %>" id="name" required>
+                                        value="<%= address.name %>" id="name" >
                                     <p style="color:red" id="nameError"></p>
                                 </div>
 
                                 <div class="mb-4">
                                     <label class="form-label">Phone</label>
                                     <input type="text" placeholder="Type here" class="form-control" name="mobile"
-                                        value="<%= address.mobile %>" id="name" required>
-                                    <p style="color:red" id="nameError"></p>
+                                        value="<%= address.mobile %>" id="mobile" >
+                                    <p style="color:red" id="mobileError"></p>
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label">House Name</label>
                                     <input type="text" placeholder="Type here" class="form-control" name="houseName"
-                                        value="<%= address.houseName %>" id="houseName" required>
+                                        value="<%= address.houseName %>" id="houseName" >
                                     <p style="color:red" id="houseNameError"></p>
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label">Street Name</label>
                                     <input type="text" placeholder="Type here" class="form-control" name="street"
-                                        value="<%= address.street%>" id="street" required>
+                                        value="<%= address.street%>" id="street" >
                                     <p style="color:red" id="streetError"></p>
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label">Landmark</label>
                                     <input type="text" placeholder="Type here" class="form-control" name="landmark"
-                                        value="<%= address.landmark %>" id="landmark" required>
+                                        value="<%= address.landmark %>" id="landmark" >
                                     <p style="color:red" id="landmarkError"></p>
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label">City</label>
                                     <input type="text" placeholder="Type here" class="form-control" name="city"
-                                        value="<%= address.city %>" id="city" required>
+                                        value="<%= address.city %>" id="city" >
                                     <p style="color:red" id="cityError"></p>
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label">State</label>
                                     <input type="text" placeholder="Type here" class="form-control" name="state"
-                                        value="<%= address.state %>" id="state" required>
-                                    <p style="color:red" id="cityError"></p>
+                                        value="<%= address.state %>" id="state" >
+                                    <p style="color:red" id="stateError"></p>
                                 </div>
                                 <hr class="mb-4 mt-0">
                                 <div class="row">
@@ -67,10 +67,9 @@
                                         <div class="mb-4">
                                             <label class="form-label">Pincode</label>
                                             <input type="text" placeholder="pincode" class="form-control" name="pincode"
-                                                value="<%= address.pincode %>" id="productPrice" required>
-                                            <p style="color:red">
-                                                <%= messages.pincode ? messages.pincode : '' %>
-                                            </p>
+                                                value="<%= address.pincode %>" id="pincode" >
+                                                <p style="color:red" id="pincodeError"></p>
+
                                         </div>
                                     </div> <!-- col.// -->
                                 </div> <!-- row.// -->
@@ -95,6 +94,80 @@
         $(document).ready(function() {
             $('form').submit(function(event) {
                 event.preventDefault(); 
+                const phoneRegex = /^\d{10}$/;
+                const pincodeRegex = /^\d{6}$/;
+                const nameRegex = /^[^\s\d!@#$%^&*(),.?":{}|<>_+=\[\\;\]`~]*[a-zA-ZÀ-ÖØ-öø-ÿ-' ]+[^\s!@#$%^&*(),.?":{}|<>_+=\[\\;\]`~]*$/;
+
+        let isValid = true;
+        const phone = $('#mobile').val().trim();
+        const fullName = $('#name').val().trim();
+        const houseName = $('#houseName').val().trim();
+        const street = $('#street').val().trim();
+        const landmark = $('#landmark').val().trim();
+        const city = $('#city').val().trim();
+        const state = $('#state').val().trim();
+        const pincode = $('#pincode').val().trim();
+        
+        if (!nameRegex.test(fullName) || fullName.length < 3) {
+            $('#nameError').text('Invalid name'); 
+            isValid = false;
+        }else{
+            $('#nameError').text(''); 
+        }
+        if (!phoneRegex.test(phone)) {
+            $('#mobileError').text('Invalid phone number'); 
+            isValid = false;
+        }else{
+            $('#mobileError').text(''); 
+        }
+        if (!pincodeRegex.test(pincode)) {
+            $('#pincodeError').text('Invalid pincode'); 
+            isValid = false;
+        }else{
+            $('#pincodeError').text(''); 
+
+        }
+        if (!nameRegex.test(houseName) || houseName.length < 3) {
+            $('#houseNameError').text('Invalid houseName'); 
+            isValid = false;
+        }else{
+            $('#houseNameError').text(''); 
+
+        }
+        if (!nameRegex.test(street) || street.length < 3) {
+            $('#streetError').text('Invalid street name'); 
+            isValid = false;
+        }else{
+            $('#streetError').text(''); 
+
+        }
+        if (!nameRegex.test(landmark) || landmark.length < 3) {
+            $('#landmarkError').text('Invalid landmark name'); 
+            isValid = false;
+        }else{
+            $('#landmarkError').text(''); 
+
+        }
+        if (!nameRegex.test(city) || city.length < 3) {
+            $('#cityError').text('Invalid city name');
+            isValid = false;
+        }else{
+            $('#cityError').text('');
+
+        }
+        if (!nameRegex.test(state) || state.length < 3) {
+            $('#stateError').text('Invalid state name'); 
+            isValid = false;
+        }else{
+            $('#stateError').text(''); 
+
+        }
+        
+        if (!isValid) {
+            return; 
+        }
+
+
                 var formData = $(this).serialize();
                 $.ajax({
                     type: 'PUT',

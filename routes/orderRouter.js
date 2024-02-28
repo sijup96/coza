@@ -4,11 +4,11 @@ const { userMiddleware, isBlocked } = require('../middlewares/authMiddleware');
 const { createOrder, loadThankyou, loadOrderList, loadOrderDetail, image, cancelOrder } = require('../controller/orderCtrl')
 
 
-router.post('/create', userMiddleware, createOrder);
+router.post('/create',isBlocked, userMiddleware, createOrder);
 router.get('/thankyou', userMiddleware, loadThankyou);
 
-router.get('/list', userMiddleware, loadOrderList);
-router.get('/detail', userMiddleware, loadOrderDetail);
+router.get('/list',isBlocked, userMiddleware, loadOrderList);
+router.get('/detail',isBlocked, userMiddleware, loadOrderDetail);
 
 router.post('/image', image);
 

@@ -87,6 +87,7 @@ const isBlocked = asyncHandler(async (req, res, next) => {
       next()
 
     } else {
+      req.flash('blocked', 'You are Blocked / Deactivated the account, Contact us..');
       res.redirect('/');
     }
   } catch (error) {

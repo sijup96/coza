@@ -21,16 +21,20 @@ function formatDate(dateString) {
                             <small class="text-muted">Order ID: #<%= orderDetail.orderId %></small>
                         </div>
                         <div class="col-lg-6 col-md-6 ms-auto text-md-end">
-                            <% if(orderDetail.status !== "Delivered") { %>
-                                <% if(orderDetail.status !=='Cancelled'){ %>
-                                    <a class="btn btn-primary" style="background-color: red;" href="#" id="cancelOrderButton">Cancel Order</a>
-                                    <% }%>
+                            <% if(orderDetail.status !=='Cancled'){ %>
+                            <% if(orderDetail.status !== "Delivered" && orderDetail.status !== "Cancled") { %>
+                                <a class="btn btn-primary" style="background-color: red;" href="#" id="cancelOrderButton">Cancel Order</a>
+
                                 
                                 <% }else{ %>
                                 <a class="btn btn-primary" style="background-color: red;" href="#">Return Order</a>
                                 <a class="btn btn-secondary print ms-2" href="#"><i class="icon material-icons md-print"></i></a>
 
                            <% } %>
+                           <% }else{ %>
+                            <a class="btn btn-primary" style="background-color: red;">Order Cancelled</a>
+
+                             <% }%>
                         </div>
                     </div>
                 </header>
@@ -114,22 +118,22 @@ function formatDate(dateString) {
                                                 <article class="float-end">
                                                     <dl class="dlist">
                                                         <dt>Subtotal:</dt>
-                                                        <dd>$973.35</dd>
+                                                        <dd>₹ <%= orderDetail.total_amount %></dd>
                                                     </dl>
                                                     <dl class="dlist">
                                                         <dt>Shipping cost:</dt>
-                                                        <dd>$10.00</dd>
+                                                        <dd>0.00</dd>
                                                     </dl>
                                                     <dl class="dlist">
                                                         <dt>Grand total:</dt>
                                                         <dd><b class="h5">₹ <%= orderDetail.total_amount %></b></dd>
                                                     </dl>
-                                                    <dl class="dlist">
+                                                    <!-- <dl class="dlist">
                                                         <dt class="text-muted">Status:</dt>
                                                         <dd>
                                                             <span class="badge rounded-pill alert-success text-success"><%= orderDetail.payment %></span>
                                                         </dd>
-                                                    </dl>
+                                                    </dl> -->
                                                 </article>
                                             </td>
                                         </tr>
@@ -146,7 +150,7 @@ function formatDate(dateString) {
                                 <% if(orderDetail.payment == 'online'){%>
                                 <p>
                                     <img src="/assets/imgs/card-brands/3.png" class="border" height="20" /> <b style="font-size:medium; ;"> &nbsp;Razorpay</b> <br />
-                                    Payment ID:&nbsp; <%= orderDetail.paymentId %>><br />
+                                    Payment ID:&nbsp; <%= orderDetail.paymentId %><br />
                                     Phone: +91 <b><%= orderDetail.delivery_address.mobile %> </b>
                                 </p>
                                 <%}else{ %>

@@ -43,7 +43,7 @@ router.get("/login", cacheControl, userLogin);
 router.post("/login", cacheControl, loginUserCtrl);
 router.get("/logout", cacheControl, logout)
 
-router.delete("/deactivate",userMiddleware, deleteUser);
+router.patch("/deactivate",userMiddleware, deleteUser);
 
 
 

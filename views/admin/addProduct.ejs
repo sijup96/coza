@@ -15,12 +15,12 @@
             <div class="col-6">
                 <div class="content-header">
                     <h2 class="content-title">Add New Product</h2>
-                    <form action="/admin/addProduct" method="post" enctype="multipart/form-data">
+                    <form action="/admin/addProduct" method="post" enctype="multipart/form-data" id="productForm">
                         <p style="color:red">
                             <%= messages.head ? messages.head : '' %>
                         </p>
                         <div>
-                            <button class="btn btn-md rounded font-sm hover-up">Publich</button>
+                            <button class="btn btn-md rounded font-sm hover-up" id="submitButton">Publich</button>
                         </div>
                 </div>
             </div>
@@ -38,6 +38,7 @@
                                     <label class="form-label">Product title</label>
                                     <input type="text" placeholder="Type here" class="form-control" name="title"
                                         minlength="4" maxlength="30" id="title" required>
+                                        <p id="titleError" style="color: red;"></p>
                                     <p style="color:red">
                                         <%= messages.title ? messages.title : '' %>
                                     </p>
@@ -47,6 +48,8 @@
                                     <label class="form-label">Description</label>
                                     <textarea placeholder="Type here" class="form-control" rows="4" name="description"
                                         id="description" required></textarea>
+                                        <p id="descriptionError" style="color: red;"></p>
+
                                     <p style="color:red">
                                         <%= messages.description ? messages.description : '' %>
                                     </p>
@@ -76,7 +79,7 @@
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label">Size</label>
-                                    <select class="form-select" name="size">
+                                    <select class="form-select" name="size" required>
                                         <option value="s">S</option>
                                         <option value="m">M</option>
                                         <option value="l">L</option>
@@ -89,7 +92,7 @@
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label">Gender</label>
-                                    <select class="form-select" name="sex">
+                                    <select class="form-select" name="sex" required> 
                                         <option value="male">Male</option>
                                         <option value="female">Female</option>
                                         <option value="unisex">Unisex</option>
@@ -108,7 +111,8 @@
                                         <div class="mb-4">
                                             <label class="form-label">Cost in INR</label>
                                             <input type="text" placeholder="₹" class="form-control" name="price"
-                                                pattern="\d+(\.\d{1,2})?" required>
+                                                pattern="\d+(\.\d{1,2})?" id="price" required>
+                                                <p id="priceError" style="color: red;"></p>
                                             <p style="color:red">
                                                 <%= messages.price ? messages.price : '' %>
                                             </p>
@@ -124,7 +128,7 @@
                                         <div class="mb-4">
                                             <div class="mb-4">
                                                 <label class="form-label">Categories</label>
-                                                <select class="form-select" name="category">
+                                                <select class="form-select" name="category" required>
 
                                                     <% if(category.length> 0){ %>
                                                         <% for(let i=0; i < category.length; i++){ %>
@@ -152,7 +156,9 @@
                                     <div class="col-md-9">
                                         <div class="mb-4">
                                             <input type="text" placeholder="Enter Quantity" class="form-control"
-                                                name="quantity" pattern="\d+(\.\d{1,2})?" required>
+                                                name="quantity" pattern="\d+(\.\d{1,2})?"  id="quantity" required> 
+                                                <p id="quantityError" style="color: red;"></p>
+
                                             <p style="color:red">
                                                 <%= messages.quantity ? messages.quantity : '' %>
                                             </p>
@@ -171,8 +177,8 @@
                                             <label class="form-label">Images</label>
                                             <!-- <input class="form-control" type="file" name="images" id="fileUpload"
                                                 multiple> -->
-                                            <input type="file" multiple id="gallery-photo-add" name="images">
-
+                                            <input type="file" multiple id="gallery-photo-add" name="images" accept="image/*" >
+                                            <p id="imageError" style="color: red;"></p>
                                             <p style="color:red">
                                                 <%= messages.image ? messages.image : '' %>
                                             </p>
@@ -199,7 +205,64 @@
     </section> <!-- content-main end// -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
+<script>
+ $(document).ready(function () {
+    $('#submitButton').click(function (event) {
+        event.preventDefault();
+        const priceRegex = /^\d+(\.\d{1,2})?$/;
+        const nameRegex = /^[^\s\d!@#$%^&*(),.?":{}|<>_+=\[\\;\]`~]*[a-zA-ZÀ-ÖØ-öø-ÿ-' ]+[^\s!@#$%^&*(),.?":{}|<>_+=\[\\;\]`~]*$/;
+        const quantityRegex = /^\d+(\.\d{1,2})?$/;
+
+        let isValid = true;
+        const title = $('#title').val().trim();
+        const description = $('#description').val().trim();
+        const price = $('#price').val().trim();
+        const quantity = $('#quantity').val().trim();
+        const images = $('#gallery-photo-add')[0].files;
+        
+        if (!nameRegex.test(title) || title.length < 4) {
+            $('#titleError').text('Invalid title'); 
+            isValid = false;
+        } else {
+            $('#titleError').text(''); 
+        }
+        if (!priceRegex.test(price) || price === '') {
+            $('#priceError').text('Invalid price'); 
+            isValid = false;
+        } else {
+            $('#priceError').text(''); 
+        }
+        if (!quantityRegex.test(quantity) || quantity === '') {
+            $('#quantityError').text('Invalid quantity'); 
+            isValid = false;
+        } else {
+            $('#quantityError').text(''); 
+        }
+        if (images.length !== 4) {
+            $('#imageError').text('Please select exactly four images'); 
+            isValid = false;
+        } else {
+            $('#imageError').text(''); 
+        }
+   
+        if (isValid) {
+            // If all fields are valid, submit the form
+            $('#productForm').submit();
+        } else {
+            // If any field is invalid, display an error message to the user
+            Swal.fire({
+                title: 'Error',
+                text: 'Please fill in all required fields correctly',
+                icon: 'error'
+            });
+        }
+    });
+});
+
+</script>
     <script>
         $(function () {
             // Multiple images preview in browser
@@ -208,7 +271,7 @@
                 if (input.files) {
                     var filesAmount = input.files.length;
 
-                    for (i = 0; i < filesAmount; i++) {
+                    for (i = 0; i < 4; i++) {
                         var reader = new FileReader();
 
                         reader.onload = function (event) {

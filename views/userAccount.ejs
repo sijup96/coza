@@ -17,7 +17,7 @@
                 <div class="row gx-5">
                     <div class="col-lg-10">
                         <section class="content-body p-xl-4">
-                            <form action="/user/updateUser" method="post">
+                            <form id="userForm" action="/user/updateUser" method="post">
                                 <div class="row">
                                     <aside class="col-lg-4">
                                         <figure class="text-lg-center">
@@ -27,7 +27,7 @@
                                                 <a class=" rounded font-md"> <i class="font-md"></i> Click the below
                                                     Avatar to Update
                                                 </a>
-                                                <input type="file" class="btn btn-light rounded font-md" id="uploadInput" accept="image/*">
+                                                <!-- <input type="file" class="btn btn-light rounded font-md" id="uploadInput" accept="image/*"> -->
                                             </figcaption>
                                         </figure>
                                         <hr>
@@ -56,27 +56,31 @@
                                             <div class="col-6 mb-3">
 
                                                 <label class="form-label">Full Name</label>
-                                                <input class="form-control" type="text"
+                                                <input class="form-control"  type="text" id="userName"
                                                     value="<%= userData.user ? userData.user.name : (userData.name ? userData.name : '') %>" name="name" />
+                                                    <p id="nameAlert" style="color: red;"></p>
                                             </div>
 
                                             <!-- col .// -->
                                             <div class="col-lg-6 mb-3">
                                                 <label class="form-label">Email</label>
-                                                <input class="form-control" type="email"
+                                                <input class="form-control" type="email" 
                                                     value="<%= userData.user ? userData.user.email : (userData.email ? userData.email : '') %>" name="email" readonly />
+
                                             </div>
                                             <!-- col .// -->
                                             <div class="col-lg-6 mb-3">
                                                 <label class="form-label">Phone</label>
-                                                <input class="form-control" type="text"
+                                                <input class="form-control" type="text" id="mobile"
                                                     value="<%= userData.user ? userData.user.mobile : (userData.mobile ? userData.mobile : '') %>" name="mobile" />
+                                                    <p id="mobileAlert" style="color: red;"></p>
                                             </div>
                                             <!-- col .// -->
                                             <div class="col-lg-6 mb-3">
                                                 <label class="form-label">Date Of Birth</label>
-                                                <input class="form-control" type="text" value="<%= userData.user ? userData.user.dob : (userData.dob ? userData.dob : '') %>"
+                                                <input class="form-control" type="text" id="dob" value="<%= userData.user ? userData.user.dob : (userData.dob ? userData.dob : '') %>"
                                                     name="dob" />
+                                                    <p id="dobAlert" style="color:red;"></p>
                                             </div>
 
                                             <div class="row" style="max-width: 920px">
@@ -110,7 +114,7 @@
                                         <span style="color:red">
                                             <%= messages.head ? messages.head : '' %>
                                         </span>
-                                        <button class="btn btn-primary" type="submit">Edit Profile</button>
+                                        <button class="btn btn-primary" type="submit" onclick="validateAndUpdateUser(event)">Edit Profile</button>
 
                                         <!-- row.// -->
                                     </div> <!-- col.// -->
@@ -197,6 +201,42 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+    function validateAndUpdateUser(event) {
+        event.preventDefault();
+
+        let userName = document.getElementById('userName').value;
+        let mobile = document.getElementById('mobile').value;
+        let dob = document.getElementById('dob').value;
+
+        const nameRegex = /^[^\s\d!@#$%^&*(),.?":{}|<>_+=\[\\;\]`~]*[a-zA-ZÀ-ÖØ-öø-ÿ-' ]+[^\s!@#$%^&*(),.?":{}|<>_+=\[\\;\]`~]*$/;
+        const mobileRegex = /^[0-9]{10}$/;
+        const dobRegex = /^(0[1-9]|[1-2][0-9]|3[0-1])\/(0[1-9]|1[0-2])\/(19|20)\d{2}$/;
+
+        // Validation
+        if (!nameRegex.test(userName)) {
+            document.getElementById('nameAlert').innerText = 'Enter a valid Name';
+            return false;
+        } else {
+            document.getElementById('nameAlert').innerText = ''; 
+        }
+        if (!mobileRegex.test(mobile)) {
+            document.getElementById('mobileAlert').innerText = 'Enter a valid Mobile Number';
+            return false;
+        } else {
+            document.getElementById('mobileAlert').innerText = ''; 
+        }
+        if (!dobRegex.test(dob)) {
+            document.getElementById('dobAlert').innerText = 'Enter a valid Date of Birth (dd/mm/yyyy)';
+            return false;
+        } else {
+            document.getElementById('dobAlert').innerText = ''; 
+        }
+
+        // If validation passes, submit the form
+        document.getElementById('userForm').submit();
+    }
+</script>
+<script>
 $(document).ready(function () {
     $('#cropButton').on('click', function (event) {
         event.preventDefault(); // Prevent the default form submission behavior
@@ -251,6 +291,15 @@ $(document).ready(function () {
         let newPassword = document.getElementById('newPassword').value;
         let confirmPassword = document.getElementById('confirmPassword').value;
 
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()-_+=])[A-Za-z\d!@#$%^&*()-_+=]{8,}$/;
+        if (!passwordRegex.test(newPassword)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Password',
+                text: 'Password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, one digit, and one special character (@ $ ! % * ? &)',
+            });
+            return;
+        }
         if(newPassword !== confirmPassword){
             Swal.fire({
                 icon: 'error',
@@ -333,7 +382,7 @@ Swal.fire({
                     // User confirmed, make AJAX request
                     $.ajax({
                         url: '/deactivate',
-                        type: 'DELETE',
+                        type: 'PATCH',
                         dataType: 'json',
                         success: function(response) {
                             // Handle success response if needed

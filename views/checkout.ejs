@@ -580,7 +580,7 @@
 			fetch(`/user/getAddress/${addressId}`)
 				.then(response => {
 					if (!response.ok) {
-						swal.fire('alert', 'Please try again..', 'info')
+						Swal.fire('alert', 'Please try again..', 'info')
 					}
 					return response.json();
 				})

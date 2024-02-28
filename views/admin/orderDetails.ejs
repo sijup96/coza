@@ -128,22 +128,22 @@ function formatDate(dateString) {
                                         <article class="float-end">
                                             <dl class="dlist">
                                                 <dt>Subtotal:</dt>
-                                                <dd>$973.35</dd>
+                                                <dd>₹ <%= orderDetail.total_amount %></dd>
                                             </dl>
                                             <dl class="dlist">
                                                 <dt>Shipping cost:</dt>
-                                                <dd>$10.00</dd>
+                                                <dd>0.00</dd>
                                             </dl>
                                             <dl class="dlist">
                                                 <dt>Grand total:</dt>
                                                 <dd><b class="h5">₹ <%= orderDetail.total_amount %></b></dd>
                                             </dl>
-                                            <dl class="dlist">
+                                            <!-- <dl class="dlist">
                                                 <dt class="text-muted">Status:</dt>
                                                 <dd>
                                                     <span class="badge rounded-pill alert-success text-success"><%= orderDetail.payment %></span>
                                                 </dd>
-                                            </dl>
+                                            </dl> -->
                                         </article>
                                     </td>
                                 </tr>

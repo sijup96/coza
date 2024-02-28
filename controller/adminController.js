@@ -8,7 +8,7 @@ const Order = require('../models/orderModel')
 
 //login page
 
-const adminLogin = async (req, res) => {
+const adminLogin = asyncHandler(async (req, res) => {
   try {
     // Set headers to prevent caching
     res.setHeader('Cache-Control', 'no-store, no-cache');
@@ -29,11 +29,11 @@ const adminLogin = async (req, res) => {
     // Redirect to adminLogin in case of an error
     res.redirect('/adminLogin');
   }
-};
+});
 
 // admin dashboard
 
-const adminDashboard = async (req, res) => {
+const adminDashboard = asyncHandler(async (req, res) => {
 
   try {
     // Set headers to prevent caching
@@ -55,7 +55,7 @@ const adminDashboard = async (req, res) => {
     // Redirect to adminLogin in case of an error
     res.redirect('/admin');
   }
-};
+});
 
 //admin login
 

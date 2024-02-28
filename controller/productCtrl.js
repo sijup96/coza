@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const { error, log } = require('console');
 const Cart = require('./cartCtrl')
+const sharp = require('sharp');
 
 
 // Load Product
@@ -69,7 +70,7 @@ const loadaddProduct = asyncHandler(async (req, res) => {
     try {
         const categoryData = await Category.find()
         const category = Array.isArray(categoryData) ? categoryData : [];
-        res.render('admin/addProduct', { category })
+        res.render('admin/addProductDemo', { category })
     } catch (error) {
         res.render("errorPage");
     }
@@ -119,20 +120,29 @@ const createProduct = asyncHandler(async (req, res) => {
 
             res.redirect('/admin/addProduct');
         }
-        const files = req.files; // Check if req.files is defined
+        const files = req.files; 
+        const resizedImages=[]
         if (!files || !Array.isArray(files)) {
             req.flash('head', 'No files or invalid files array in the request.');
             res.redirect('/admin/addProduct');
         }
+         for (let i = 0; i < req.files.length; i++) {
+      const originalPath = req.files[i].path;
+      const resizedPath = path.join(__dirname, "../public/resize", req.files[i].filename);
+      await sharp(originalPath).resize(1100, 1210, { fit: "fill" }).toFile(resizedPath);
+      console.log('Resized path:', resizedPath);
+      resizedImages[i] = req.files[i].filename;
+
+    }
         const { title, description, quantity, price, category, brand, size, color, sex } = req.body;
-        const images = req.files.map((file) => file.originalname);
+        // const images = req.files.map((file) => file.originalname);
         const selectedCategory = await Category.findOne({ slug: category });
         const newProduct = new Product({
             title,
             description,
             quantity,
             price,
-            images,
+            images:resizedImages,
             category: selectedCategory._id,
             brand,
             sex,
@@ -146,7 +156,9 @@ const createProduct = asyncHandler(async (req, res) => {
 
         res.redirect('/admin/addProduct');
     } catch (error) {
-        res.render("errorPage");
+
+        throw new Error(error);
+        // res.render("errorPage");
     }
 });
 
@@ -156,10 +168,10 @@ const updateProduct = asyncHandler(async (req, res) => {
     const { id, title, description, quantity, price, sex, category, brand, size, is_listed } = req.body
     try {
         req.body.slug = slugify(req.body.title.toLowerCase());
-        const existingProduct = await Product.findById({ _id: id })
+        const existingProduct = await Product.findById(id)
 
-        if (existingProduct.slug ==req.body.slug && existingProduct.size == size && existingProduct.is_listed == is_listed) {
-            req.flash('title', 'Product already exists');
+        if (existingProduct.slug === req.body.slug && existingProduct.size === size && existingProduct.is_listed === is_listed) {
+            req.flash('head', 'Product already exists');
 
             return res.redirect('/admin/updateProduct/' + id);
         }

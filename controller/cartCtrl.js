@@ -60,6 +60,7 @@ const addToCart = asyncHandler(async (req, res) => {
                 userId: userId,
             }).save();
         }
+        
 
         // Check if the product already exists in the cart
         const existingProduct = existingCart.products.find(product => product.product.equals(productId));
