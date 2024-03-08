@@ -43,9 +43,14 @@ const orderSchema = new Schema(
     payment: {
       type: String,
       // required: true,
+      default:'Pending',
     },
     paymentId: {
       type: String,
+    },
+    paymentStatus: {
+      type: String,
+      default:'Pending',
     },
     totalDiscountAmount: {
       type: Number,

@@ -1,0 +1,496 @@
+<%- include('./layouts/userLayout/userAccountHeader.ejs') %>
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+   
+
+<style>
+    /* Remove up and down arrows from number input */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    
+    input[type=number] {
+        -moz-appearance: textfield; /* Firefox */
+    }
+    .money-heading {
+  border: 2px solid #ddd; /* Base border color */
+  border-radius: 5px;  /* Rounded corners */
+  padding: 10px 20px;   /* Padding for spacing */
+  text-align: center;  /* Center align text */
+  color: #333;          /* Text color */
+  font-weight: bold;   /* Bold text */
+  margin: 0;           /* Remove default margin */
+  display: inline-block; /* Makes it behave like an inline element */
+  margin-top: -15px;
+}
+
+.money-heading::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  z-index: -1; /* Place shadow behind the text */
+  background-color: #fff; /* Shadow color (white) */
+  border-radius: 5px;  /* Match border radius */
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2); /* Create shadow effect */
+}
+    </style>
+<section class="content-main">
+    <div class="content-header">
+        <div style="display: space-around; width: 100%;">
+            <div>
+            <h2 class="content-title card-title">My Wallet</h2>
+            <p>Money is secure with us.</p>
+            </div>
+            <div style="justify-content: center; text-align: center; display: flex; ">
+                <h2 style="color: grey; ">Current Balance: &nbsp;<h1 class="money-heading">$ 0.00</h1></h2>
+            </div>
+            <div style="justify-content: center; text-align: center;">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter" style="margin: 20px;">
+                    Add Money
+                  </button>
+                </div>
+        </div>
+      
+    </div>
+    <div class="card mb-4">
+        <header class="card-header">
+            <div class="row gx-3">
+                <div class="col-lg-4 col-md-6 me-auto">
+                    <input type="text" placeholder="Search..." class="form-control" />
+                </div>
+                <div class="col-lg-2 col-6 col-md-3">
+                    <select class="form-select">
+                        <option>Status</option>
+                        <option>Active</option>
+                        <option>Disabled</option>
+                        <option>Show all</option>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-6 col-md-3">
+                    <select class="form-select">
+                        <option>Show 20</option>
+                        <option>Show 30</option>
+                        <option>Show 40</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+        <!-- card-header end// -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>#ID</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Total</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Date</th>
+                            <th scope="col" class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>0901</td>
+                            <td><b>Marvin McKinney</b></td>
+                            <td>marvin@example.com</td>
+                            <td>$9.00</td>
+                            <td><span class="badge rounded-pill alert-warning">Pending</span></td>
+                            <td>03.12.2020</td>
+                            <td class="text-end">
+                                <a href="#" class="btn btn-md rounded font-sm">Detail</a>
+                                <div class="dropdown">
+                                    <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#">View detail</a>
+                                        <a class="dropdown-item" href="#">Edit info</a>
+                                        <a class="dropdown-item text-danger" href="#">Delete</a>
+                                    </div>
+                                </div>
+                                <!-- dropdown //end -->
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2323</td>
+                            <td><b>Leslie Alexander</b></td>
+                            <td>leslie@example.com</td>
+                            <td>$46.61</td>
+                            <td><span class="badge rounded-pill alert-warning">Pending</span></td>
+                            <td>21.02.2020</td>
+                            <td class="text-end">
+                                <a href="#" class="btn btn-md rounded font-sm">Detail</a>
+                                <div class="dropdown">
+                                    <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#">View detail</a>
+                                        <a class="dropdown-item" href="#">Edit info</a>
+                                        <a class="dropdown-item text-danger" href="#">Delete</a>
+                                    </div>
+                                </div>
+                                <style>
+                                    /* Remove up and down arrows from number input */
+                                    input[type=number]::-webkit-inner-spin-button, 
+                                    input[type=number]::-webkit-outer-spin-button {
+                                        -webkit-appearance: none;
+                                        margin: 0;
+                                    }
+                                    
+                                    input[type=number] {
+                                        -moz-appearance: textfield; /* Firefox */
+                                    }
+                                    </style>                <!-- dropdown //end -->
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>1233</td>
+                            <td><b>Esther Howard</b></td>
+                            <td>esther@example.com</td>
+                            <td>$12.00</td>
+                            <td><span class="badge rounded-pill alert-danger">Canceled</span></td>
+                            <td>03.07.2020</td>
+                            <td class="text-end">
+                                <a href="#" class="btn btn-md rounded font-sm">Detail</a>
+                                <div class="dropdown">
+                                    <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#">View detail</a>
+                                        <a class="dropdown-item" href="#">Edit info</a>
+                                        <a class="dropdown-item text-danger" href="#">Delete</a>
+                                    </div>
+                                </div>
+                                <!-- dropdown //end -->
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>1233</td>
+                            <td><b>Esther Howard</b></td>
+                            <td>esther@example.com</td>
+                            <td>$12.00</td>
+                            <td><span class="badge rounded-pill alert-danger">Canceled</span></td>
+                            <td>03.07.2020</td>
+                            <td class="text-end">
+                                <a href="#" class="btn btn-md rounded font-sm">Detail</a>
+                                <div class="dropdown">
+                                    <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#">View detail</a>
+                                        <a class="dropdown-item" href="#">Edit info</a>
+                                        <a class="dropdown-item text-danger" href="#">Delete</a>
+                                    </div>
+                                </div>
+                                <!-- dropdown //end -->
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2323</td>
+                            <td><b>Jenny Wilson</b></td>
+                            <td>jenny@example.com</td>
+                            <td>$589.99</td>
+                            <td><span class="badge rounded-pill alert-success">Received</span></td>
+                            <td>22.05.2020</td>
+                            <td class="text-end">
+                                <a href="#" class="btn btn-md rounded font-sm">Detail</a>
+                                <div class="dropdown">
+                                    <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#">View detail</a>
+                                        <a class="dropdown-item" href="#">Edit info</a>
+                                        <a class="dropdown-item text-danger" href="#">Delete</a>
+                                    </div>
+                                </div>
+                                <!-- dropdown //end -->
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2112</td>
+                            <td><b>Marvin McKinney</b></td>
+                            <td>marvin@example.com</td>
+                            <td>$16.58</td>
+                            <td><span class="badge rounded-pill alert-success">Received</span></td>
+                            <td>23.04.2020</td>
+                            <td class="text-end">
+                                <a href="#" class="btn btn-md rounded font-sm">Detail</a>
+                                <div class="dropdown">
+                                    <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#">View detail</a>
+                                        <a class="dropdown-item" href="#">Edit info</a>
+                                        <a class="dropdown-item text-danger" href="#">Delete</a>
+                                    </div>
+                                </div>
+                                <!-- dropdown //end -->
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>7897</td>
+                            <td><b>Albert Flores</b></td>
+                            <td>albert@example.com</td>
+                            <td>$10.00</td>
+                            <td><span class="badge rounded-pill alert-success">Received</span></td>
+                            <td>13.03.2020</td>
+                            <td class="text-end">
+                                <a href="#" class="btn btn-md rounded font-sm">Detail</a>
+                                <div class="dropdown">
+                                    <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#">View detail</a>
+                                        <a class="dropdown-item" href="#">Edit info</a>
+                                        <a class="dropdown-item text-danger" href="#">Delete</a>
+                                    </div>
+                                </div>
+                                <!-- dropdown //end -->
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2323</td>
+                            <td><b>Wade Warren</b></td>
+                            <td>wade@example.com</td>
+                            <td>$105.55</td>
+                            <td><span class="badge rounded-pill alert-success">Received</span></td>
+                            <td>23.09.2019</td>
+                            <td class="text-end">
+                                <a href="#" class="btn btn-md rounded font-sm">Detail</a>
+                                <div class="dropdown">
+                                    <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#">View detail</a>
+                                        <a class="dropdown-item" href="#">Edit info</a>
+                                        <a class="dropdown-item text-danger" href="#">Delete</a>
+                                    </div>
+                                </div>
+                                <!-- dropdown //end -->
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2324</td>
+                            <td><b>Jane Cooper</b></td>
+                            <td>jane@example.com</td>
+                            <td>$710.68</td>
+                            <td><span class="badge rounded-pill alert-success">Received</span></td>
+                            <td>28.04.2020</td>
+                            <td class="text-end">
+                                <a href="#" class="btn btn-md rounded font-sm">Detail</a>
+                                <div class="dropdown">
+                                    <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#">View detail</a>
+                                        <a class="dropdown-item" href="#">Edit info</a>
+                                        <a class="dropdown-item text-danger" href="#">Delete</a>
+                                    </div>
+                                </div>
+                                <!-- dropdown //end -->
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2325</td>
+                            <td><b>Savannah Nguyen</b></td>
+                            <td>savannah@example.com</td>
+                            <td>$710.68</td>
+                            <td><span class="badge rounded-pill alert-success">Received</span></td>
+                            <td>23.03.2020</td>
+                            <td class="text-end">
+                                <a href="#" class="btn btn-md rounded font-sm">Detail</a>
+                                <div class="dropdown">
+                                    <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#">View detail</a>
+                                        <a class="dropdown-item" href="#">Edit info</a>
+                                        <a class="dropdown-item text-danger" href="#">Delete</a>
+                                    </div>
+                                </div>
+                                <!-- dropdown //end -->
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2326</td>
+                            <td><b>Guy Hawkins</b></td>
+                            <td>guy@example.com</td>
+                            <td>$767.50</td>
+                            <td><span class="badge rounded-pill alert-success">Received</span></td>
+                            <td>28.04.2020</td>
+                            <td class="text-end">
+                                <a href="#" class="btn btn-md rounded font-sm">Detail</a>
+                                <div class="dropdown">
+                                    <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#">View detail</a>
+                                        <a class="dropdown-item" href="#">Edit info</a>
+                                        <a class="dropdown-item text-danger" href="#">Delete</a>
+                                    </div>
+                                </div>
+                                <!-- dropdown //end -->
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2327</td>
+                            <td><b>Darrell Steward</b></td>
+                            <td>darrel@example.com</td>
+                            <td>$406.27</td>
+                            <td><span class="badge rounded-pill alert-success">Received</span></td>
+                            <td>14.07.2020</td>
+                            <td class="text-end">
+                                <a href="#" class="btn btn-md rounded font-sm">Detail</a>
+                                <div class="dropdown">
+                                    <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#">View detail</a>
+                                        <a class="dropdown-item" href="#">Edit info</a>
+                                        <a class="dropdown-item text-danger" href="#">Delete</a>
+                                    </div>
+                                </div>
+                                <!-- dropdown //end -->
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2328</td>
+                            <td><b>Jane Cooper</b></td>
+                            <td>jane@example.com</td>
+                            <td>$601.13</td>
+                            <td><span class="badge rounded-pill alert-success">Received</span></td>
+                            <td>18.03.2020</td>
+                            <td class="text-end">
+                                <a href="#" class="btn btn-md rounded font-sm">Detail</a>
+                                <div class="dropdown">
+                                    <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#">View detail</a>
+                                        <a class="dropdown-item" href="#">Edit info</a>
+                                        <a class="dropdown-item text-danger" href="#">Delete</a>
+                                    </div>
+                                </div>
+                                <!-- dropdown //end -->
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2329</td>
+                            <td><b>Darlene Robertson</b></td>
+                            <td>deriene@example.com</td>
+                            <td>$948.55</td>
+                            <td><span class="badge rounded-pill alert-success">Received</span></td>
+                            <td>03.07.2020</td>
+                            <td class="text-end">
+                                <a href="#" class="btn btn-md rounded font-sm">Detail</a>
+                                <div class="dropdown">
+                                    <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="#">View detail</a>
+                                        <a class="dropdown-item" href="#">Edit info</a>
+                                        <a class="dropdown-item text-danger" href="#">Delete</a>
+                                    </div>
+                                </div>
+                                <!-- dropdown //end -->
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- table-responsive //end -->
+        </div>
+        <!-- card-body end// -->
+    </div>
+    <!-- card end// -->
+    <div class="pagination-area mt-15 mb-50">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-start">
+                <li class="page-item active"><a class="page-link" href="#">01</a></li>
+                <li class="page-item"><a class="page-link" href="#">02</a></li>
+                <li class="page-item"><a class="page-link" href="#">03</a></li>
+                <li class="page-item"><a class="page-link dot" href="#">...</a></li>
+                <li class="page-item"><a class="page-link" href="#">16</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+<!-- Modal -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">Add money to Wallet</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" style="text-align: center;">
+            <div style="justify-content: center; align-items: center;">
+                <h4>Enter Amount </h4>
+                <div class="input-group mb-3" style="padding: 10px;">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">₹</span>
+                     
+                    </div>
+                    <input id="numberInput" type="number" class="form-control">
+                </div>             
+           </div>
+        </div>
+        <div class="modal-footer">
+            <button id="addButton" type="button" class="btn btn-primary">Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- content-main end// -->
+<footer class="main-footer font-xs">
+    <div class="row pb-30 pt-15">
+        <div class="col-sm-6">
+            <script>
+                document.write(new Date().getFullYear());
+            </script>
+            &copy; Nest - HTML Ecommerce Template .
+        </div>
+        <div class="col-sm-6">
+            <div class="text-sm-end">All rights reserved</div>
+        </div>
+    </div>
+</footer>
+</main>
+<script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
+<script src="/assets/js/vendors/bootstrap.bundle.min.js"></script>
+<script src="/assets/js/vendors/select2.min.js"></script>
+<script src="/assets/js/vendors/perfect-scrollbar.js"></script>
+<script src="/assets/js/vendors/jquery.fullscreen.min.js"></script>
+<!-- Main Script -->
+<script src="/assets/js/main.js?v=1.1" type="text/javascript"></script>
+
+
+<script>
+    $(document).ready(function() {
+        $("#addButton").click(function() {
+            var inputValue = $("#numberInput").val();
+            if (inputValue !== "" && inputValue >= 1) {
+                
+                $.ajax({
+                    type: "POST",
+                    url: "your-api-endpoint-url",
+                    data: { number: inputValue },
+                    success: function(response) {
+                        // Handle success response here
+                        console.log("Success:", response);
+                    },
+                    error: function(xhr, status, error) {
+                        // Handle error response here
+                        console.error("Error:", xhr.responseText);
+                    }
+                });
+            } else {
+                // If input value is empty, show an alert or handle it accordingly
+                alert("Please enter a number.");
+            }
+        });
+    });
+    </script>
+</body>
+</html>

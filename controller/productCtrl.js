@@ -5,7 +5,6 @@ const slugify = require('slugify')
 const User = require('../models/userModel');
 const fs = require('fs');
 const path = require('path');
-const { error, log } = require('console');
 const Cart = require('./cartCtrl')
 const sharp = require('sharp');
 
@@ -82,10 +81,8 @@ const loadUpdateProduct = asyncHandler(async (req, res) => {
     try {
         const category = await Category.find({ is_listed: true });
         const updateProduct = await Product.findById({ _id: id });
-        console.log(updateProduct);
         const catId = updateProduct.category
         const selectedCategory = await Category.findById({ _id: catId })
-        console.log(selectedCategory);
         res.render("admin/editProduct", {
             product: updateProduct,
             category: category,
@@ -97,15 +94,19 @@ const loadUpdateProduct = asyncHandler(async (req, res) => {
 });
 
 // Admin Load All Products
-const loadAllProducts = async (req, res) => {
+const loadAllProducts =asyncHandler( async (req, res) => {
     try {
-        const productData = await Product.find({});
+        const productData = await Product.find({})
+            .sort({ updatedAt: -1 })
+            .populate('offer')
         const products = Array.isArray(productData) ? productData : [];
         res.render('admin/products', { products });
     } catch (error) {
-        res.render("errorPage");
+        console.error('Error loading all products:', error);
+        res.render('errorPage');
     }
-};
+});
+
 
 const createProduct = asyncHandler(async (req, res) => {
     try {

@@ -17,6 +17,10 @@ var prodCategorySchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    offer:{
+        type: mongoose.Types.ObjectId,
+        ref:'Offer'
+    },
     is_listed: {
         type: Boolean,
         default: true,

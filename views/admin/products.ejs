@@ -1,4 +1,14 @@
 <%- include('../layouts/adminLayout/_header.ejs') -%>
+<style>
+.col-lg-2 {
+  width: 13.66667%;
+}
+.highlight {
+  font-size: larger;
+  font-weight: bolder;
+  
+}
+</style>
 <section class="content-main">
     <div class="content-header">
       <div>
@@ -33,8 +43,10 @@
                   />
                 </div>
                 <div class="info">
-                  <h6>Product Title</h6>
+                  <h6>Product Title </h6>
                   <h4 cla ss="mb-0"><%= products[i].title %></h4>
+                  <h5 style="color: red;"><%= products[i].offer && products[i].offer.percentage ?products[i].offer.percentage +'% Product Offer' :'' %></h5>
+                  <p><%= products[i].category?.offer ?products[i].category.offer : '' %></p>
                 </div>
               </a>
               
@@ -55,11 +67,21 @@
                 <%= products[i].is_listed==true ? 'Listed' : 'Unlisted' %>
               </span>
             </div>
+            <div class="col-sm-2" style="display: flex;">
+              <a class="btn btn-sm font-sm rounded btn-brand" style="margin: 3px;" data-toggle="modal" data-target=".bd-example-modal-lg" onclick="loadOffers('<%= products[i]._id %>')">
+                Apply Offer
+              </a>
+              <% if(products[i].offer){ %>
+              <a class=" btn-sm font-sm btn-danger" style="margin: 3px;" onclick="removeOffer('<%= products[i]._id %>')">
+                Remove Offer
+              </a>
+              <%}%>
+            </div>
  
             <div class="col-lg-2 col-sm-2 col-4 col-action text-end">
               <h6>Make Changes</h6>
               <a
-                class="btn btn-sm font-sm rounded btn-brand" onclick="confirmEdit('<%= products[i]._id %>')">
+                class="btn btn-sm font-sm rounded btn-brand" onclick="confirmEdit('<%= products[i]._id %>')" style="margin: 3px;" >
                 <i class="material-icons md-edit"></i> Edit
               </a>
               <a
@@ -96,17 +118,34 @@
       </nav>
     </div>
   </section>
+<!-- Modal -->
+<div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle" style="color: black;">Available Offers</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" style="display: ruby;">
+      
+       </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 
-    <!-- Your HTML -->
     <!-- <button class="delete-product-btn" data-product-id="yourProductId">Delete Product</button> -->
 
     <!-- Include jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
     <script>
-
 function confirmDelete(productId) {
     Swal.fire({
         title: 'Are you sure?',
@@ -137,8 +176,154 @@ function confirmDelete(productId) {
         }
     });
 }
+    </script>
+    <script>
+function loadOffers(productId) {
+  fetch('/offer/getAllOffers')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to fetch offers');
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.offerData && Array.isArray(data.offerData)) {
+        displayOfferDataInModal(data.offerData,productId);
+      } else {
+        throw new Error('Invalid offer data format');
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching data:', error);
+      // Display error message if necessary
+      Swal.fire({
+        title: 'Error',
+        text: 'Failed to fetch offers',
+        icon: 'error'
+      });
+    });
+}
+function displayOfferDataInModal(offerData,productId) {
+  // Access modal elements
+  const modalBody = document.querySelector('.modal-body');
 
+  // Clear existing content
+  modalBody.innerHTML = '';
 
+  // Loop through offerData and create HTML elements for each offer
+  offerData.forEach(offer => {
+    // Create a new row for each offer
+    const row = document.createElement('div');
+    row.classList.add('row', 'd-flex', 'justify-content-center', 'align-items-center','width:45%'); 
+     row.style.width = '45%';
+
+    // Create a column for the offer details
+    const col = document.createElement('div');
+    col.classList.add('col');
+    col.style.margin = '5px';
+    col.innerHTML = `
+      <div class="card mb-3">
+        <div class="card-body">
+          <h4 class="card-title">${offer.offerName}</h4>
+          <p class="card-text">Percentage: <span class="highlight" style="color:red"> ${offer.percentage} % </span></p>
+          <p class="card-text">Description: ${offer.description}</p>
+          <p class="card-text">Starting Date: <span class="highlight"> ${formatDate(offer.startingDate)}  </span></p>
+          <p class="card-text">Expiry Date: <span class="highlight"> ${formatDate(offer.expiryDate)}  </span></p>
+          <div class="text-center">
+            <button class="btn btn-primary" onclick="applyOffer('${offer._id}','${productId}')">Apply</button>
+            </div>
+        </div>
+      </div>
+    `;
+
+    // Append the column to the row
+    row.appendChild(col);
+
+    // Append the row to the modal body
+    modalBody.appendChild(row);
+  });
+}
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    let month = (1 + date.getMonth()).toString().padStart(2, '0');
+    let day = date.getDate().toString().padStart(2, '0');
+    return day + '-' + month + '-' + year;
+}
+function applyOffer(offerId,productId) {
+    Swal.fire({
+        title: 'Confirm',
+        text: 'Are you sure you want to apply this offer?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, apply it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+          $.ajax({
+            url:'/offer/applyToProduct',
+            method:'PUT',
+            data:{
+              offerId:offerId,
+              productId:productId
+            },
+            success: function(response){
+              Swal.fire({
+                title:'Success',
+                text:'Offer applied Successfully',
+                icon:'success'
+              })
+              .then(()=>{
+                location.reload();
+              })
+            },
+            error:function(xhr,status,error){
+              Swal.fire({
+                title:'Error',
+                text:'Failed to apply Offer',
+                icon:error
+              })
+            }
+          })
+        }
+    });
+}
+    </script>
+    <script>
+      function removeOffer(productId){
+        Swal.fire({
+        title: 'Are you sure?',
+        text: 'You are about to remove the offer. This action cannot be undone.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, remove it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+          $.ajax({
+        url: '/offer/removeProductOffer',
+        type: 'PUT',
+        data: { productId: productId },
+        success: function(response) {
+          Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Offer has been successfully removed.',
+            })
+            .then(()=>{
+              location.reload();
+            })
+        },
+        error: function(xhr, status, error) {
+            console.error('Error removing offer:', error);
+        }
+    });
+        }
+    });
+      }
     </script>
 
     <!-- content-main end// -->

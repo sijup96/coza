@@ -338,7 +338,6 @@
 										Blue
 									</a>
 								</li>
-
 								<li class="p-b-6">
 									<span class="fs-15 lh-12 m-r-6" style="color: #b3b3b3;">
 										<i class="zmdi zmdi-circle"></i>
@@ -446,10 +445,10 @@
 											<%= productsFemale[i].price %>
 										</span>
 									</div>
+									<div class="block2-txt-child2 flex-r p-t-3" >
 									<% if (wishlistedProducts && wishlistedProducts.products.length > 0) { %>
 										<% const productId = productsFemale[i]._id.toString(); %>
 										<% const isWishlisted = wishlistedProducts.products.some(product => product.product.toString() === productId); %>
-									<div class="block2-txt-child2 flex-r p-t-3" >
 											<% if (isWishlisted) { %>
 												<a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2" data-product-id="<%= productsFemale[i]._id %>">
 													<img class="icon-heart1 dis-block trans-04" src="/images/icons/icon-heart-02.png" alt="ICON">
@@ -473,7 +472,7 @@
 									<div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item men">
 										<!-- Block2 -->
 										<div class="block2">
-											<div class="block2-pic hov-img0 label-new" data-label="New"">
+											<div class="block2-pic hov-img0 label-new" data-label="New">
 														<img src=" /productImages/<%=productsMale[i].images[0] %>"
 												alt="IMG-PRODUCT">
 
@@ -499,9 +498,9 @@
 													<a href="#"
 														class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
 														<img class="icon-heart1 dis-block trans-04"
-															src="images/icons/icon-heart-01.png" alt="ICON">
+															src="/images/icons/icon-heart-01.png" alt="ICON">
 														<img class="icon-heart2 dis-block trans-04 ab-t-l"
-															src="images/icons/icon-heart-02.png" alt="ICON">
+															src="/images/icons/icon-heart-02.png" alt="ICON">
 													</a>
 												</div>
 											</div>
@@ -516,7 +515,7 @@
 												<div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item ">
 													<!-- Block2 -->
 													<div class="block2">
-														<div class="block2-pic hov-img0 label-new" data-label="New"">
+														<div class="block2-pic hov-img0 label-new" data-label="New">
 																	<img src=" /productImages/<%=productsUnisex[i].images[0] %>"
 															alt="IMG-PRODUCT">
 
@@ -542,9 +541,9 @@
 																<a href="#"
 																	class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
 																	<img class="icon-heart1 dis-block trans-04"
-																		src="images/icons/icon-heart-01.png" alt="ICON">
+																		src="/images/icons/icon-heart-01.png" alt="ICON">
 																	<img class="icon-heart2 dis-block trans-04 ab-t-l"
-																		src="images/icons/icon-heart-02.png" alt="ICON">
+																		src="/images/icons/icon-heart-02.png" alt="ICON">
 																</a>
 															</div>
 														</div>
@@ -670,23 +669,23 @@
 			<div class="p-t-40">
 				<div class="flex-c-m flex-w p-b-18">
 					<a href="#" class="m-all-1">
-						<img src="images/icons/icon-pay-01.png" alt="ICON-PAY">
+						<img src="/images/icons/icon-pay-01.png" alt="ICON-PAY">
 					</a>
 
 					<a href="#" class="m-all-1">
-						<img src="images/icons/icon-pay-02.png" alt="ICON-PAY">
+						<img src="/images/icons/icon-pay-02.png" alt="ICON-PAY">
 					</a>
 
 					<a href="#" class="m-all-1">
-						<img src="images/icons/icon-pay-03.png" alt="ICON-PAY">
+						<img src="/images/icons/icon-pay-03.png" alt="ICON-PAY">
 					</a>
 
 					<a href="#" class="m-all-1">
-						<img src="images/icons/icon-pay-04.png" alt="ICON-PAY">
+						<img src="/images/icons/icon-pay-04.png" alt="ICON-PAY">
 					</a>
 
 					<a href="#" class="m-all-1">
-						<img src="images/icons/icon-pay-05.png" alt="ICON-PAY">
+						<img src="/images/icons/icon-pay-05.png" alt="ICON-PAY">
 					</a>
 				</div>
 

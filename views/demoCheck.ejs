@@ -1,535 +1,123 @@
-<%- include('./layouts/userLayout/header.ejs') %>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<style>
-	#addAddress {
-    display: none;
-}
-	
-input[type="radio"] {
-				display: none;
-			}
-	
-			input[type="radio"]:checked+label .card {
-				border-color: #007bff;
-				box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-				background-color: rgba(137, 149, 171, 0.306);
-			}
-	
-	
-			@media (max-width: 991px) {
-			.order-lg-first {
-				order: -1;
-			}
-		}
-		.address-box {
-			border: 1px solid #ccc;
-			padding: 10px;
-			margin-bottom: 10px;
-			cursor: pointer;
-		}
-		.address-box:hover {
-			background-color: #f0f0f0;
-		}
-
-</style>
-	
-
-	<section class="bg0 p-t-104 p-b-116">
-		<div>
-		<h2 class="ltext-105  txt-center">
-			Checkout
-		</h2>
-	</div>
-		<div class="container">
-			<div class="flex-w flex-tr">
-			
-
-				<div class="size-210 bor10 flex-w flex-col-m p-lr-93 p-tb-30 p-lr-15-lg w-full-md">
-					<div class="flex-w w-full p-b-42">
-						<span class="fs-18 cl5 txt-center size-211">
-							<span class="lnr lnr-map-marker"></span>
-						</span>
-
-						<div class="size-212 p-t-2">
-							<span class="mtext-110 cl2">
-								Select Shipping Address
-							</span>
-							<div style="margin-top: 1em;">
-								<ul id="addressList" class="row">
-									<% if(userAddress) { %>
-										<% userAddress.forEach((address, index)=> { %>
-											<li id="selectedAddress-<%= address._id %>" class="col-md-6">
-												<input type="radio" id="address<%= index + 1 %>"
-													name="selectedAddress" value="<%= address._id %>"
-													class="address-radio">
-												<label for="address<%= index + 1 %>">
-													<div class="card">
-														<div class="card-body">
-															<h5 class="card-title">
-																<%= address.name %>
-															</h5>
-															<p class="card-text">
-																<%= address.houseName %>
-															</p>
-															<p class="card-text">
-																<%= address.street %>, <%= address.landmark %>,
-																&nbsp;<%= address.city %>
-															</p>
-															<p class="card-text">
-																<%= address.state %> &nbsp; <%= address.pincode %>
-															</p>
-															<p class="card-text">phone: <%= address.mobile %></p>
-														</div>
-													</div>
-												</label>
-											</li>
-										<% }) %>
-									<% } %>
-								</ul>
-							</div>
-							
-							
-
-
-						</div>
-					</div>
-
-					<div class="flex-w w-full p-b-42">
-						<span class="fs-18 cl5 txt-center size-211">
-							<span class="fas fa-plus"></span>
-						</span>
-
-						<div class="size-212 p-t-2">
-							<span class="mtext-110 cl2 address">
-								Add New Address
-							</span>
-
-							<form id="addAddress" style="display: none;"> 
-								<!-- Address fields -->
-								<div class="form-group">
-									<label for="name">Name</label>
-									<input type="text" id="name" name="name" class="form-control" required>
-								</div>
-								<div class="form-group">
-									<label for="mobile">Mobile</label>
-									<input type="text" id="mobile" name="mobile" class="form-control">
-								</div>
-								<div class="form-group">
-									<label for="address">House Name</label>
-									<input type="text" id="address" name="houseName" class="form-control" required>
-								</div>
-								<div class="form-group">
-									<label for="landmark">Landmark</label>
-									<input type="text" id="landmark" name="landmark" class="form-control" required>
-								</div>
-								<div class="form-row">
-									<div class="form-group col-md-6">
-										<label for="pinCode">Postal Code</label>
-										<input type="text" id="pinCode" name="pincode" class="form-control" required>
-									</div>
-									<div class="form-group col-md-6">
-										<label for="city">Street</label>
-										<input type="text" id="street" name="street" class="form-control" required>
-									</div>
-									<div class="form-group col-md-6">
-										<label for="city">City</label>
-										<input type="text" id="city" name="city" class="form-control" required>
-									</div>
-									<div class="form-group col-md-6">
-										<label for="state">State</label>
-										<input type="text" id="state" name="state" class="form-control" required>
-									</div>
-								</div>
-								<button type="submit" class="btn btn-primary">Save Address</button>
-							</form>
-						</div>
-					</div>
-
-					<div class="flex-w w-full">
-						<span class="fs-18 cl5 txt-center size-211">
-							<span class="lnr lnr-envelope"></span>
-						</span>
-
-						<div class="size-212 p-t-2">
-							<span class="mtext-110 cl2">
-								Sale Support
-							</span>
-
-							<p class="stext-115 cl1 size-213 p-t-18">
-								contact@example.com
-							</p>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-	
-
-	<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-	<script>
-		document.addEventListener("DOMContentLoaded", function() {
-			const addButton = document.querySelector(".address");
-			const addressForm = document.getElementById("addAddress");
-	
-			addButton.addEventListener("click", function(event) {
-				event.preventDefault();
-				addressForm.style.display =addressForm.style.display === 'none' ? 'block' : 'none';
-			});
-		});
-	</script>
-
-
-
-
-
-
-
-
-
-	<script>
-		$(document).ready(function () {
-			$('#addAddress').submit(function (event) {
-				event.preventDefault();
-				const formData = $(this).serialize();
-				$.ajax({
-					type: 'POST',
-					url: '/user/createAddress',
-					data: formData,
-					success: function (response) {
-						Swal.fire({
-                                title: 'Success',
-                                text: response.message,
-                                icon: 'success'
-                            })
-					},
-					error: function (xhr, status, error) {
-						// Handle error response
-						console.error(xhr.responseText);
-					}
-				});
-			});
-		});
-	</script>
-
-
-	<script>
-		document.getElementById('selectAddressButton').addEventListener('click', function () {
-			const addressList = document.getElementById('addressList');
-			addressList.style.display = addressList.style.display === 'none' ? 'block' : 'none';
-
-		});
-
-		const radioAddresses = document.querySelectorAll(".address-radio");
-		radioAddresses.forEach(function (radioAddress) {
-			radioAddress.addEventListener('click', function () {
-				const selectedAddressId = this.value;
-				const allAddresses = document.querySelectorAll('.address-card');
-				allAddresses.forEach(function (address) {
-					address.style.display = 'none';
-				});
-				const selectedAddress = document.querySelector(`#selectedAddress${selectedAddressId}`);
-				selectedAddress.style.display = 'block';
-			});
-		});
-	</script>
-	<script>
-		document.addEventListener('DOMContentLoaded', function () {
-			const addressRadios = document.querySelectorAll('.address-radio');
-			const shippingAddressParagraph = document.querySelector('.stext-111.cl6.p-t-2');
-
-			addressRadios.forEach(function (radio) {
-				radio.addEventListener('change', function () {
-					if (this.checked) {
-						const selectedAddressId = this.value;
-						const selectedAddress = document.getElementById('selectedAddress-' + selectedAddressId);
-						if (selectedAddress) {
-							shippingAddressParagraph.innerHTML = selectedAddress.innerHTML;
-						}
-					}
-				});
-			});
-		});
-	</script>
-
-
-
 <script>
-	const createOrder = asyncHandler(async (req, res) => {
-    try {
-        const accessToken = req.accessToken;
-        if (!accessToken) {
-            return res.status(401).json({ error: 'Unauthorized' });
-        }
-        const { totalPrice, selectedAddressId } = req.body;
-        if (!totalPrice || !selectedAddressId) {
-            return res.status(400).json({ error: 'Missing required fields' });
-        }
-        const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
-        const userId = decodedToken.id;
-        const userAddress = await Address.findById(selectedAddressId);
-        if (!userAddress) {
-            return res.status(400).json({ error: 'Invalid address' });
-        }
-        const cartData = await cart.viewCart(accessToken);
-        const isValidCart = cartData.products.every((productItem) => {
-            return (
-                productItem.quantity > 0 &&
-                productItem.quantity <= productItem.product.quantity &&
-                productItem.product.is_listed === true
-            );
-        });
+	var options = {
+		"key": "rzp_test_m7scdXTvPyrkkT", // Enter the Key ID generated from the Dashboard
+		"amount": '<%= cartData.cartTotal %>' * 100,
+		"currency": "INR",
+		"description": "COZA STORE",
+		"image": "https://s3.amazonaws.com/rzp-mobile/images/rzp.jpg",
+		"prefill":
+		{
+			"email": "<%= cartData.userId.email %>",
+			"contact": "<%= cartData.userId.mobile %>",
+		},
+		config: {
+			display: {
+				blocks: {
+					utib: { //name for Axis block
+						name: "Pay using Axis Bank",
+						instruments: [
+							{
+								method: "card",
+								issuers: ["UTIB"]
+							},
+							{
+								method: "netbanking",
+								banks: ["UTIB"]
+							},
+						]
+					},
+					other: { //  name for other block
+						name: "Other Payment modes",
+						instruments: [
+							{
+								method: "card",
+								issuers: ["ICIC"]
+							},
+							{
+								method: 'netbanking',
+							}
+						]
+					}
+				},
+				hide: [
+					{
+						method: "upi"
+					}
+				],
+				sequence: ["block.utib", "block.other"],
+				preferences: {
+					show_default_blocks: false // Should Checkout show its default blocks?
+				}
+			}
+		},
+		"handler": function (response) {
+			Swal.fire({
+				icon: 'success',
+				title: 'Payment Successful',
+				text: 'Payment ID: ' + response.razorpay_payment_id,
+			}).then(() => {
+				placeOrder('online', response.razorpay_payment_id);
+			})
+		},
+		"modal": {
+			"ondismiss": function () {
+				Swal.fire({
+					title: 'Are you sure?',
+					text: "You want to close the form?",
+					icon: 'question',
+					showCancelButton: true,
+					confirmButtonColor: '#3085d6',
+					cancelButtonColor: '#d33',
+					confirmButtonText: 'Yes, close it!',
+					cancelButtonText: 'No, cancel!'
+				}).then((result) => {
+					if (result.isConfirmed) {
+						console.log("Checkout form closed by the user");
+					} else {
+						rzp1.open();
+					}
+				});
+			}
+		}
+	};
+	var rzp1 = new Razorpay(options);
+	document.getElementById('rzp-button1').onclick = function (e) {
+		e.preventDefault();
+		const selectedAddressInput = document.querySelector('input[name="selectedAddress"]:checked');
+		const total = '<%= cartData.cartTotal %>'
+		if (!selectedAddressInput) {
+			swal("Alert", "Please select an address", "info");
+			return;
+		} else if (total < 1) {
+			swal("Alert", "Please add Product", "info");
+			return;
+		}
+		rzp1.open();
 
-        if (!isValidCart || cartData.cartTotal <= 0) {
-            return res.status(400).json({ error: 'Cart is empty' });
-        }
-        const unlistedProducts = cartData.products.filter(item => !item.product.is_listed);
-        if (unlistedProducts.length > 0) {
-            return res.status(400).json({ error: 'One or more products are unlisted' });
-        }
-        const id = orderid.generate();
-
-        const orderItems = cartData.products.map(item => ({
-            product_id: item.product._id,
-            quantity: item.quantity,
-            price: item.product.price,
-            total_price: item.quantity * item.product.price,
-            // You can add other fields like offerPercentage, couponDiscountTotal, ordered_status, cancellationReason here if needed
-        }));
-
-        const order = new Order({
-            user_id: userId,
-            order_id: id,
-            delivery_address: userAddress.delivery_address, // Assuming 'delivery_address' is a string field in the 'Address' model
-            user_name: userAddress.user_name, // Assuming 'user_name' is a string field in the 'Address' model
-            total_amount: totalPrice,
-            date: new Date().toISOString(), // Assuming you want to save the current date
-            expected_delivery: 'Calculate based on your business logic',
-            status: 'placed', // Assuming default status is 'placed'
-            payment: 'Pending', // Assuming default payment status is 'Pending'
-            paymentId: 'Pending', // You may update this based on the payment gateway's response
-            items: orderItems,
-        });
-
-        await order.save();
-        cartData.products = [];
-        cartData.cartTotal = 0;
-        await cartData.save();
-        res.status(200).json({ message: 'Order created successfully' });
-    } catch (error) {
-        console.error('Error creating order:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
+	}
 </script>
 
 
-
-	<%- include('./layouts/userLayout/footer.ejs') %>
-
-
-
-
-
-
-
-	<% if (orderList && orderList.length > 0) { %>
-		<% orderList.forEach(order => { %>
-			<% order.items.forEach(item => { %>
-				<tr>
-					<td>
-						<a class="itemside" href="#"></a>
-						<div class="left">
-							<% if(item){ %>
-							  <img src="/productImages/<%= item.product_id.images[0] %>" class="img-md img-avatar">
-							  <%}else{%>
-								<img src="/assets/imgs/people/avatar-1.png" class="img-sm img-avatar">
-								<%}%>
-						  </div>
-						  <div class="info">
-							<h6>Product Title</h6>
-							<h4 cla ss="mb-0"><%= item.product_id.title %></h4>
-							<p></p>
-						  </div>
-						</a>
-					</td>
-					<td>
-						<b><%= item.product_id.title %></b>
-					</td>
-					<td>$<%= item.total_price %></td>
-					<td><span class="badge rounded-pill alert-warning">Pending</span></td>
-					<td><%= formatDate(order.date) %></td> <!-- Display createdAt date -->
-					<td class="text-end">
-						<a href="#" class="btn btn-md rounded font-sm">Detail</a>
-						<div class="dropdown">
-							<a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm">
-								<i class="material-icons md-more_horiz"></i>
-							</a>
-							<div class="dropdown-menu">
-								<a class="dropdown-item" href="#">View detail</a>
-								<a class="dropdown-item" href="#">Edit info</a>
-								<a class="dropdown-item text-danger" href="#">Delete</a>
-							</div>
-						</div>
-						<!-- dropdown //end -->
-					</td>
-				</tr>
-			<% }); %>
-		<% }); %>
-	<% } %>
-	
-	<% function formatDate(dateString) { 
-		const date = new Date(dateString);
-		const options = { day: '2-digit', month: 'short', year: 'numeric' };
-		return date.toLocaleDateString('en-GB', options).replace(',', ''); 
-	} %>
-	
-	<!-- <section class="content-main">
-        <div class="row">
-            <div class="col-6">
-                <div class="content-header">
-                    <h2 class="content-title">Add New Product</h2>
-                    <form action="/admin/addProduct" method="post" enctype="multipart/form-data">
-                        <p style="color:red">
-                            <%= messages.head ? messages.head : '' %>
-                        </p>
-                        <div>
-                            <button class="btn btn-md rounded font-sm hover-up">Publich</button>
-                        </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-6">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-3">
-                                <h6>1. General info</h6>
-                            </div>
-                            <div class="col-md-9">
-                                <div class="mb-4">
-                                    <label class="form-label">Product title</label>
-                                    <input type="text" placeholder="Type here" class="form-control" name="title"
-                                        id="title" required>
-                                    <p style="color:red" id="titleError"></p>
-                                </div>
-
-                                <div class="mb-4">
-                                    <label class="form-label">Description</label>
-                                    <textarea placeholder="Type here" class="form-control" rows="4" name="description"
-                                        id="description" required></textarea>
-                                    <p style="color:red" id="descriptionError"></p>
-                                </div>
-                                <div class="mb-4">
-                                    <label class="form-label">Brand name</label>
-                                    <select class="form-select" name="brand" required>
-                                        <option value="gucci">Gucci</option>
-                                        <option value="chanel">Chanel</option>
-                                        <option value="nike">Nike</option>
-                                        <option value="zara">Zara</option>
-                                        <option value="adidas">Adidas</option>
-                                        <option value="louis-vuitton">Louis Vuitton</option>
-                                        <option value="prada">Prada</option>
-                                        <option value="balenciaga">Balenciaga</option>
-                                        <option value="givenchy">Givenchy</option>
-                                        <option value="versace">Versace</option>
-                                        <option value="ralph-lauren">Ralph Lauren</option>
-                                        <option value="tommy-hilfiger">Tommy Hilfiger</option>
-                                        <option value="calvin-klein">Calvin Klein</option>
-                                        <option value="hm">H&M</option>
-                                        <option value="forever-21">Forever 21</option>
-                                    </select>
-                                    <p style="color:red">
-                                        <%= messages.brand ? messages.brand : '' %>
-                                    </p>
-                                </div>
-                                <div class="mb-4">
-                                    <label class="form-label">Size</label>
-                                    <select class="form-select" name="size">
-                                        <option value="s">S</option>
-                                        <option value="m">M</option>
-                                        <option value="l">L</option>
-                                        <option value="xl">XL</option>
-                                        <option value="xxl">XXL</option>
-                                    </select>
-                                    <p style="color:red">
-                                        <%= messages.size ? messages.size : '' %>
-                                    </p>
-                                </div>
-                                <div class="mb-4">
-                                    <label class="form-label">Gender</label>
-                                    <select class="form-select" name="sex">
-                                        <option value="male">Male</option>
-                                        <option value="female">Female</option>
-                                        <option value="unisex">Unisex</option>
-                                    </select>
-                                    <p style="color:red">
-                                        <%= messages.size ? messages.size : '' %>
-                                    </p>
-                                </div>
-
-                                <hr class="mb-4 mt-0">
-                               
-
-                                <hr class="mb-4 mt-0">
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <h6>5. Media</h6>
-                                    </div>
-                                    <div class="col-md-9">
-                                        <div class="mb-4">
-                                            <label class="form-label">Images</label>
-                                            <!-- <input class="form-control" type="file" name="images" id="fileUpload"
-                                                multiple> -->
-                                            <input type="file" multiple id="gallery-photo-add" name="images">
-
-                                            <p style="color:red">
-                                                <%= messages.image ? messages.image : '' %>
-                                            </p>
-                                        </div>
-                                    </div> <!-- col.// -->
-                                    
-                                    </form>
-                                </div> <!-- .row end// -->
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div>
-                <div class="card">
-                    <div class="">
-                        <div class="col-lg-2 gallery" style="display: flex;"></div>
-                        <!-- Button to delete selected images -->
-                    </div>
-                </div>
-                <!-- card-product  end// -->
-
-
-            </div>
-
-
-            <div class="main-container col-lg-2">
-                <div style="display: flex;">
-                    <div class="img-container">
-                        <!-- <img id="image" src="/images/product-01.jpg"> -->
-                        <!-- <button id="btn-reset">Reset</button>
-                        <button id="btn-crop">Crop</button> -->
-                    </div>
-                    <div>
-                        <!-- Block2 -->
-                        <div>
-                            <div>
-                                <div class="cropped-container">
-                                    <img src="" id="output" style="max-width: 300px; margin-left: 5px;">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-    </section>  -->
+var options = {
+    "key": "rzp_test_m7scdXTvPyrkkT", // Enter the Key ID generated from the Dashboard
+    "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+    "currency": "INR",
+    "name": "COZA STORE",
+    "description": "Test Transaction",
+    "image": "https://example.com/your_logo",
+    "order_id": order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+    "handler": function (response){
+		verifyPayment(response,order)
+    },
+    "prefill": {
+        "name": "<%= cartData.user_name %>",
+        "email": "<%= cartData.userId.email %>",
+        "contact": "<%= cartData.userId.mobile %>"
+    },
+    "notes": {
+        "address": "Razorpay Corporate Office"
+    },
+    "theme": {
+        "color": "#3399cc"
+    }
+};

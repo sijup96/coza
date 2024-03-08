@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <title>Error</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Error</title>
@@ -58,13 +59,19 @@
       
                   <p>the page you are looking for not avaible!</p>
       
-                  <a href="" class="link_404">Go Back</a>
+                  <a href="#" id="goBackLink" class="link_404">Go Back</a>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </section>
- 
+      <script>
+       document.getElementById('goBackLink').addEventListener('click', function(event) {
+    event.preventDefault(); // Prevents the default behavior of the anchor tag
+    window.history.back(); // Navigates back to the previous page
+});
+
+        </script>
 </body>
 </html>

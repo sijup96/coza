@@ -28,6 +28,7 @@
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.7",
     "order-id": "^2.1.2",
+    "razorpay": "^2.9.2",
     "sharp": "^0.33.2",
     "slugify": "^1.6.6"
   },

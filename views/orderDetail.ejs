@@ -1,4 +1,5 @@
 <%- include('./layouts/userLayout/userAccountHeader.ejs') %>
+<title>Order Detail</title>
 <%
 function formatDate(dateString) {
     const date = new Date(dateString);
@@ -53,7 +54,7 @@ function formatDate(dateString) {
                                     <p class="mb-1">
                                         Shipping: Fargo express <br />
                                         Pay method: <%= orderDetail.payment %> <br />
-                                        Status: <% if(orderDetail.status == 'Cancelled' || orderDetail.status == 'Returned'){ %>
+                                        Shipping Status: <% if(orderDetail.status == 'Cancelled' || orderDetail.status == 'Returned'){ %>
                                             <b style="color: red;"><%= orderDetail.status %></b>
                                             <% }else if(orderDetail.status == 'Delivered'){ %>
                                                 <b style="color:green;"><%= orderDetail.status %></b>
@@ -99,7 +100,7 @@ function formatDate(dateString) {
                                     <tbody>
                                         <% if(orderDetail.items && orderDetail.items.length > 0){ %>
                                             <% orderDetail.items.forEach((product) =>{ %>
-                                        <tr>
+                                        <tr >
                                             <td>
                                                 <a class="itemside" href="#">
                                                     <div class="left">
@@ -128,12 +129,12 @@ function formatDate(dateString) {
                                                         <dt>Grand total:</dt>
                                                         <dd><b class="h5">₹ <%= orderDetail.total_amount %></b></dd>
                                                     </dl>
-                                                    <!-- <dl class="dlist">
-                                                        <dt class="text-muted">Status:</dt>
+                                                    <dl class="dlist">
+                                                        <dt class="text-muted"> Payment Status:</dt>
                                                         <dd>
-                                                            <span class="badge rounded-pill alert-success text-success"><%= orderDetail.payment %></span>
+                                                            <h6 class="badge rounded-pill alert-success text-success"><%= orderDetail.paymentStatus %></h6>
                                                         </dd>
-                                                    </dl> -->
+                                                    </dl>
                                                 </article>
                                             </td>
                                         </tr>
@@ -147,18 +148,31 @@ function formatDate(dateString) {
                         <div class="col-lg-4">
                             <div class="box shadow-sm bg-light">
                                 <h6 class="mb-15">Payment info</h6>
-                                <% if(orderDetail.payment == 'online'){%>
+                                <% if(orderDetail.payment === 'Online' && orderDetail.status !== 'Cancled' ){%>
                                 <p>
                                     <img src="/assets/imgs/card-brands/3.png" class="border" height="20" /> <b style="font-size:medium; ;"> &nbsp;Razorpay</b> <br />
                                     Payment ID:&nbsp; <%= orderDetail.paymentId %><br />
                                     Phone: +91 <b><%= orderDetail.delivery_address.mobile %> </b>
                                 </p>
-                                <%}else{ %>
+                                <%}else if(orderDetail.payment === 'Cash on Delivery' && orderDetail.status !== 'Cancled'){ %>
                                     <p>
                                      <b style="font-size:medium; ;"> &nbsp;Cash on Delivery</b> <br />
-                                        Phone: +91 <b><%= orderDetail.delivery_address.mobile %> </b>
+                                        Phone: +91 <b><%= orderDetail.delivery_address.mobile %> </b><br>
+                                        <button id="onlinePayment" class="btn btn-primary"> Pay Early</button>
                                     </p>
-                                    <% } %>
+                                    <% }else if( orderDetail.status !== 'Cancled'){ %>
+                                        <p>
+                                            <b style="font-size:medium; ;"> &nbsp; Payment <%= orderDetail.payment %></b> <br />
+                                               
+                                           </p>
+                                           <button id="onlinePayment" class="btn btn-primary"> Pay now</button>
+                                   <% }else{ %>
+                                    <p>
+                                        <b style="font-size:medium; ;"> &nbsp;Payment not done </b> <br />
+                                        <b style="font-size:medium; ;"> &nbsp;Order Cancelled</b> <br />
+                                           
+                                       </p>
+                                   <% } %>
                             </div>
                             <div class="h-25 pt-4">
                                 <div class="mb-3">
@@ -196,6 +210,7 @@ function formatDate(dateString) {
     <script src="/assets/js/vendors/jquery.fullscreen.min.js"></script>
     <!-- Main Script -->
     <script src="/assets/js/main.js?v=1.1" type="text/javascript"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <script>
         document.getElementById('cancelOrderButton').addEventListener('click', function(event) {
@@ -233,6 +248,70 @@ function formatDate(dateString) {
             }
         });
         });
+    </script>
+    <script>
+        	document.addEventListener('DOMContentLoaded', function () {
+			document.getElementById('onlinePayment').addEventListener('click', function (event) {
+				event.preventDefault();
+				$.ajax({
+                    url:'/order/retryPayment',
+                    method:'POST',
+                    data:{
+                        orderId:'<%= orderDetail._id %>'
+                    },
+                    success:function(response){
+                        if(response.success){
+                            razorpayPayment(response.orderData)
+
+                        }
+                    }
+                })
+			});
+		});
+        function razorpayPayment(order){
+			var options = {
+    "key": "rzp_test_m7scdXTvPyrkkT", // Enter the Key ID generated from the Dashboard
+    "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+    "currency": "INR",
+    "name": "COZA STORE",
+    "description": "Test Transaction",
+    "image": "https://example.com/your_logo",
+    "order_id": order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+    "handler": function (response){
+		verifyPayment(response,order)
+    },
+    "prefill": {
+        "name": "Gaurav Kumar",
+        "email": "gaurav.kumar@example.com",
+        "contact": "9000090000"
+    },
+    "notes": {
+        "address": "Razorpay Corporate Office"
+    },
+    "theme": {
+        "color": "#3399cc"
+    }
+};
+var rzp1 = new Razorpay(options);
+rzp1.open();
+		}
+        function verifyPayment(payment,order){
+			$.ajax({
+				url:'/order/verifyPayment',
+                method:'POST',
+				data:{
+					payment,
+					order
+				},
+                success:function(response){
+                    if(response.success){
+                        window.location.reload()
+                    }
+                }
+				
+			})
+		}
+
     </script>
 
 </body>

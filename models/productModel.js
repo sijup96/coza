@@ -52,11 +52,15 @@ var productSchema = new mongoose.Schema({
     },
     color: {
         type: String,
-        // required:true,         //enum:['Black','Brown','Red'],
+        // required:true,
     },
     is_listed: {
         type: Boolean,
         default: true
+    },
+    offer:{
+        type: mongoose.Types.ObjectId,
+        ref:'Offer'
     },
     ratings: [{
         star: Number,

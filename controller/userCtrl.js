@@ -89,7 +89,6 @@ const userAccount = asyncHandler(async (req, res) => {
       res.render('userAccount', { userData });
     } else {
       const userData = await User.findById({ _id: userId })
-      console.log(userData);
       res.render('userAccount', { userData });
     }
   } catch (error) {
@@ -124,7 +123,6 @@ const loadVerifyEmailPage = asyncHandler(async (req, res) => {
 const validateUser = asyncHandler(async (req, res) => {
   try {
     const { firstname, password, email, mobile } = req.body;
-    console.log(req.body);
     let response = {};
 
     // Name Validation
@@ -213,7 +211,6 @@ const createUser = asyncHandler(async (req, res) => {
 const sendOTP = asyncHandler(async ({ email, res }) => {
   try {
     const otp = `${Math.floor(100000 + Math.random() * 900000)}`
-    console.log(email);
     const data = {
       to: email,
       text: 'Hey User',
@@ -235,7 +232,6 @@ const sendOTP = asyncHandler(async ({ email, res }) => {
     // OTP
 
     const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex")
-    console.log(hashedOtp);
     const newOtpVerification = await new mailOTP({
       email: email,
       otp: hashedOtp,
@@ -541,7 +537,6 @@ const forgotPasswordToken = asyncHandler(async (req, res) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
-    console.log(user);
     if (!user) {
       throw new Error('User not found with this email');
     }
