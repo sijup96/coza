@@ -1,8 +1,7 @@
 <%- include('./layouts/userLayout/header.ejs') %>
 <title>Checkout</title>
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-	<style>
+<style>
 		.cross {
 			position: relative;
 			display: inline-block;
@@ -126,7 +125,13 @@
 			margin-bottom: 10px;
 			/* Add spacing between items */
 		}
+
 	</style>
+	<%
+	let subtotal = 0;
+	let discount = 0;
+	%>
+	
 	<div id="reload">
 		<!-- Shoping Cart -->
 		<form class="bg0 p-t-75 p-b-85">
@@ -189,16 +194,18 @@
 													<td class="column-2">
 														<% if (cartProduct.product && cartProduct.product.title) { %>
 															<%= cartProduct.product.title %><br>
-															<% if(cartProduct.product.offer){ %>
-																<strong style="color: green;"><%= cartProduct.product.offer.percentage %> % Off</strong>
+															<% if(cartProduct.product.offer || cartProduct.product.category.offer){ %>
+																<strong style="color: green;"><%= cartProduct.product.offer ? cartProduct.product.offer.percentage : cartProduct.product.category.offer.percentage %> % Off</strong>
 															<% } %>
 																<% } else { %>
 																	<!-- Handle the case where cartProduct.product or cartProduct.product.title is not defined -->
 																	<% } %>
 													</td>
 													<td class="column-3">₹ <%= cartProduct.product &&
-															cartProduct.product.price%>
+															cartProduct.product.price %>
 													</td>
+													<% subtotal += (cartProduct.product.price * cartProduct.quantity); %>
+
 													<td class="column-4">
 														<div class="flex-w " style="justify-content: center;">
 															<!-- <div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m"
@@ -216,14 +223,15 @@
 														</div> -->
 														</div>
 													</td>
-													<td class="column-6">₹ <%= cartProduct.product.offer ?
-														(cartProduct.product.offer.percentage * cartProduct.product.price)/100 :0.00%>
-												</td>
-													<td class="column-5">₹ <%= (cartProduct.product.price * cartProduct.quantity) - (cartProduct.product.offer) ?
-														(cartProduct.product.offer.percentage * cartProduct.product.price)/100 : cartProduct.product.price * cartProduct.quantity %>
-															<input type="hidden" id="total"
-																value="<%= (cartProduct.product.price * cartProduct.quantity) - (cartProduct.product.offer &&
-																(cartProduct.product.offer.percentage * cartProduct.product.price)/100) %>">
+													<td class="column-6">₹ <% if(cartProduct.product.offer || cartProduct.product.category.offer ) { %>
+														<%= cartProduct.product.offer ? (cartProduct.product.offer.percentage * cartProduct.product.price)/100 :  ((cartProduct.product.category.offer.percentage * cartProduct.product.price)/100)* cartProduct.quantity %>
+														<% discount += cartProduct.product.offer ? (cartProduct.product.offer.percentage * cartProduct.product.price * cartProduct.quantity) / 100 : (cartProduct.product.category.offer.percentage * cartProduct.product.price * cartProduct.quantity) / 100; %>
+														<% }else{ %>
+														0.00
+													<% } %>
+													</td>
+													<td class="column-5">₹ <%= cartProduct.price * cartProduct.quantity %>
+															<input type="hidden" id="total" value="<%= (cartProduct.product.price * cartProduct.quantity) - (cartProduct.product.offer && (cartProduct.product.offer.percentage * cartProduct.product.price)/100) %>">
 													</td>
 
 												</tr>
@@ -323,7 +331,7 @@
 
 								<div class="size-209 ">
 									<span class="mtext-110 cl2 ">
-										₹ <%= cartData.cartTotal ? cartData.cartTotal: 0.00 %>
+										₹ <%= subtotal.toFixed(2) ? subtotal.toFixed(2) : 0.00 %>
 									</span>
 								</div>
 							</div>
@@ -338,7 +346,7 @@
 
 								<div class="size-209">
 									<span class="mtext-110 cl2" style="color: red;">
-										₹ -<%= cartData.discount ? cartData.discount: 0.00 %>
+										₹ -<%= discount.toFixed(2) ?  discount.toFixed(2) : 0.00%>
 									</span>
 								</div>
 							</div>
@@ -366,10 +374,11 @@
 								</div>
 
 								<div class="size-209">
-									<span class="mtext-110 cl2 discount-section cross" style="color: red; ">
-										₹ 100
-									</span> &nbsp;<span style="color: green;">FREE Delivery</span>
-								</div>
+									<span class="mtext-110 cl2 discount-section  shipping-charge">
+										
+									</span>
+									<!-- &nbsp;<span style="color: green;">FREE Delivery</span> -->
+									</div>
 							</div>
 							<div class="flex-w flex-t p-t-27 p-b-33">
 								<div class="size-208">
@@ -381,7 +390,7 @@
 								</div>
 
 								<div class="size-209 p-t-1">
-									<span class="mtext-110 cl2">
+									<span class="mtext-110 cl2" id="totalAmount" >
 										₹ <%= cartData.cartTotal ? cartData.cartTotal: 0.00 %>
 									</span>
 								</div>
@@ -537,7 +546,45 @@
 		</div>
 	</div>
 
+
+
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+	// Add event listener to address radio buttons
+const addressRadios = document.querySelectorAll('.addressRadio');
+addressRadios.forEach(radio => {
+    radio.addEventListener('change', async event => {
+        const addressId = event.target.value;
+        try {
+			$.ajax({
+				url:`/user/getDistance/${addressId}`,
+				method:'GET',
+				success:function(response){
+					const shippingSpan = document.querySelector('.shipping-charge');
+    if (response.shippingCharge) {
+        shippingSpan.textContent = '₹ ' + response.shippingCharge;
+		
+    } else {
+        shippingSpan.textContent = 'FREE Delivery';
+    }
+	const totalAmount = document.getElementById('totalAmount');
+	console.log(totalAmount);
+const cartTotal = response.cartTotal || 0.00;
+const shippingCharge = response.shippingCharge || 0.00;
+const total = cartTotal + shippingCharge;
+totalAmount.textContent = '₹ ' + total.toFixed(2);
+
+
+}
+			})
+
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
+});
+
+</script>
 	<script>
 		$(document).ready(function () {
 			$('#exampleModalCenter .modal-footer .btn-primary').click(function () {

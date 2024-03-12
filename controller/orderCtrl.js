@@ -10,6 +10,7 @@ const cart = require("./cartCtrl");
 const orderid = require("order-id")("key");
 const generateRazorpay = require("../config/generateRazorpay");
 const crypto = require("crypto");
+const { calculateDistance } = require("./mapCtrl");
 
 // Load Thankyou Page
 const loadThankyou = asyncHandler(async (req, res) => {
@@ -31,13 +32,15 @@ const loadOrderDetail = asyncHandler(async (req, res) => {
     const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
     const userId = decodedToken.id;
     const orderId = req.query.orderId;
-    const orderDetail = await Order.findById({ _id: orderId }).populate({
-      path: "items",
-      populate: {
-        path: "product_id",
-        model: "Product",
-      },
-    });
+    const orderDetail = await Order.findById({ _id: orderId })
+      .populate({
+        path: "items",
+        populate: {
+          path: "product_id",
+          model: "Product",
+        },
+      })
+      .sort({ date: -1 });
     res.render("orderDetail", { orderDetail });
   } catch (error) {
     throw new Error(error);
@@ -60,7 +63,7 @@ const createOrder = asyncHandler(async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
     const delivery_address = await Address.findById(selectedAddressId);
-
+    const distanceText = await calculateDistance(delivery_address.pincode);
     if (!delivery_address) {
       return res.status(400).json({ error: "Invalid address" });
     }
@@ -84,14 +87,25 @@ const createOrder = asyncHandler(async (req, res) => {
         .status(400)
         .json({ error: "One or more products are unlisted" });
     }
+    const numericalDistance = parseInt(distanceText.split(" ")[0]);
+    let shippingCharge = 0;
+    if (cartData.cartTotal < 1000) {
+      if (numericalDistance > 20 && numericalDistance <= 50) {
+        shippingCharge = 50;
+      } else if (numericalDistance > 50 && numericalDistance <= 100) {
+        shippingCharge = 70;
+      } else if (numericalDistance > 100) {
+        shippingCharge = 100;
+      }
+    }
     const orderItems = cartData.products.map((item) => {
       let orderIdForItem = orderid.generate();
       return {
         product_id: item.product._id,
         orderId: orderIdForItem,
         quantity: item.quantity,
-        price: item.product.price,
-        total_price: item.quantity * item.product.price,
+        price: item.price,
+        total_price: item.quantity * item.price,
       };
     });
     const order = new Order({
@@ -99,7 +113,7 @@ const createOrder = asyncHandler(async (req, res) => {
       orderId: orderid.generate(),
       delivery_address: delivery_address,
       user_name: userData.name,
-      total_amount: cartData.cartTotal,
+      total_amount: cartData.cartTotal + shippingCharge,
       date: new Date().toISOString(),
       expected_delivery: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
       items: orderItems,

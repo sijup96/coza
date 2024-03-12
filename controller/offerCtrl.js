@@ -3,7 +3,7 @@ const asyncHandler = require("express-async-handler");
 const validateMongoDbId = require("../utils/validateMongodbId");
 const slugify = require("slugify");
 const Product = require("../models/productModel");
-const Category = require('../models/prodCategoryModel');
+const Category = require('../models/categoryModel');
 
 // Load Offer Page
 const loadOffers = asyncHandler(async (req, res) => {

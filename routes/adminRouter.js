@@ -4,7 +4,7 @@ const adminRoute = express()
 const { adminLogin, login, adminDashboard, logout, loadOrders,loadOrderDetail, changeOrderStatus } = require('../controller/adminController')
 const { isAdmin } = require('../middlewares/authMiddleware')
 const { createProduct, loadaddProduct, loadAllProducts, deleteProduct, loadUpdateProduct, updateProduct, updateImages, deleteImage } = require('../controller/productCtrl')
-const { createCategory, getAllCategory, deleteCategory, updateCategory, loadUpdateCategory, updateCategoryStatus } = require('../controller/productCategoryController')
+const { createCategory, getAllCategory, deleteCategory, updateCategory, loadUpdateCategory, updateCategoryStatus } = require('../controller/categoryCtrl')
 const { upload } = require('../config/config')
 const { getAllUsers, blockUser, unblockUser } = require('../controller/userCtrl')
 

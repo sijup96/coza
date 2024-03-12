@@ -51,7 +51,6 @@
 
 															<img src="/productImages/<%= cartProduct.product.images[0] %>"
 																alt="IMG">
-
 															<% } else { %>
 																<!-- Handle the case where cartProduct.product or cartProduct.product.images is not defined or has a length of 0 -->
 																<% } %>
@@ -62,6 +61,10 @@
 														<a href="/products/detail/<%= cartProduct.product._id %>"
 															style="color: black;">
 															<%= cartProduct.product.title %>
+															<% if(cartProduct.product.offer || cartProduct.product.category.offer){ %>
+																<p style="color: green;"><%= cartProduct.product.offer ? cartProduct.product.offer.percentage : cartProduct.product.category.offer.percentage %> % Off</p>
+															<% } %>
+															
 														</a><br>
 														<% if(cartProduct.product.quantity == 0) {%>
 														<span style="color: red;"> out of stock</span>
@@ -92,7 +95,7 @@
 													</div>
 												</td>
 												<td class="column-5">₹ <span id="productTotal<%= cartProduct.product._id %>"><%= cartProduct.product &&
-														cartProduct.product.price * cartProduct.quantity %>
+														cartProduct.price * cartProduct.quantity %>
 													</span>
 												</td>
 												<td class="column-6">

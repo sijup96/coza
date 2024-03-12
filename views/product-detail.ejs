@@ -1,6 +1,47 @@
 <%- include('./layouts/userLayout/header.ejs') %>
 <title>Producr Details</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
 	<style>
+	       .offer-container {
+            display: flex;
+            justify-content: space-between; /* Adjust as needed */
+        }
+    
+        .offer-box {
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            padding: 20px;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out;
+    
+        }
+    
+        .offer-box:hover {
+            transform: scale(1.05);
+        }
+    
+        .offer-box h5 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 10px;
+            text-decoration: underline;
+            text-decoration-style: double; /* You can use other values like solid, dashed, dotted, etc. */
+    text-decoration-color: #4CAF50; 
+        }
+    
+        .offer-box p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+    
+        .percentage {
+            font-weight: bold;
+            font-size: 28px;
+            color: #E44D26; /* Adjust color as needed */
+        }
 		.cross {
 			position: relative;
 			display: inline-block;
@@ -25,7 +66,6 @@
 			margin-top: 2em;
 		}
 	</style>
-
 
 	<!-- breadcrumb -->
 	<div class="container">
@@ -84,16 +124,22 @@
 					<div class="p-r-50 p-t-5 p-lr-0-lg">
 						<h4 class="mtext-105 cl2 js-name-detail p-b-14">
 							<%= product.title %>	
-							<% if(product.quantity == 0){ %>
+							<% if(product.quantity === 0){ %>
 								<span style="color: red;"> ( out of stock )</span>
 								<%}%>
 						</h4>
 					
 						<span class="mtext-106 cl2">
-							<span class="mtext-110 cl2 discount-section cross" style="color: red; ">
-								₹ <%= product.price+450 %> </span> &nbsp; ₹<%= product.price %>
+							<% if(product.offer || product.category.offer){ %>
 
-						</span>
+								<span class="mtext-110 cl2 discount-section cross" style="color: red; ">
+									₹ <%= product.price %> </span> &nbsp; ₹<%= product.offer? product.price - (product.offer.percentage * product.price)/100 : product.price - (product.category.offer.percentage * product.price)/100  %>
+							</span>
+							<% }else{ %>
+								<span>
+									₹ <%= product.price %> </span> 
+							</span>
+							<% } %>
 
 						<table class="stext-102 cl3 p-t-23">
 							<tr>
@@ -114,8 +160,26 @@
 								<td><strong>Origin:</strong></td>
 								<td>Imported</td>
 							</tr>
-
 						</table>
+						<hr>
+						<h4>
+							<i class="fas fa-gift" style="color: red;"></i> Offers
+							<div class="offer-container">
+								<% if (product.offer || product.category.offer) { %>
+										<div class="offer-box">
+											<h5><%= product.offer ? product.offer.offerName : product.category.offer.offerName %></h5>
+											<p>
+												<strong>Cash Back:</strong>
+												<span class="percentage"><%= product.offer ? product.offer.percentage : product.category.offer.percentage %> % </span>
+											</p>
+											<p><strong>Description:</strong> <%= product.offer ? product.offer.description : product.category.offer.description %></p>
+										</div>
+								<% } else { %>
+									<p>No Offers Available</p>
+								<% } %>
+							</div>
+						</h4>
+						<hr>
 						<p class="stext-102 cl3 p-t-23" style="line-height: 2em;">
 							<strong>Product Description:</strong><br>
 							<%= product.description %>

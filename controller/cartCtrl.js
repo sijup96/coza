@@ -1,5 +1,5 @@
 const Cart = require("../models/cartModel");
-const Category = require("../models/prodCategoryModel");
+const Category = require("../models/categoryModel");
 const Product = require("../models/productModel");
 const User = require("../models/userModel");
 const Address = require("../models/addressModel");
@@ -45,9 +45,12 @@ const addToCart = asyncHandler(async (req, res) => {
     const userId = decodedToken.id;
 
     // Find Product
-    const selectedProduct = await Product.findById({ _id: productId }).populate(
-      "offer"
-    );
+    const selectedProducts = await Product.findById({
+      _id: productId,
+    })
+      .populate("offer")
+      .populate("category");
+    const selectedProduct = await selectedProducts.populate("category.offer");
     if (
       !selectedProduct ||
       selectedProduct.is_listed === false ||
@@ -56,19 +59,16 @@ const addToCart = asyncHandler(async (req, res) => {
       return res.status(404).json({ error: "Product not found" });
     }
     let offer = 0;
-    if (selectedProduct.offer?.percentage) {
-      offer = selectedProduct.offer?.percentage;
-    } else if (selectedProduct.category.offer?.percentage) {
-      offer = selectedProduct.category.offer?.percentage;
+    if (selectedProduct.offer || selectedProduct.category.offer) {
+      offer = selectedProduct.offer
+        ? selectedProduct.offer.percentage
+        : selectedProduct.category.offer.percentage;
     }
-
-    const price = selectedProduct.price * quantity;
-    let finalPrice = 0;
-    if (offer) {
-      finalPrice = (offer * price) / 100;
-    } else {
-      finalPrice = price;
+    if (offer > 0) {
+      offer = Math.round((offer * selectedProduct.price) / 100);
     }
+    const discountedPrice = selectedProduct.price - offer;
+    const price = discountedPrice * quantity;
     // Check Cart Existence
     let existingCart = await Cart.findOne({ userId });
     if (!existingCart) {
@@ -94,7 +94,7 @@ const addToCart = asyncHandler(async (req, res) => {
 
       // Update existing product quantity and cart total
       existingProduct.quantity += quantity;
-      existingCart.cartTotal += finalPrice;
+      existingCart.cartTotal += price;
       await existingCart.save();
 
       return res
@@ -105,7 +105,7 @@ const addToCart = asyncHandler(async (req, res) => {
       existingCart.products.push({
         product: productId,
         quantity: quantity,
-        price: finalPrice,
+        price: price ,
       });
 
       existingCart.cartTotal += price;
@@ -134,20 +134,30 @@ const updateCart = asyncHandler(async (req, res) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
     const userId = decodedToken.id;
-    const productDetails = await Product.findById(productId);
+    const productDetail = await Product.findById(productId)
+      .populate("category")
+      .populate("offer");
+    const productDetails = await productDetail.populate("category.offer");
     const existingCart = await Cart.findOne({ userId });
     const existingProduct = existingCart.products.find((product) =>
       product.product.equals(productId)
     );
-
     if (existingCart && existingProduct && productDetails.is_listed === true) {
       // Check if requested quantity is within available limits
       if (quantity <= productDetails.quantity) {
         const diffQuantity = quantity - existingProduct.quantity;
-
+        let offer = 0;
+        if (productDetails.offer || productDetails.category.offer) {
+          offer = productDetails.offer
+            ? productDetails.offer.percentage
+            : productDetails.category.offer.percentage;
+        }
+        if (offer > 0) {
+          offer = Math.round((offer * productDetails.price) / 100);
+        }
+        const priceAfterDiscount = productDetails.price - offer;
         existingProduct.quantity = quantity;
-        existingCart.cartTotal += diffQuantity * productDetails.price;
-
+        existingCart.cartTotal += diffQuantity * priceAfterDiscount;
         await existingCart.save();
 
         return res
@@ -215,8 +225,16 @@ const viewCart = async (accessToken) => {
   try {
     const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
     const userId = decodedToken.id;
+
+    // Find the cart data for the user, populating nested fields
     const cartData = await Cart.findOne({ userId })
-      .populate("products.product")
+      .populate({
+        path: "products.product",
+        populate: [
+          { path: "offer" },
+          { path: "category", populate: { path: "offer" } },
+        ],
+      })
       .populate("userId");
     return cartData;
   } catch (error) {
@@ -261,9 +279,8 @@ const loadCheckout = asyncHandler(async (req, res) => {
     const accessToken = req.accessToken;
     const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
     const userId = decodedToken.id;
-    const cartDatas = await viewCart(accessToken);
+    const cartData = await viewCart(accessToken);
     const userAddress = await Address.find({ user: userId }).populate("user");
-    const cartData = await cartDatas.populate("products.product.offer");
     if (cartData.products.length === 0) {
       return res.redirect("/cart");
     }
