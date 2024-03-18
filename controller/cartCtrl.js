@@ -7,6 +7,8 @@ const asyncHandler = require("express-async-handler");
 const validateMongoDbId = require("../utils/validateMongodbId");
 const slugify = require("slugify");
 const jwt = require("jsonwebtoken");
+const Wallet = require("../models/walletModel");
+const Coupon = require("../models/couponModel");
 
 // Load Cart Page
 const loadCart = asyncHandler(async (req, res) => {
@@ -105,7 +107,7 @@ const addToCart = asyncHandler(async (req, res) => {
       existingCart.products.push({
         product: productId,
         quantity: quantity,
-        price: price ,
+        price: price,
       });
 
       existingCart.cartTotal += price;
@@ -273,7 +275,7 @@ const checkQuantity = asyncHandler(async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
+// Load Checkout
 const loadCheckout = asyncHandler(async (req, res) => {
   try {
     const accessToken = req.accessToken;
@@ -281,6 +283,13 @@ const loadCheckout = asyncHandler(async (req, res) => {
     const userId = decodedToken.id;
     const cartData = await viewCart(accessToken);
     const userAddress = await Address.find({ user: userId }).populate("user");
+    const walletData = await Wallet.findOne({ user: userId });
+    const currentDate = new Date();
+    const couponData = await Coupon.find({
+      expiryDate: { $gte: currentDate },
+      is_listed: true,
+      usersUsed: { $ne: userId } ,
+    });
     if (cartData.products.length === 0) {
       return res.redirect("/cart");
     }
@@ -295,7 +304,7 @@ const loadCheckout = asyncHandler(async (req, res) => {
       req.flash("head", " Product is unListed or Out of stock");
       return res.redirect("/cart");
     }
-    res.render("checkout", { cartData, userAddress });
+    res.render("checkout", { cartData, userAddress, walletData, couponData });
   } catch (error) {
     console.error("Error loading checkout page:", error);
     res.status(500).render("error", { message: "Internal Server Error" });

@@ -132,7 +132,7 @@
 
                                                     <% if(category.length> 0){ %>
                                                         <% for(let i=0; i < category.length; i++){ %>
-                                                            <option value="<%= category[i].slug %>">
+                                                            <option value="<%= category[i]._id %>">
                                                                 <%= category[i].title %>
                                                             </option>
                                                             <% } %>
@@ -210,55 +210,113 @@
 
 <script>
  $(document).ready(function () {
-    $('#submitButton').click(function (event) {
-        event.preventDefault();
-        const priceRegex = /^\d+(\.\d{1,2})?$/;
-        const nameRegex = /^[^\s\d!@#$%^&*(),.?":{}|<>_+=\[\\;\]`~]*[a-zA-ZÀ-ÖØ-öø-ÿ-' ]+[^\s!@#$%^&*(),.?":{}|<>_+=\[\\;\]`~]*$/;
-        const quantityRegex = /^\d+(\.\d{1,2})?$/;
+    let flag = 1;
 
-        let isValid = true;
-        const title = $('#title').val().trim();
-        const description = $('#description').val().trim();
-        const price = $('#price').val().trim();
-        const quantity = $('#quantity').val().trim();
-        const images = $('#gallery-photo-add')[0].files;
-        
-        if (!nameRegex.test(title) || title.length < 4) {
-            $('#titleError').text('Invalid title'); 
-            isValid = false;
-        } else {
-            $('#titleError').text(''); 
+function validateDescription(fieldName, errorId) {
+    var fieldValue = $('#' + fieldName).val().trim();
+    var errorSpan = $('#' + errorId);
+
+    if (fieldValue && fieldValue.startsWith(' ')) {
+        flag = 0;
+        errorSpan.text(fieldName + ' should not start with a space.');
+        return;
+    }
+
+    var wordCount = fieldValue.trim().split(/\s+/).filter(function (word) {
+        return word.length > 0;
+    }).length;
+
+    if (wordCount >= 5) {
+        flag = 1;
+        errorSpan.text('');
+    } else {
+        flag = 0;
+        errorSpan.text(fieldName + ' should have more than 5 words.');
+    }
+}
+
+function validateProductName(productName) {
+    const nameRegex = /^[a-zA-Z\s]+$/;
+    if (!nameRegex.test(productName)) {
+        flag = 0;
+        $('#titleError').html('Name should only contain alphabets');
+        return false;
+    } else {
+        flag = 1;
+        $('#titleError').html('');
+        return true;
+    }
+}
+
+function validatePrice(price) {
+    const numericRegex = /^[0-9]+$/;
+    if (!numericRegex.test(price) || parseFloat(price) <= 0) {
+        flag = 0;
+        $('#priceError').html('Price should be a positive numeric value');
+        return false;
+    } else {
+        flag = 1;
+        $('#priceError').html('');
+        return true;
+    }
+}
+
+function validateQuantity(quantity) {
+    const numericRegex = /^[0-9]+$/;
+    if (!numericRegex.test(quantity) || parseInt(quantity) < 0) {
+        flag = 0;
+        $('#quantityError').html('Stock Quantity should be a non-negative integer');
+        return false;
+    } else {
+        flag = 1;
+        $('#quantityError').html('');
+        return true;
+    }
+}
+
+function validateImages() {
+    var fileInput = document.getElementById('gallery-photo-add');
+    var files = fileInput.files;
+
+    // Check if exactly four files are selected
+    if (files.length !== 4) {
+        $('#imageError').html('Please select exactly four images.');
+        return false;
+    }
+
+    // Check if all selected files are images
+    for (var i = 0; i < files.length; i++) {
+        var file = files[i];
+        var fileType = file.type;
+
+        if (!fileType.startsWith('image/')) {
+            $('#imageError').html('Please select only image files.');
+            return false;
         }
-        if (!priceRegex.test(price) || price === '') {
-            $('#priceError').text('Invalid price'); 
-            isValid = false;
-        } else {
-            $('#priceError').text(''); 
-        }
-        if (!quantityRegex.test(quantity) || quantity === '') {
-            $('#quantityError').text('Invalid quantity'); 
-            isValid = false;
-        } else {
-            $('#quantityError').text(''); 
-        }
-        if (images.length !== 4) {
-            $('#imageError').text('Please select exactly four images'); 
-            isValid = false;
-        } else {
-            $('#imageError').text(''); 
-        }
-   
-        if (isValid) {
-            // If all fields are valid, submit the form
-            $('#productForm').submit();
-        } else {
-            // If any field is invalid, display an error message to the user
-            Swal.fire({
-                title: 'Error',
-                text: 'Please fill in all required fields correctly',
-                icon: 'error'
-            });
-        }
+    }
+
+    // Clear the error message if validation passes
+    $('#imageError').html('');
+    return true;
+}
+
+
+
+    $('#submitButton').click(function (event) {
+        event.preventDefault(); // Prevent the default form submission behavior
+
+let productName = $('#title').val().trim();
+let price = $('#price').val();
+let quantity = $('#quantity').val();
+validateDescription('description', 'descriptionError');
+validateProductName(productName);
+validatePrice(price);
+validateQuantity(quantity);
+validateImages();
+if (flag === 1) {
+    $('#productForm').submit();
+
+}
     });
 });
 

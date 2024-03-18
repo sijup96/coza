@@ -83,7 +83,7 @@ const loadaddProduct = asyncHandler(async (req, res) => {
   try {
     const categoryData = await Category.find();
     const category = Array.isArray(categoryData) ? categoryData : [];
-    res.render("admin/addProductDemo", { category });
+    res.render("admin/addProduct", { category });
   } catch (error) {
     res.render("errorPage");
   }
@@ -124,12 +124,11 @@ const loadAllProducts = asyncHandler(async (req, res) => {
 const createProduct = asyncHandler(async (req, res) => {
   try {
     req.body.slug = slugify(req.body.title.toLowerCase());
-    const [existSlug, existSize, existColor] = await Promise.all([
+    const [existSlug, existSize] = await Promise.all([
       Product.findOne({ slug: req.body.slug }),
       Product.findOne({ size: req.body.size }),
-      Product.findOne({ color: req.body.color }),
     ]);
-    if (existSlug && existSize && existColor) {
+    if (existSlug && existSize) {
       req.flash("title", "Product already exists");
 
       res.redirect("/admin/addProduct");
@@ -140,7 +139,7 @@ const createProduct = asyncHandler(async (req, res) => {
       req.flash("head", "No files or invalid files array in the request.");
       res.redirect("/admin/addProduct");
     }
-    for (let i = 0; i < req.files.length; i++) {
+    for (let i = 0; i < 4; i++) {
       const originalPath = req.files[i].path;
       const resizedPath = path.join(
         __dirname,
@@ -164,6 +163,8 @@ const createProduct = asyncHandler(async (req, res) => {
       color,
       sex,
     } = req.body;
+    const cat=await Category.findById(category)
+    console.log(category,cat);
     // const images = req.files.map((file) => file.originalname);
     const newProduct = new Product({
       title,

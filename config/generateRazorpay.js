@@ -12,19 +12,17 @@ const razorpayInstance = () => {
 const generateRazorpay = asyncHandler(async (orderId, amount) => {
   // Create Razorpay instance
   const instance = razorpayInstance();
-
   // Create order options
   const options = {
     amount: amount * 100,  // amount in the smallest currency unit
     currency: "INR",
     receipt: orderId,
   };
-
   // Use async/await to create order
   try {
     const order = await instance.orders.create(options);
     console.log(order);
-    return order; // Return the created order if needed
+    return order; 
   } catch (err) {
     console.error(err);
     throw err; // Re-throw the error to be caught elsewhere if needed

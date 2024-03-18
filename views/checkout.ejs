@@ -1,6 +1,7 @@
 <%- include('./layouts/userLayout/header.ejs') %>
 <title>Checkout</title>
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	
 <style>
 		.cross {
 			position: relative;
@@ -245,18 +246,44 @@
 							<div class="flex-w flex-sb-m bor15 p-t-18 p-b-15 p-lr-40 p-lr-15-sm">
 								<div class="flex-w flex-m m-r-20 m-tb-5">
 									<input class="stext-104 cl2 plh4 size-117 bor13 p-lr-20 m-r-10 m-tb-5" type="text"
-										name="coupon" placeholder="Coupon Code">
+										name="coupon" placeholder="Coupon Code" id="couponCode" >
 
 									<div
-										class="flex-c-m stext-101 cl2 size-118 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-5">
+										class="flex-c-m stext-101 cl2 size-118 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-5" id="couponApply">
 										Apply coupon
 									</div>
-									<!-- <div
-										class="flex-c-m stext-101 cl2 size-119 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-10">
-										<a href="/products">Continue Shopping</a>
+									<div
+								
+									<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+										View all Coupons
+									  </button>
+									</div>
+									
+									<div class="collapse" id="collapseExample">
+										<div class="card card-body" style="display: flex;">
+											<% if(couponData && couponData.length > 0){ %>
+												<% for(i=0;i< couponData.length; i++){ %>
+													<div class="offer-box" data-coupon-id="<%= couponData[i]._id %>">
+														<span style="display: flex;">Coupon Name: &nbsp;<h5><%= couponData[i].couponName %></h5></span>
+														<p>
+															<strong>Copy this code:</strong>
+															<span class="percentage" style="color: green;"><%= couponData[i].couponCode %></span>
+														</p>
+														<span style="display: flex;">Price Drop: &nbsp;<h5 style="color: red;">- <%= couponData[i].discountAmount %></h5></span>
+
+														<p><strong>Description:</strong> <%= couponData[i].couponDescription %></p>
+													</div>
+													<hr>
+												<% } %>
+											<% } %>
+
+										</div>
+									  </div>
 
 
-									</div> -->
+
+
+
 								</div>
 					
 							</div>
@@ -361,7 +388,7 @@
 
 								<div class="size-209">
 									<span class="mtext-110 cl2 discount-section" style="color: red; ">
-										₹ -<%= cartData.discount ? cartData.discount: 0.00 %>
+										₹ - <span id="couponAmount"></span>
 									</span>
 								</div>
 							</div>
@@ -390,34 +417,50 @@
 								</div>
 
 								<div class="size-209 p-t-1">
-									<span class="mtext-110 cl2" id="totalAmount" >
-										₹ <%= cartData.cartTotal ? cartData.cartTotal: 0.00 %>
+									₹<span class="mtext-110 cl2" id="totalAmount" >
+										 <%= cartData.cartTotal ? cartData.cartTotal: 0.00 %>
 									</span>
 								</div>
 							</div>
 							<div class="border p-3 mb-5">
 								<h4 class="h mb-3 text-black">Select A Payment Method</h4>
-
+								<div class="size-209 p-t-1">
+									<span id="walletAmount" >
+										Wallet Balance:  <span style="font-size: medium; color: black;"><strong>₹ <%= walletData? walletData.balance:0.00 %></strong></span><br>
+									</span>
+								</div>
+									<div class="expandable" id="walletPay">
+										<button class="expand-btn">Wallet</button>
+										<div class="content">
+											<span>Secure, fast, and just a click away!</span><br>
+											<button id="walletPayment" class="btn btn-primary"> Pay Now</button>
+										</div>
+									</div>
 								<div class="expandable">
 									<button class="expand-btn">Online Payment</button>
 									<div class="content">
-										<span>Secure, seamless, and just a click away!</span>
+										<span>Secure, seamless, and just a click away!</span><br>
+										<div class="input-group mb-3" id="checkWallet">
+											<div class="input-group-prepend">
+											  <div class="input-group-text">
+												<input type="checkbox" aria-label="Checkbox for following text input" style="margin-top:5.5px; transform: scale(1.5); position: absolute;" id="useWallet">
+											  </div>
+											</div>
+											<span style="margin-left: 15px;"> &nbsp; Use Wallet:  <span style="font-size: medium; color: black;"><strong>₹  <%= walletData? walletData.balance:0.00 %></strong></span><br></span>	
+									  </div>
 										<button id="onlinePayment" class="btn btn-primary"> Pay Online</button>
-
 									</div>
 								</div>
-								<div class="expandable">
-									<button class="expand-btn">Cash On Delivery</button>
-									<div class="content">
-										<span>
-											Enjoy the ease of Cash on Delivery for stress-free shopping.</span>
-										<button
-											class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer"
-											id="placeOrder">
-											<a href="">Place Order</a>
-										</button>
+							
+									<div class="expandable" id="cod">
+										<button class="expand-btn">Cash On Delivery</button>
+										<div class="content">
+											<span>Enjoy the ease of Cash on Delivery for stress-free shopping.</span><br>
+											<button class="btn btn-primary" id="placeOrder">Place Order</button>
+										</div>
 									</div>
-								</div>
+								
+								
 							</div>
 						</div>
 
@@ -547,44 +590,140 @@
 	</div>
 
 
-
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-	// Add event listener to address radio buttons
-const addressRadios = document.querySelectorAll('.addressRadio');
-addressRadios.forEach(radio => {
-    radio.addEventListener('change', async event => {
-        const addressId = event.target.value;
-        try {
-			$.ajax({
-				url:`/user/getDistance/${addressId}`,
-				method:'GET',
-				success:function(response){
-					const shippingSpan = document.querySelector('.shipping-charge');
-    if (response.shippingCharge) {
-        shippingSpan.textContent = '₹ ' + response.shippingCharge;
-		
-    } else {
-        shippingSpan.textContent = 'FREE Delivery';
-    }
-	const totalAmount = document.getElementById('totalAmount');
-	console.log(totalAmount);
-const cartTotal = response.cartTotal || 0.00;
-const shippingCharge = response.shippingCharge || 0.00;
-const total = cartTotal + shippingCharge;
-totalAmount.textContent = '₹ ' + total.toFixed(2);
 
+	<script>
+		$(document).ready(function () {
+			$('#couponApply').click(function () {
+				const couponCode = document.getElementById("couponCode").value.trim();
+				if(couponCode!==''){
+					$.ajax({
+						url:'/coupon/apply',
+						method:'PATCH',
+						data:{
+							couponCode:couponCode
+						},
+						success:function(response){
+							if (response.success) {
+            const totalAmountElement = document.getElementById('totalAmount');
+            const originalTotalAmount = parseFloat(totalAmountElement.textContent); // Get original total
+            const couponAmount = parseFloat(response.couponData.discountAmount);
 
-}
-			})
-
-        } catch (error) {
-            console.error('Error:', error);
+            const newTotalAmount = originalTotalAmount - couponAmount; // Calculate new total
+            totalAmountElement.textContent = newTotalAmount.toFixed(2); // Update total with 2 decimal places
+			const couponAmountElement = document.getElementById('couponAmount');
+            couponAmountElement.textContent = `${couponAmount.toFixed(2)}`; // Display discount with a minus sign
+        
+        } else {
+            // Handle error (e.g., display message)
         }
-    });
+						},
+						error: function (xhr, status, error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Pincode error! Please provide valid Pincode..'
+                        });
+                    }
+					})
+				}
+			})
+		})
+	</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // Select the target node
+  const targetNode = document.getElementById('totalAmount');
+  const walletAmount = parseFloat('<%= walletData ? walletData.balance : 0.00 %>');
+  const cod = document.getElementById('cod');
+  const walletPay = document.getElementById('walletPay');
+  const checkWallet = document.getElementById('checkWallet');
+  const useWallet = document.getElementById('useWallet');
+
+  // Function to handle UI changes based on total amount
+  function handleUI(totalAmount) {
+    if (totalAmount > 1000) {
+      cod.style.display = 'none';
+    } else {
+      cod.style.display = 'block';
+    }
+
+    if (totalAmount > walletAmount) {
+      walletPay.style.display = 'none';
+      checkWallet.style.display = 'block';
+	  
+    } else {
+      walletPay.style.display = 'block';
+      checkWallet.style.display = 'none';
+    }
+  }
+
+  // Initial UI setup
+  const initialTotalAmount = parseFloat(targetNode.textContent.trim().replace(/[^\d.-]/g, '')).toFixed(2);
+  handleUI(initialTotalAmount);
+
+  // Create a new MutationObserver instance
+  const observer = new MutationObserver(function (mutationsList) {
+    // Iterate through each mutation
+    for (const mutation of mutationsList) {
+      // Check if the content of the target node has changed
+      if (mutation.type === 'childList' && mutation.target === targetNode) {
+        // Get the new total amount
+        const newTotalAmount = parseFloat(targetNode.textContent.trim().replace(/[^\d.-]/g, '')).toFixed(2);
+        // Update the UI based on the new total amount
+        handleUI(newTotalAmount);
+      }
+    }
+  });
+  // Start observing changes to the target node
+  observer.observe(targetNode, { childList: true, subtree: true });
 });
 
 </script>
+
+<script>
+    // Add event listener to address radio buttons
+    const addressRadios = document.querySelectorAll('.addressRadio');
+    addressRadios.forEach(radio => {
+        radio.addEventListener('change', async event => {
+            const addressId = event.target.value;
+            try {
+                $.ajax({
+                    url: `/user/getDistance/${addressId}`,
+                    method: 'GET',
+                    success: function (response) {
+                        const shippingSpan = document.querySelector('.shipping-charge');
+                        if (response.shippingCharge) {
+                            shippingSpan.textContent = '₹ ' + response.shippingCharge;
+                        } else {
+                            shippingSpan.textContent = 'FREE Delivery';
+                        }
+                        const totalAmount = document.getElementById('totalAmount');
+                        const cartTotal = response.cartTotal || 0.00;
+                        const shippingCharge = response.shippingCharge || 0.00;
+                        const total = cartTotal + shippingCharge;
+                        totalAmount.textContent = ' ' + total.toFixed(2);
+                    },
+                    error: function (xhr, status, error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Pincode error! Please provide valid Pincode..'
+                        });
+                    }
+                })
+            } catch (error) {
+                console.error(error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An unexpected error occurred!'
+                });
+            }
+        });
+    });
+</script>
+
 	<script>
 		$(document).ready(function () {
 			$('#exampleModalCenter .modal-footer .btn-primary').click(function () {
@@ -614,6 +753,7 @@ totalAmount.textContent = '₹ ' + total.toFixed(2);
 								if (result.isConfirmed) {
 									$('#exampleModalCenter').modal('hide');
 									$('#addressList').load(location.href + ' #addressList');
+									location.reload()
 								}
 							});
 
@@ -761,6 +901,7 @@ $(document).ready(function() {
 								if (result.isConfirmed) {
 									$('#addAddressModal').modal('hide');
 									$('#addressList').load(location.href + ' #addressList');
+									location.reload();
 								}
 							});
 
@@ -779,6 +920,13 @@ $(document).ready(function() {
 	</script>
 
 	<script>
+		
+		document.addEventListener('DOMContentLoaded', function () {
+			document.getElementById('walletPayment').addEventListener('click', function (event) {
+				event.preventDefault();
+				placeOrder('Wallet');
+			});
+		});
 		document.addEventListener('DOMContentLoaded', function () {
 			document.getElementById('placeOrder').addEventListener('click', function (event) {
 				event.preventDefault();
@@ -791,7 +939,11 @@ $(document).ready(function() {
 				placeOrder('Online');
 			});
 		});
-
+		let useWalletChecked=false;
+			const useWallet=document.getElementById('useWallet')
+			if(useWallet.checked){
+				useWalletChecked=true
+			}
 		function placeOrder(payment) {
 			const selectedAddressInput = document.querySelector('input[name="selectedAddress"]:checked');
 			if (!selectedAddressInput) {
@@ -799,12 +951,21 @@ $(document).ready(function() {
 				swal("Alert", "Please select an address", "info");
 				return; // Exit the function to prevent further execution
 			}
-			// Extract the selected address ID
 			const selectedAddressId = selectedAddressInput.value;
+			Swal.fire({
+        title: 'Confirm Payment',
+        text: `Happy shopping... One step More..`,
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, Proceed'
+    }).then((result)=>{
+		if(result.isConfirmed){
 			$.ajax({
 				type: 'POST',
 				url: '/order/create',
-				data: { selectedAddressId: selectedAddressId, paymentMethod: payment },
+				data: { selectedAddressId: selectedAddressId, paymentMethod: payment ,usingWallet:useWalletChecked },
 				success: function (response) {
 					if(response.codSuccess){
 						swal("Success", "Order placed successfully", "success").then(() => {
@@ -812,6 +973,10 @@ $(document).ready(function() {
 					});
 					}else if(response.online){
 						razorpayPayment(response.orderData)
+					}else if(response.wallet){
+						swal("Success", "Order placed successfully", "success").then(() => {
+						window.location.href = '/order/thankyou';
+					});
 					}
 					
 				},
@@ -822,6 +987,9 @@ $(document).ready(function() {
 						});
 				}
 			});
+		}
+		})
+			
 		}
 		function razorpayPayment(order){
 			var options = {
@@ -894,7 +1062,7 @@ $(document).ready(function() {
 					cancelButtonText: 'No, cancel!'
 				}).then((result) => {
 					if (result.isConfirmed) {
-						console.log("Checkout form closed by the user");
+						location.reload();
 					} else {
 						rzp1.open();
 					}
@@ -911,12 +1079,13 @@ rzp1.open();
 				url:'/order/verifyPayment',
 				data:{
 					payment,
-					order
+					order,
+					usingWallet:useWalletChecked,
 				},
 				method:'POST',
 				success:function(response){
 					if(response.success){
-						localStorage.reload()
+						location.reload()
 					}
 				}
 			})

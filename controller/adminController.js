@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const asyncHandler = require("express-async-handler");
 const { generateRefreshToken } = require("../config/refreshToken");
 const Order = require("../models/orderModel");
+const Wallet = require("../models/walletModel");
 
 //const category = require('../model/category')
 
@@ -179,6 +180,30 @@ const changeOrderStatus = asyncHandler(async (req, res) => {
         },
       }
     );
+    const userId = orderDetail.user_id;
+    if (status === "Delivered" && orderDetail.payment === "Cash on Delivery") {
+      await Order.findByIdAndUpdate(
+        { _id: orderId },
+        {
+          $set: {
+            paymentStatus: "Completed",
+          },
+        }
+      );
+    }
+    if (status === "Returned") {
+      const returnAmount =
+        orderDetail.total_amount - orderDetail.shippingCharge;
+      console.log(returnAmount);
+      await Wallet.findOneAndUpdate(
+        { user: userId },
+        {
+          $inc: {
+            balance: returnAmount,
+          },
+        }
+      );
+    }
     if (orderDetail) {
       res
         .status(200)

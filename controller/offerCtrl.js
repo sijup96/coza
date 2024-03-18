@@ -3,7 +3,7 @@ const asyncHandler = require("express-async-handler");
 const validateMongoDbId = require("../utils/validateMongodbId");
 const slugify = require("slugify");
 const Product = require("../models/productModel");
-const Category = require('../models/categoryModel');
+const Category = require("../models/categoryModel");
 
 // Load Offer Page
 const loadOffers = asyncHandler(async (req, res) => {
@@ -20,6 +20,17 @@ const createOffer = asyncHandler(async (req, res) => {
   try {
     const { offerName, percentage, description, startingDate, expiryDate } =
       req.body;
+    if (startingDate > expiryDate) {
+      return res.status(400).json({
+        message:
+          "Starting date must be less than expiry date and starting date should be after current date.",
+      });
+    }
+    if (!(percentage >= 1 && percentage <= 99)) {
+      return res
+        .status(400)
+        .json({ message: "Make Percentage between 1 to 100" });
+    }
     const slug = slugify(req.body.offerName.toLowerCase());
     const offerExist = await Offer.findOne({ slug: slug });
     if (!offerExist) {
@@ -35,7 +46,7 @@ const createOffer = asyncHandler(async (req, res) => {
         .status(200)
         .json({ success: true, message: "Offer created successfully." });
     } else {
-      res.status(400);
+      res.status(400).json({ message: "Offer name already exist." });
     }
   } catch (error) {
     res.status(500);
@@ -100,6 +111,17 @@ const editOffer = asyncHandler(async (req, res) => {
     if (existingOffer && existingOffer._id.toString() !== offerId) {
       return res.status(400).json({ message: "Offer already exist" });
     }
+    if (startingDate > expiryDate) {
+      return res
+        .status(400)
+        .json({ message: "Starting date must be less than expiry date ." });
+    }
+
+    if (!(percentage >= 1 && percentage <= 99)) {
+      return res
+        .status(400)
+        .json({ message: "Make Percentage between 1 to 100" });
+    }
     const updateOffer = await Offer.findByIdAndUpdate(
       { _id: offerId },
       {
@@ -121,14 +143,19 @@ const editOffer = asyncHandler(async (req, res) => {
 // Get all offers
 const getAllOffers = asyncHandler(async (req, res) => {
   try {
-    const offers = await Offer.find();
+    const currentDate = new Date();
+
+    const offers = await Offer.find({
+      expiryDate: { $gte: currentDate },
+      is_listed: true,
+    });
     if (offers) {
       res.status(200).json({ offerData: offers });
     } else {
       res.status(400).json({ message: "Offer not found." });
     }
   } catch (error) {
-    res.status(500);
+    res.status(500).json({ message: "Invalid server Error." });
   }
 });
 // Offer Apply to Product
@@ -147,7 +174,7 @@ const applyToProduct = asyncHandler(async (req, res) => {
     if (offerApplied) {
       res.status(200).json({ message: "Offer applied Successfully" });
     } else {
-      res.status(404).jspn({ message: "Product not found" });
+      res.status(404).json({ message: "Product not found" });
     }
   } catch (error) {
     res.status(500);

@@ -384,53 +384,52 @@
             }
 
             $('#publishButton').on('click', function (event) {
-        event.preventDefault(); // Prevent the default form submission behavior
+    event.preventDefault(); // Prevent the default form submission behavior
 
-        let productName = $('#title').val().trim();
-        let price = $('#price').val();
-        let quantity = $('#quantity').val();
-        validateDescription('description', 'descriptionError');
-        validateProductName(productName);
-        validatePrice(price);
-        validateQuantity(quantity);
-        validateImages();
-        if (flag === 1) {
-            // Create an array of image data to send
-            var imageData = [];
-            $('.cropped-image').each(function () {
-                imageData.push($(this).attr('src'));
-            });
-            console.log(imageData);
-
-            $.ajax({
-                url: "/admin/addProduct",
-                type: "POST",
-                data: {
-                    title: productName,
-                    description: $('#description').val().trim(),
-                    price: price,
-                    quantity: quantity,
-                    brand: $('#brand').val(),
-                    category: $('#category').val(),
-                    sex: $('#sex').val(),
-                    size: $('#size').val(),
-                    images: imageData
-                },
-                success: function (response) {
-                    console.log("Publish successful");
-                    // Optionally, perform additional actions here
-                },
-                error: function (xhr, status, error) {
-                    console.error("Error:", error);
-                    // Optionally, display an error message to the user
-                }
-            });
-        }
-            });
-
+    let productName = $('#title').val().trim();
+    let price = $('#price').val();
+    let quantity = $('#quantity').val();
+    validateDescription('description', 'descriptionError');
+    validateProductName(productName);
+    validatePrice(price);
+    validateQuantity(quantity);
+    validateImages();
+    
+    if (flag === 1) {
+        // Create an array of image data to send
+        var imageData = [];
+        $('.cropped-image').each(function () {
+            // Push the base64 encoded image data to the array
+            imageData.push($(this).attr('src'));
         });
 
-
+        // Send the AJAX request with product data and image data
+        $.ajax({
+            url: "/admin/addProduct",
+            type: "POST",
+            data: {
+                title: productName,
+                description: $('#description').val().trim(),
+                price: price,
+                quantity: quantity,
+                brand: $('#brand').val(),
+                category: $('#category').val(),
+                sex: $('#sex').val(),
+                size: $('#size').val(),
+                images: imageData // Include the image data in the data object
+            },
+            success: function (response) {
+                console.log("Publish successful");
+                // Optionally, perform additional actions here
+            },
+            error: function (xhr, status, error) {
+                console.error("Error:", error);
+                // Optionally, display an error message to the user
+            }
+        });
+    }
+});
+        });
     </script>
 
 

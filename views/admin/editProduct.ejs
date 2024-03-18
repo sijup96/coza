@@ -201,9 +201,8 @@
                                 <div class="mb-4">
                                     <label class="form-label">Images</label>
                                     <input class="form-control" type="file"  accept="image/*" name="images" id="imageUpload" multiple onchange="loadAndEditImages()">
-                                    <p style="color:red">
-                                        <%= messages.image ? messages.image : '' %>
-                                    </p>
+                                    <p id="imageUploadError" style="color: red;"></p>
+                                    
                                 </div>
                             </div> <!-- col.// -->
                             </form>
@@ -254,69 +253,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
-    <script>
-//Image view
-function loadAndEditImages() {
-    const imageUploadInput = document.getElementById('imageUpload');
-    const loadedImagesList = document.getElementById('loadedImages');
-
-    // Display loaded images dynamically
-    for (const file of imageUploadInput.files) {
-        const listItem = document.createElement('li');
-        listItem.style.padding = '5px'
-        loadedImagesList.appendChild(listItem);
-
-        // Display the image
-        const image = document.createElement('img') ;
-        image.src = URL.createObjectURL(file);
-        image.alt = file.name;
-        listItem.appendChild(image);
-    }
-}
-
-// Delete Images
-
-        function deleteSelectedImages() {
-            const selectedCheckboxes = document.querySelectorAll('input[name="selectedImages"]:checked');
-            const selectedImageValues = Array.from(selectedCheckboxes).map(checkbox => checkbox.value);
-          
-            if (selectedImageValues.length > 0) {
-                if (confirm('Are you sure you want to delete the selected images?')) {
-                    const xhr = new XMLHttpRequest();
-                    xhr.open('POST', '/admin/deleteImages', true);
-                    xhr.setRequestHeader('Content-Type', 'application/json');
-                    xhr.onload = function () {
-                        if (xhr.status === 200) {
-                            // Refresh the page or update UI with a success message
-                            location.reload();
-                        } else {
-                            // Display an informative error message to the user
-                            alert('Failed to delete images. Please try again.');
-                        }
-                    };
-                    xhr.onerror = function () {
-                        // Handle network errors
-                        console.error('Network error during image deletion');
-                    };
-                    xhr.send(JSON.stringify({ selectedImages: selectedImageValues }));
-                }
-            } else {
-                alert('Please select images to delete.');
-            }
-        }
-
-
-        function changeBackgroundColor(selectElement) {
-            // Get the selected color value
-            const selectedColor = selectElement.value;
-
-            // Change the background color dynamically
-            document.getElementById('result').style.backgroundColor = selectedColor;
-
-            // Update the content dynamically based on the selected color
-            // document.getElementById('result') = ` style="fontColor: ${selectedColor}"`;
-        }
-    </script>
+   
 <script>
     $(document).ready(function () {
        $('#updateButton').click(function (event) {
@@ -331,13 +268,33 @@ function loadAndEditImages() {
            const price = $('#price').val().trim();
            const quantity = $('#quantity').val().trim();
         //    const images = $('#imageUpload')[0].files;
-           
+
            if (!nameRegex.test(title) || title.length < 4) {
                $('#titleError').text('Invalid title'); 
                isValid = false;
            } else {
                $('#titleError').text(''); 
            }
+           if(description === ''){
+            isValid=false
+            $('#descriptionError').text('Invalid description')
+           }else{
+            $('#descriptionError').text('')
+
+           }
+            var fieldValue = $('#description').val().trim();
+    var wordCount = fieldValue.trim().split(/\s+/).filter(function (word) {
+        return word.length > 0;
+    }).length;
+
+    if (wordCount >= 5) {
+        isValid=true
+        $('#descriptionError').text('')
+    } else {
+        isValid=false
+        $('#descriptionError').text(' should have more than 5 words.');
+    }
+           
            if (!priceRegex.test(price) || price === '') {
                $('#priceError').text('Invalid price'); 
                isValid = false;
@@ -350,26 +307,99 @@ function loadAndEditImages() {
            } else {
                $('#quantityError').text(''); 
            }
-        //    if (images.length !== 4) {
-        //        $('#imageError').text('Please select exactly four images'); 
-        //        isValid = false;
-        //    } else {
-        //        $('#imageError').text(''); 
-        //    }
+           var fileInput = document.getElementById('imageUpload');
+var files = fileInput.files;
+if (files.length < 4) {
+// Check if each file is an image
+for (var i = 0; i < files.length; i++) {
+    var file = files[i];
+    var fileType = file.type;
+
+    if (!fileType.startsWith('image/')) {
+        isValid = false;
+        $('#imageUploadError').text('Please select only image files.');
+        break; // Exit the loop if a non-image file is found
+    }
+}
+
+} else {
+    isValid = false;
+    // Check if more than four images are selected
+    $('#imageUploadError').text('Please select only up to four images.');
+}
+
       
            if (isValid) {
                // If all fields are valid, submit the form
                $('#updateForm').submit();
            } else {
-               // If any field is invalid, display an error message to the user
-               Swal.fire({
-                   title: 'Error',
-                   text: 'Please fill in all required fields correctly',
-                   icon: 'error'
-               });
+             
            }
        });
    });
 </script>
+<script>
+    //Image view
+    function loadAndEditImages() {
+        const imageUploadInput = document.getElementById('imageUpload');
+        const loadedImagesList = document.getElementById('loadedImages');
+    
+        // Display loaded images dynamically
+        for (const file of imageUploadInput.files) {
+            const listItem = document.createElement('li');
+            listItem.style.padding = '5px'
+            loadedImagesList.appendChild(listItem);
+    
+            // Display the image
+            const image = document.createElement('img') ;
+            image.src = URL.createObjectURL(file);
+            image.alt = file.name;
+            listItem.appendChild(image);
+        }
+    }
+    
+    // Delete Images
+    
+            function deleteSelectedImages() {
+                const selectedCheckboxes = document.querySelectorAll('input[name="selectedImages"]:checked');
+                const selectedImageValues = Array.from(selectedCheckboxes).map(checkbox => checkbox.value);
+              
+                if (selectedImageValues.length > 0) {
+                    if (confirm('Are you sure you want to delete the selected images?')) {
+                        const xhr = new XMLHttpRequest();
+                        xhr.open('POST', '/admin/deleteImages', true);
+                        xhr.setRequestHeader('Content-Type', 'application/json');
+                        xhr.onload = function () {
+                            if (xhr.status === 200) {
+                                // Refresh the page or update UI with a success message
+                                location.reload();
+                            } else {
+                                // Display an informative error message to the user
+                                alert('Failed to delete images. Please try again.');
+                            }
+                        };
+                        xhr.onerror = function () {
+                            // Handle network errors
+                            console.error('Network error during image deletion');
+                        };
+                        xhr.send(JSON.stringify({ selectedImages: selectedImageValues }));
+                    }
+                } else {
+                    alert('Please select images to delete.');
+                }
+            }
+    
+    
+            function changeBackgroundColor(selectElement) {
+                // Get the selected color value
+                const selectedColor = selectElement.value;
+    
+                // Change the background color dynamically
+                document.getElementById('result').style.backgroundColor = selectedColor;
+    
+                // Update the content dynamically based on the selected color
+                // document.getElementById('result') = ` style="fontColor: ${selectedColor}"`;
+            }
+        </script>
 
     <%- include('../layouts/adminLayout/_footer.ejs') -%>

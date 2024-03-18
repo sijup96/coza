@@ -22,13 +22,13 @@ function formatDate(dateString) {
                             <small class="text-muted">Order ID: #<%= orderDetail.orderId %></small>
                         </div>
                         <div class="col-lg-6 col-md-6 ms-auto text-md-end">
-                            <% if(orderDetail.status !=='Cancled'){ %>
-                            <% if(orderDetail.status !== "Delivered" && orderDetail.status !== "Cancled") { %>
+                            <% if(orderDetail.status !=='Cancelled'){ %>
+                            <% if(orderDetail.status !== "Delivered" && orderDetail.status !== "Cancelled" && orderDetail.status !== "Return Requested" ) { %>
                                 <a class="btn btn-primary" style="background-color: red;" href="#" id="cancelOrderButton">Cancel Order</a>
 
                                 
-                                <% }else{ %>
-                                <a class="btn btn-primary" style="background-color: red;" href="#">Return Order</a>
+                                <% }else if( orderDetail.status !== "Return Requested"  && orderDetail.status !== "Returned" ){ %>
+                                <a class="btn btn-primary" style="background-color: red;" href="#" id="returnOrder">Return Order</a>
                                 <a class="btn btn-secondary print ms-2" href="#"><i class="icon material-icons md-print"></i></a>
 
                            <% } %>
@@ -118,13 +118,14 @@ function formatDate(dateString) {
                                             <td colspan="4">
                                                 <article class="float-end">
                                                     <dl class="dlist">
+                                                        <dt>Shipping cost:</dt>
+                                                        <dd>₹ <%= orderDetail.shippingCharge %></dd>
+                                                    </dl>
+                                                    <dl class="dlist">
                                                         <dt>Subtotal:</dt>
                                                         <dd>₹ <%= orderDetail.total_amount %></dd>
                                                     </dl>
-                                                    <dl class="dlist">
-                                                        <dt>Shipping cost:</dt>
-                                                        <dd>0.00</dd>
-                                                    </dl>
+                                                   
                                                     <dl class="dlist">
                                                         <dt>Grand total:</dt>
                                                         <dd><b class="h5">₹ <%= orderDetail.total_amount %></b></dd>
@@ -148,31 +149,42 @@ function formatDate(dateString) {
                         <div class="col-lg-4">
                             <div class="box shadow-sm bg-light">
                                 <h6 class="mb-15">Payment info</h6>
-                                <% if(orderDetail.payment === 'Online' && orderDetail.status !== 'Cancled' ){%>
+                                <% if(orderDetail.payment === 'Online' || orderDetail.payment === 'Wallet'  && orderDetail.status === 'Cancelled' ){%>
+                                    <p>
+                                        <b style="font-size:medium; ;"> &nbsp;Payment credited to your Wallet </b> <br />
+                                        <b style="font-size:medium; ;"> &nbsp;Order Cancelled</b> <br />
+                                           
+                                       </p>
+                                <%}else if(orderDetail.payment === 'Online' || orderDetail.payment === 'Wallet'  && orderDetail.status !== 'Cancelled' ){%>
                                 <p>
-                                    <img src="/assets/imgs/card-brands/3.png" class="border" height="20" /> <b style="font-size:medium; ;"> &nbsp;Razorpay</b> <br />
+                                    <img src="/assets/imgs/card-brands/3.png" class="border" height="20" /> <b style="font-size:medium; ;"> &nbsp;<%= orderDetail.payment %></b> <br />
                                     Payment ID:&nbsp; <%= orderDetail.paymentId %><br />
                                     Phone: +91 <b><%= orderDetail.delivery_address.mobile %> </b>
                                 </p>
-                                <%}else if(orderDetail.payment === 'Cash on Delivery' && orderDetail.status !== 'Cancled'){ %>
+                                <%}else if(orderDetail.payment === 'Cash on Delivery' && orderDetail.status !== 'Cancelled' && orderDetail.paymentStatus !== 'Completed'){ %>
                                     <p>
                                      <b style="font-size:medium; ;"> &nbsp;Cash on Delivery</b> <br />
                                         Phone: +91 <b><%= orderDetail.delivery_address.mobile %> </b><br>
                                         <button id="onlinePayment" class="btn btn-primary"> Pay Early</button>
                                     </p>
-                                    <% }else if( orderDetail.status !== 'Cancled'){ %>
+                                    <% }else if( orderDetail.status !== 'Cancelled' && orderDetail.paymentStatus !== 'Completed'){ %>
                                         <p>
                                             <b style="font-size:medium; ;"> &nbsp; Payment <%= orderDetail.payment %></b> <br />
                                                
                                            </p>
                                            <button id="onlinePayment" class="btn btn-primary"> Pay now</button>
+                                   <% }else if(orderDetail.payment === 'Cash on Delivery' && orderDetail.paymentStatus == 'Completed' && orderDetail.status === 'Cancelled' ){ %>
+                                    <p>
+                                        <img src="/assets/imgs/card-brands/3.png" class="border" height="20" /> <b style="font-size:medium; ;"> &nbsp;<%= orderDetail.payment %></b> <br />
+                                        Phone: +91 <b><%= orderDetail.delivery_address.mobile %> </b>
+                                    </p>
                                    <% }else{ %>
                                     <p>
-                                        <b style="font-size:medium; ;"> &nbsp;Payment not done </b> <br />
+                                        <b style="font-size:medium; ;"> &nbsp;Payment credited to your Wallet </b> <br />
                                         <b style="font-size:medium; ;"> &nbsp;Order Cancelled</b> <br />
                                            
                                        </p>
-                                   <% } %>
+                                 <% } %>
                             </div>
                             <div class="h-25 pt-4">
                                 <div class="mb-3">
@@ -211,7 +223,43 @@ function formatDate(dateString) {
     <!-- Main Script -->
     <script src="/assets/js/main.js?v=1.1" type="text/javascript"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
+<script>
+    document.getElementById('returnOrder').addEventListener('click',function(event){
+        event.preventDefault();
+        swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you want to return this order ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, return it!',
+            cancelButtonText: 'No, keep it'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('/order/return/<%= orderDetail._id %>', {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        swal.fire('Success', 'Order return request send successfully.. Amount will credit to your Wallet', 'success')
+                        .then(()=>{
+                            window.location.href = '/order/list';                        })
+                    } else {
+                        swal.fire('Error', 'Failed to return order', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error canceling order:', error);
+                    swal.fire('Error', 'An error occurred while canceling the order', 'error');
+                });
+            }
+        });
+    })
+</script>
     <script>
         document.getElementById('cancelOrderButton').addEventListener('click', function(event) {
             event.preventDefault(); 

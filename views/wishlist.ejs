@@ -100,7 +100,9 @@
                                         </td>
                                     </tr>
                                 <% }); %>
-                            <% } %>
+                            <% }else{ %>
+                                <h6>WishList is empty</h6>
+                          <% } %>
 
                                             
 
@@ -158,14 +160,15 @@
        function removeFromWishlist(productId) {
     
         Swal.fire({
-            title: "Are you sure?",
-            text: "Do you want to remove this product from your wishlist?",
-            icon: "warning",
-            buttons: ["Cancel", "Remove"],
-            dangerMode: true,
-        })
-        .then((willRemove) => {
-            if (willRemove) {
+    title: "Are you sure?",
+    text: "Do you want to remove this product from your wishlist?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes",
+    cancelButtonText: "No",
+    dangerMode: true,
+}).then((result) => {
+    if (result.isConfirmed) {
                 // User confirmed, proceed with AJAX request
                 $.ajax({
                     type: 'PUT',

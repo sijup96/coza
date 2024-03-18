@@ -118,13 +118,12 @@
 			// Validation
 
 			async function registerButton(event) {
-				let userName = document.getElementById('userName').value;
+				let userName = document.getElementById('userName').value.trim()
 				let email = document.getElementById('email').value.toLowerCase();
 				let mobileNumber = document.getElementById('mobileNumber').value;
 				let password = document.getElementById('password').value;
-
 				const nameRegex = /^[^\s\d!@#$%^&*(),.?":{}|<>_+=\[\\;\]`~]*[a-zA-ZÀ-ÖØ-öø-ÿ-' ]+[^\s!@#$%^&*(),.?":{}|<>_+=\[\\;\]`~]*$/;
-				if (!nameRegex.test(userName)) {
+				if (!nameRegex.test(userName) && userName.length===0) {
 					document.getElementById('nameAlert').innerHTML = 'Enter a valid Name ';
 					return false;
 				} else {

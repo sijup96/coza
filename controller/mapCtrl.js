@@ -12,7 +12,7 @@ const Map = createClient({
 });
 // Promisify the DistanceMatrixService method
 const getDistanceMatrixPromise = promisify(Map.distanceMatrix);
-
+const getPlaceDetailsPromise = promisify(Map.places);
 // get Distance
 const getDistance = asyncHandler(async (req, res) => {
   try {
@@ -34,11 +34,10 @@ const getDistance = asyncHandler(async (req, res) => {
       shippingCharge = 100;
     }
 }
-
     res.status(200).json({ shippingCharge, cartTotal:cartData.cartTotal });
   } catch (error) {
-    console.error("Error:", error);
     res.status(500).json({ error: "Invalid pincode" });
+    console.error("Error:", error);
   }
 });
 
@@ -59,5 +58,40 @@ const request = {
       const distanceValue = response.json.rows[0].elements[0].distance.value;
 
   return distanceText
-}
+};
+
+
+// const getCityStateFromPlaceDetails = (placeDetails) => {
+//   if (!placeDetails || placeDetails.length === 0) {
+//     throw new Error("No place details found");
+//   }
+
+//   // Assuming the first result contains the relevant information
+//   const firstResult = placeDetails[0];
+
+//  console.log(firstResult.formatted_address);
+// };
+
+// // Define the function to fetch place details
+// const getPlaceDetails = async (pincode) => {
+//   try {
+//     const response = await getPlaceDetailsPromise({ query: pincode });
+//     const placeDetails = response.json.results;
+//     return placeDetails;
+//   } catch (error) {
+//     throw new Error("Failed to fetch place details");
+//   }
+// };
+
+// // Example usage
+// const pincode = '678572';
+// getPlaceDetails(pincode)
+//   .then((placeDetails) => {
+//     const { city, state } = getCityStateFromPlaceDetails(placeDetails);
+//     console.log("City:", city);
+//     console.log("State:", state);
+//   })
+//   .catch((error) => {
+//     console.error("Error:", error.message);
+//   });
 module.exports = { getDistance,calculateDistance };

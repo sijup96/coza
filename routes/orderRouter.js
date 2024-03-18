@@ -10,6 +10,7 @@ const {
   cancelOrder,
   verifyPayment,
   retryPayment,
+  returnOrder,
 } = require("../controller/orderCtrl");
 
 router.post("/create", isBlocked, userMiddleware, createOrder);
@@ -23,6 +24,7 @@ router.get("/detail", isBlocked, userMiddleware, loadOrderDetail);
 
 router.post("/image", image);
 
-router.patch("/cancel/:id", userMiddleware, cancelOrder);
+router.patch("/cancel/:id", isBlocked,userMiddleware, cancelOrder);
+router.patch("/return/:id",isBlocked, userMiddleware, returnOrder);
 
 module.exports = router;

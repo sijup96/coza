@@ -25,7 +25,7 @@
                                 <label for="product_name" class="form-label">Offer Name</label>
                                 <input type="text" placeholder="Type here" class="form-control" id="offerName"
                                     name="offerName" required/>
-                                    <p style="color:red" id="nameError"></p>
+                                    <p style="color:red" id="offerNameError"></p>
                             </div>
                             <div class="mb-4">
                                 <label for="product_name" class="form-label">Offer Percentage</label>
@@ -42,7 +42,7 @@
                                 <label for="product_name" class="form-label">Starting Date</label>
                                 <input type="date" placeholder="Type here" class="form-control" id="startingDate"
                                     name="startingDate" required/>
-                                    <p style="color:red" id="titleError"></p>
+                                    <p style="color:red" id="startingDateError"></p>
                             </div>
                             <div class="mb-4">
                                 <label for="product_name" class="form-label">Expiry Date</label>
@@ -51,7 +51,7 @@
                                     <p style="color:red" id="expiryDateError"></p>
                             </div>
                             <div class="d-grid">
-                                <button class="btn btn-primary">Create Offer</button>
+                                <button class="btn btn-primary" id="offerSubmit">Create Offer</button>
                             </div>
                         </form>
                     </div>
@@ -170,22 +170,31 @@
           
                         <label for="offerName" class="text-white font-weight-bold">Offer Name</label> <!-- Bold label -->
                         <input type="text" id="editOfferName" name="offerName" class="form-control" required>
+                        <p style="color:red" id="editOfferNameError"></p>
                     </div>
                     <div class="form-group">
                         <label for="percentage" class="text-white font-weight-bold">Percentage</label> <!-- Bold label -->
                         <input type="text" id="editPercentage" name="percentage" class="form-control">
+                        <p style="color:red" id="editPercentageError"></p>
+
                     </div>
                     <div class="form-group">
                         <label for="description" class="text-white font-weight-bold">Description</label> <!-- Bold label -->
                         <input type="text" id="editDescription" name="description" class="form-control" required>
+                        <p style="color:red" id="editDescriptionError"></p>
+
                     </div>
                     <div class="form-group">
                         <label for="startingDate" class="text-white font-weight-bold">Starting Date</label> <!-- Bold label -->
                         <input type="date" id="editStartingDate" name="startingDate" class="form-control" required>
+                        <p style="color:red" id="editStartingDateError"></p>
+
                     </div>
                         <div class="form-group">
                             <label for="expiryDate" class="text-white font-weight-bold">Expiry Date</label> <!-- Bold label -->
                             <input type="date" id="editExpiryDate" name="expiryDate" class="form-control" required>
+                            <p style="color:red" id="editExpiryDateError"></p>
+
                         </div>
             </div>
             <div class="modal-footer bg-dark"> <!-- Adjust footer background color -->
@@ -204,11 +213,96 @@
     <script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <!-- <script src="/admin/sweetalert2/dist/sweetalert2.min.js"></script> -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!-- Validation -->
+<script>
+    $(document).ready(function () {
+        $('#saveChangesBtn').click(function (event) {
+            event.preventDefault(); // Prevent the default form submission behavior
 
-    <script>
-        $(document).ready(function(){
-            $('#saveChangesBtn').click(function(event) {
-                event.preventDefault(); 
+            let flag = 1; // Flag to track validation status
+
+            // Validation functions for each field
+            function validateDescription(fieldName, errorId) {
+                $('#' + errorId).text(''); // Clear previous error message
+                var fieldValue = $('#' + fieldName).val().trim();
+                var errorSpan = $('#' + errorId);
+
+                if (fieldValue && fieldValue.startsWith(' ')) {
+                    flag = 0;
+                    errorSpan.text(fieldName + ' should not start with a space.');
+                    return;
+                }
+
+                var wordCount = fieldValue.trim().split(/\s+/).filter(function (word) {
+                    return word.length > 0;
+                }).length;
+
+                if (wordCount >= 5) {
+                    errorSpan.text('');
+                } else {
+                    flag = 0;
+                    errorSpan.text(fieldName + ' should have more than 5 words.');
+                }
+            }
+
+            function validateOfferName(offerName) {
+                $('#editOfferNameError').html(''); // Clear previous error message
+                const nameRegex = /^[a-zA-Z\s]+$/;
+                if (!nameRegex.test(offerName)) {
+                    flag = 0;
+                    $('#editOfferNameError').html('Name should only contain alphabets');
+                    return false;
+                } else {
+                    $('#editOfferNameError').html('');
+                    return true;
+                }
+            }
+
+            function validatePercentage(percentage) {
+                $('#editPercentageError').html(''); // Clear previous error message
+                const numericRegex = /^[0-9]+$/;
+                if (!numericRegex.test(percentage) || parseFloat(percentage) <= 0 || parseFloat(percentage) >= 100) {
+                    flag = 0;
+                    $('#editPercentageError').html('Percentage is between 1 and 100 ');
+                    return false;
+                } else {
+                    $('#editPercentageError').html('');
+                    return true;
+                }
+            }
+
+            // Validation function for date fields
+            function validateDateField(fieldName, errorId) {
+                const fieldValue = $('#' + fieldName).val().trim();
+                const errorSpan = $('#' + errorId);
+                const currentDate = new Date().setHours(0, 0, 0, 0);
+                const selectedDate = new Date(fieldValue).setHours(0, 0, 0, 0);
+
+                if (!fieldValue) {
+                    flag = 0;
+                    errorSpan.text('Please select a date.');
+                    return false;
+                } else if (selectedDate < currentDate) {
+                    flag = 0;
+                    errorSpan.text('Please select a date from today');
+                    return false;
+                } else {
+                    errorSpan.text('');
+                    return true;
+                }
+            }
+
+            // Perform validation for each field
+            let offerName = $('#editOfferName').val().trim();
+            let percentage = $('#editPercentage').val();
+            validateDescription('editDescription', 'editDescriptionError');
+            validateOfferName(offerName);
+            validatePercentage(percentage);
+            validateDateField('editStartingDate', 'editStartingDateError');
+            validateDateField('editExpiryDate', 'editExpiryDateError');
+
+            // Proceed with form submission if all validations passed
+            if (flag === 1) {
                 const formData = $('#editOffer').serialize();
                         $.ajax({
                     url: '/offer/edit',
@@ -225,12 +319,19 @@
     }
                     },
                     error: function(xhr, status, error) {
-                        console.error('There was a problem with the AJAX request:', error);
-                    }
+                        if (xhr.status === 400) {
+                    Swal.fire({
+                        title: 'Alert',
+                        text: xhr.responseJSON.message,
+                        icon: 'alert'
+                    });
+                }
+            }
                 });
-            });
+            }
         });
-        </script>
+    });
+</script>
     <script>
 		function editAddress(offerId) {
 			fetch(`/offer/getOffer/${offerId}`)
@@ -262,46 +363,6 @@
     return year + '-' + month + '-' + day;
 }
 	</script>
-<script>
-    $(document).ready(function(){
-        $('#offerForm').submit(function(event){
-            event.preventDefault();
-            const formData=$(this).serialize();
-            $.ajax({
-                type:'POST',
-                url:'/offer/create',
-                data:formData,
-                success: function(response) {
-    if (response.success) {
-        Swal.fire({
-            title: 'Success',
-            text: response.message,
-            icon: 'success'
-        }).then(() => {
-            window.location.reload();
-        });
-    } else {
-        Swal.fire({
-            title: 'Alert',
-            text: response.message,
-            icon: 'info'
-        });
-    }
-},
-error: function(xhr, status, error) {
-    console.error(xhr.responseText);
-    Swal.fire({
-        title: 'Error',
-        text: 'An error occurred',
-        icon: 'error'
-    });
-}
-            })
-        })
-    })
-</script>
-
-
     <script>
 function confirmDelete(offerId) {
     Swal.fire({
@@ -397,54 +458,146 @@ function confirmDelete(offerId) {
     </script>
 
 <!-- Validation -->
+
 <script>
-    function validateField(fieldName, errorId, regex) {
-        var fieldValue = $('#' + fieldName).val();
-        var errorSpan = $('#' + errorId);
+    $(document).ready(function () {
+        $('#offerSubmit').click(function (event) {
+            event.preventDefault(); // Prevent the default form submission behavior
 
-        if (fieldValue && fieldValue.startsWith(' ')) {
-            errorSpan.text('Title should not start with a space.');
-            return;
+            let flag = 1; // Flag to track validation status
+
+            // Validation functions for each field
+            function validateDescription(fieldName, errorId) {
+                $('#' + errorId).text(''); // Clear previous error message
+                var fieldValue = $('#' + fieldName).val().trim();
+                var errorSpan = $('#' + errorId);
+
+                if (fieldValue && fieldValue.startsWith(' ')) {
+                    flag = 0;
+                    errorSpan.text(fieldName + ' should not start with a space.');
+                    return;
+                }
+
+                var wordCount = fieldValue.trim().split(/\s+/).filter(function (word) {
+                    return word.length > 0;
+                }).length;
+
+                if (wordCount >= 5) {
+                    errorSpan.text('');
+                } else {
+                    flag = 0;
+                    errorSpan.text(fieldName + ' should have more than 5 words.');
+                }
+            }
+
+            function validateOfferName(offerName) {
+                $('#offerNameError').html(''); // Clear previous error message
+                const nameRegex = /^[a-zA-Z\s]+$/;
+                if (!nameRegex.test(offerName)) {
+                    flag = 0;
+                    $('#offerNameError').html('Name should only contain alphabets');
+                    return false;
+                } else {
+                    $('#offerNameError').html('');
+                    return true;
+                }
+            }
+            function validatePercentage(percentage) {
+            const numericRegex = /^[0-9]+$/;
+            if (!numericRegex.test(percentage) || parseFloat(percentage) <= 0 || parseFloat(percentage) >= 100) {
+                flag = 0;
+                $('#percentageError').html('Price should be a positive numeric value');
+                return false;
+            } else {
+                $('#percentageError').html('');
+                return true;
+            }
+        }
+            // Validation function for date fields
+            function validateDateField(fieldName, errorId) {
+                const fieldValue = $('#' + fieldName).val().trim();
+                const errorSpan = $('#' + errorId);
+                const currentDate = new Date().setHours(0, 0, 0, 0);
+                const selectedDate = new Date(fieldValue).setHours(0, 0, 0, 0);
+
+                if (!fieldValue) {
+                    flag = 0;
+                    errorSpan.text('Please select a date.');
+                    return false;
+                } 
+                if(selectedDate < currentDate && selectedDate !== currentDate){
+                    flag = 0;
+                    errorSpan.text('Please select a date from today');
+                    return false;
+                }
+                else {
+                    errorSpan.text('');
+                    return true;
+                }
+            }
+        function validateDateRange(startingDateString, expiryDateString) {
+            const startingDate = new Date(startingDateString);
+            const expiryDate = new Date(expiryDateString);
+
+            if (expiryDate <= startingDate) {
+                flag = 0;
+                $('#expiryDateError').text('Expiry Date should be greater than Starting Date.');
+                return false;
+            } else {
+                $('#expiryDateError').text('');
+                return true;
+            }
         }
 
-        if (!regex.test(fieldValue)) {
-            errorSpan.text('Title  must meet the validation criteria..');
-        } else {
-            errorSpan.text('');
-        }
-    }
 
-    $('#title').on('input', function () {
-        validateField('title', 'titleError', /^[a-zA-Z][a-zA-Z\s]{2,28}[a-zA-Z]$/);
+            // Perform validation for each field
+            let offerName = $('#offerName').val().trim();
+            let percentage = $('#percentage').val();
+            let startingDate = $('#startingDate').val(); 
+            let expiryDate = $('#expiryDate').val();
+            validateDescription('description', 'descriptionError');
+            validateOfferName(offerName);
+            validatePercentage(percentage);
+            validateDateField('startingDate', 'startingDateError');
+            validateDateField('expiryDate', 'expiryDateError');
+            validateDateRange(startingDate, expiryDate);
+            // Proceed with form submission if all validations passed
+            if (flag === 1) {
+                const formData = $('#offerForm').serialize(); // Serialize form data
+                $.ajax({
+                    type: 'POST',
+                    url: '/offer/create',
+                    data: formData,
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                title: 'Success',
+                                text: response.message,
+                                icon: 'success'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Alert',
+                                text: response.message,
+                                icon: 'info'
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        if (xhr.status === 400) {
+                            Swal.fire({
+                                title: 'Alert',
+                                text: xhr.responseJSON.message,
+                                icon: 'alert'
+                            });
+                        }
+                    }
+                });
+            }
+        });
     });
-
-    function validateDescription(fieldName, errorId) {
-        var fieldValue = $('#' + fieldName).val();
-        var errorSpan = $('#' + errorId);
-
-        if (fieldValue && fieldValue.startsWith(' ')) {
-            errorSpan.text(fieldName + ' should not start with a space.');
-            return;
-        }
-
-        var wordCount = fieldValue.trim().split(/\s+/).filter(function (word) {
-            return word.length > 0;
-        }).length;
-
-        if (wordCount >= 5) {
-            errorSpan.text('');
-        } else {
-            errorSpan.text(fieldName + ' should have more than 5 words.');
-        }
-    }
-
-    $('#description').on('input', function () {
-        validateField('description', 'descriptionError', /^[\s\S]{10,}$/);
-    });
-
-
-
 </script>
-
 
     <%- include('../layouts/adminLayout/_footer.ejs') -%>

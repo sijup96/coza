@@ -11,6 +11,8 @@ const orderid = require("order-id")("key");
 const generateRazorpay = require("../config/generateRazorpay");
 const crypto = require("crypto");
 const { calculateDistance } = require("./mapCtrl");
+const Wallet = require("../models/walletModel");
+const { log } = require("console");
 
 // Load Thankyou Page
 const loadThankyou = asyncHandler(async (req, res) => {
@@ -56,8 +58,9 @@ const createOrder = asyncHandler(async (req, res) => {
     const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
     const userId = decodedToken.id;
     const userData = await User.findById(userId);
+    const walletDetails = await Wallet.findOne({ user: userId });
 
-    const { selectedAddressId, paymentMethod } = req.body;
+    const { selectedAddressId, paymentMethod, usingWallet } = req.body;
 
     if (!selectedAddressId) {
       return res.status(400).json({ error: "Missing required fields" });
@@ -114,6 +117,7 @@ const createOrder = asyncHandler(async (req, res) => {
       delivery_address: delivery_address,
       user_name: userData.name,
       total_amount: cartData.cartTotal + shippingCharge,
+      shippingCharge: shippingCharge,
       date: new Date().toISOString(),
       expected_delivery: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
       items: orderItems,
@@ -134,17 +138,57 @@ const createOrder = asyncHandler(async (req, res) => {
         { orderId: placedOrderId },
         {
           $set: {
+            payment: "Cash on Delivery",
+          },
+        }
+      );
+      return res.json({ codSuccess: true });
+    } else if (paymentMethod === "Wallet") {
+      const walletBalance = walletDetails.balance - placedOrder.total_amount;
+      const paymentId = orderid.generate();
+      await Order.findOneAndUpdate(
+        { orderId: placedOrderId },
+        {
+          $set: {
             payment: paymentMethod,
           },
         }
       );
-      res.json({ codSuccess: true });
-    } else {
-      generateRazorpay(placedOrder.orderId, placedOrder.total_amount).then(
-        (orderData) => {
-          res.json({ online: true, orderData });
+      await Wallet.findOneAndUpdate(
+        { user: userId },
+        {
+          $set: {
+            balance: walletBalance,
+          },
         }
       );
+      const newTransaction = {
+        type: "Debit",
+        amount: placedOrder.total_amount,
+        description: "Purchased Dress using Wallet",
+        paymentID: paymentId,
+      };
+      await Wallet.findOneAndUpdate(
+        { user: userId },
+        { $push: { transactions: newTransaction } },
+        { new: true }
+      );
+      await Order.findByIdAndUpdate(placedOrder._id, {
+        $set: {
+          payment: "Wallet",
+          paymentStatus: "Completed",
+          paymentId: paymentId,
+        },
+      });
+      return res.json({ wallet: true });
+    } else {
+      let payableAmount = placedOrder.total_amount;
+      if (usingWallet) {
+        payableAmount = placedOrder.total_amount - walletDetails.balance;
+      }
+      generateRazorpay(placedOrder.orderId, payableAmount).then((orderData) => {
+        res.json({ online: true, orderData });
+      });
     }
   } catch (error) {
     console.error("Error creating order:", error);
@@ -154,6 +198,10 @@ const createOrder = asyncHandler(async (req, res) => {
 // Verify Payment
 const verifyPayment = asyncHandler(async (req, res) => {
   try {
+    const accessToken = req.accessToken;
+    const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
+    const userId = decodedToken.id;
+    const { usingWallet } = req.body;
     const paymentData = req.body;
     const razorpay_payment_id = paymentData["payment[razorpay_payment_id]"];
     const razorpay_order_id = paymentData["payment[razorpay_order_id]"];
@@ -176,10 +224,33 @@ const verifyPayment = asyncHandler(async (req, res) => {
           },
         }
       );
+      if (usingWallet) {
+        const walletData = await Wallet.findOne({ user: userId });
+        const newTransaction = {
+          type: "Debit",
+          amount: walletData.balance,
+          description: "Purchased Dress using Wallet and online Payment",
+          paymentID: orderid.generate(),
+        };
+        await Wallet.findOneAndUpdate(
+          { user: userId },
+          { $push: { transactions: newTransaction } },
+          { new: true }
+        );
+        await Wallet.findOneAndUpdate(
+          { user: userId },
+          {
+            $set: {
+              balance: 0,
+            },
+          }
+        );
+        return res.json({ success: true });
+      }
       return res.json({ success: true });
     }
   } catch (error) {
-    throw new Error(error);
+    console.error(error);
   }
 });
 // Retry Payment
@@ -232,6 +303,34 @@ const cancelOrder = asyncHandler(async (req, res) => {
       status: "Cancled",
     });
     if (cancledOrder) {
+      if (cancledOrder.paymentStatus === "Completed") {
+        const balanceUpdated = await Wallet.findOneAndUpdate(
+          { user: userId },
+          {
+            $inc: {
+              balance: cancledOrder.total_amount,
+            },
+          }
+        );
+        if (balanceUpdated) {
+          const newTransaction = {
+            type: "Credit",
+            amount: cancledOrder.total_amount,
+            description: "Money was credited from cancelled Order",
+            paymentID: orderid.generate(),
+          };
+          await Wallet.findOneAndUpdate(
+            { user: userId },
+            { $push: { transactions: newTransaction } },
+            { new: true }
+          );
+        }
+      }
+      for (const item of cancledOrder.items) {
+        await Product.findByIdAndUpdate(item.product_id, {
+          $inc: { quantity: item.quantity }
+        });
+      }
       res
         .status(200)
         .json({ success: true, message: "Order canceled successfully" });
@@ -249,7 +348,24 @@ const cancelOrder = asyncHandler(async (req, res) => {
     });
   }
 });
-
+//Return Order
+const returnOrder= asyncHandler(async(req,res)=>{
+  try {
+    const orderId= req.params.id
+   const returnRequest= await Order.findByIdAndUpdate((orderId),{
+     $set:{
+       status:"Return Requested"
+     }
+    })
+    if(returnRequest){
+return res.status(200).json({success:true,message:'Return request send Successfully'})
+    }else{
+      return res.status(404).json({success:false,message:'Order not found'})
+    }
+  } catch (error) {
+    console.error(error);
+  }
+})
 const image = asyncHandler(async (req, res) => {
   const { image } = req.body;
   console.log("hii", image);
@@ -264,4 +380,5 @@ module.exports = {
   image,
   verifyPayment,
   retryPayment,
+  returnOrder
 };

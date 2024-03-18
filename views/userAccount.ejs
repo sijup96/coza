@@ -209,12 +209,12 @@
         let mobile = document.getElementById('mobile').value;
         let dob = document.getElementById('dob').value;
 
-        const nameRegex = /^[^\s\d!@#$%^&*(),.?":{}|<>_+=\[\\;\]`~]*[a-zA-ZÀ-ÖØ-öø-ÿ-' ]+[^\s!@#$%^&*(),.?":{}|<>_+=\[\\;\]`~]*$/;
+        const nameRegex =  /^[a-zA-Z]+(\s+[a-zA-Z]+)*$/;
         const mobileRegex = /^[0-9]{10}$/;
         const dobRegex = /^(0[1-9]|[1-2][0-9]|3[0-1])\/(0[1-9]|1[0-2])\/(19|20)\d{2}$/;
 
         // Validation
-        if (!nameRegex.test(userName)) {
+        if (!nameRegex.test(userName) || userName.trim() === '' || userName.trim().length < 3) {
             document.getElementById('nameAlert').innerText = 'Enter a valid Name';
             return false;
         } else {

@@ -45,6 +45,17 @@
                     <tbody>
                         <% if (orderList && orderList.length > 0) { %>
                             <% orderList.forEach(order=> { %>
+                                <% let alertClass = ''; %>
+
+                                <% 
+                                if (order.status === 'Cancled' || order.status === 'Returned' || order.status === 'Return Requested') {
+                                    alertClass = 'alert-danger';
+                                } else if (order.status === 'Delivered') {
+                                    alertClass = 'alert-success';
+                                } else {
+                                    alertClass = 'alert-warning';
+                                }
+                                %>
                                 <tr class="clickable-row"
                                     onclick="redirectToOrderDetail('<%= order._id %>')">
                                     <td>
@@ -65,11 +76,16 @@
                                     </td>
                                     <td><span style="font-weight: bold;">Price</span><br>₹ <%= order.total_amount %>
                                     </td>
-                                    <td><span style="font-weight: bold;">Status</span><br><span class="badge rounded-pill alert-warning">
+                                    <td><span style="font-weight: bold;">Status</span><br><span class="badge rounded-pill <%= alertClass %>">
                                             <%= order.status %>
                                         </span></td>
                                     <td><span style="font-weight: bold;">Order Placed </span><br>
                                         <%= formatDate(order.date) %>
+                                    </td>
+                                    <td>
+                                        <% if(order.status === 'Return Requested'){ %>
+                                            <span style="font-weight: bold; color: red;">Return Request </span>
+                                        <%}%>
                                     </td>
 
                                 </tr>

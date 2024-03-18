@@ -20,6 +20,10 @@ const orderSchema = new Schema(
       type: Number,
       // required: true,
     },
+    shippingCharge: {
+      type: Number,
+      // required: true,
+    },
     date: {
       type: String,
       // required: true,
@@ -37,6 +41,7 @@ const orderSchema = new Schema(
         "Dispatched",
         "Cancelled",
         "Delivered",
+        "Return Requested",
         "Returned",
       ],
     },
