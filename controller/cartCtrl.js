@@ -237,7 +237,8 @@ const viewCart = async (accessToken) => {
           { path: "category", populate: { path: "offer" } },
         ],
       })
-      .populate("userId");
+      .populate("userId")
+      .populate("couponId");
     return cartData;
   } catch (error) {
     throw new Error(error);
@@ -288,7 +289,7 @@ const loadCheckout = asyncHandler(async (req, res) => {
     const couponData = await Coupon.find({
       expiryDate: { $gte: currentDate },
       is_listed: true,
-      usersUsed: { $ne: userId } ,
+      usersUsed: { $ne: userId },
     });
     if (cartData.products.length === 0) {
       return res.redirect("/cart");

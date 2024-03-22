@@ -63,8 +63,9 @@ const orderSchema = new Schema(
     couponApplied: {
       type: Boolean,
     },
-    coupon_name: {
-      type: String,
+    couponAmount: {
+      type: Number,
+      default:0,
     },
     items: [
       {

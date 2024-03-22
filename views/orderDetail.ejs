@@ -118,6 +118,10 @@ function formatDate(dateString) {
                                             <td colspan="4">
                                                 <article class="float-end">
                                                     <dl class="dlist">
+                                                        <dt>Coupon Price: </dt>
+                                                        <dd>₹ <%= orderDetail.couponAmount %></dd>
+                                                    </dl>
+                                                    <dl class="dlist">
                                                         <dt>Shipping cost:</dt>
                                                         <dd>₹ <%= orderDetail.shippingCharge %></dd>
                                                     </dl>
@@ -149,42 +153,45 @@ function formatDate(dateString) {
                         <div class="col-lg-4">
                             <div class="box shadow-sm bg-light">
                                 <h6 class="mb-15">Payment info</h6>
-                                <% if(orderDetail.payment === 'Online' || orderDetail.payment === 'Wallet'  && orderDetail.status === 'Cancelled' ){%>
-                                    <p>
-                                        <b style="font-size:medium; ;"> &nbsp;Payment credited to your Wallet </b> <br />
-                                        <b style="font-size:medium; ;"> &nbsp;Order Cancelled</b> <br />
-                                           
-                                       </p>
-                                <%}else if(orderDetail.payment === 'Online' || orderDetail.payment === 'Wallet'  && orderDetail.status !== 'Cancelled' ){%>
-                                <p>
-                                    <img src="/assets/imgs/card-brands/3.png" class="border" height="20" /> <b style="font-size:medium; ;"> &nbsp;<%= orderDetail.payment %></b> <br />
-                                    Payment ID:&nbsp; <%= orderDetail.paymentId %><br />
-                                    Phone: +91 <b><%= orderDetail.delivery_address.mobile %> </b>
-                                </p>
-                                <%}else if(orderDetail.payment === 'Cash on Delivery' && orderDetail.status !== 'Cancelled' && orderDetail.paymentStatus !== 'Completed'){ %>
-                                    <p>
-                                     <b style="font-size:medium; ;"> &nbsp;Cash on Delivery</b> <br />
-                                        Phone: +91 <b><%= orderDetail.delivery_address.mobile %> </b><br>
-                                        <button id="onlinePayment" class="btn btn-primary"> Pay Early</button>
-                                    </p>
-                                    <% }else if( orderDetail.status !== 'Cancelled' && orderDetail.paymentStatus !== 'Completed'){ %>
+
+                                <% if (orderDetail.status === 'Cancelled') { %>
+                                    <% if (orderDetail.payment === 'Online' || orderDetail.payment === 'Wallet') { %>
                                         <p>
-                                            <b style="font-size:medium; ;"> &nbsp; Payment <%= orderDetail.payment %></b> <br />
-                                               
-                                           </p>
-                                           <button id="onlinePayment" class="btn btn-primary"> Pay now</button>
-                                   <% }else if(orderDetail.payment === 'Cash on Delivery' && orderDetail.paymentStatus == 'Completed' && orderDetail.status === 'Cancelled' ){ %>
-                                    <p>
-                                        <img src="/assets/imgs/card-brands/3.png" class="border" height="20" /> <b style="font-size:medium; ;"> &nbsp;<%= orderDetail.payment %></b> <br />
-                                        Phone: +91 <b><%= orderDetail.delivery_address.mobile %> </b>
-                                    </p>
-                                   <% }else{ %>
-                                    <p>
-                                        <b style="font-size:medium; ;"> &nbsp;Payment credited to your Wallet </b> <br />
-                                        <b style="font-size:medium; ;"> &nbsp;Order Cancelled</b> <br />
-                                           
-                                       </p>
-                                 <% } %>
+                                            <b style="font-size: medium;">&nbsp; Payment credited to your Wallet </b> <br />
+                                            <b style="font-size: medium;">&nbsp; Order Cancelled</b>
+                                        </p>
+                                    <% } else if (orderDetail.payment === 'Cash on Delivery') { %>
+                                        <p>
+                                            <b style="font-size: medium;">&nbsp; Order Cancelled</b>
+                                        </p>
+                                    <% } %>
+                                <% } else { %>
+                                    <% if (orderDetail.payment === 'Online' || orderDetail.payment === 'Wallet') { %>
+                                        <p>
+                                            <img src="/assets/imgs/card-brands/3.png" class="border" height="20" /> 
+                                            <b style="font-size: medium;">&nbsp;<%= orderDetail.payment %></b> <br />
+                                            Payment ID: <%= orderDetail.paymentId %> <br />
+                                            Phone: +91 <b><%= orderDetail.delivery_address.mobile %></b>
+                                        </p>
+                                    <% } else if (orderDetail.payment === 'Cash on Delivery' && orderDetail.paymentStatus !== 'Completed') { %>
+                                        <p>
+                                            <b style="font-size: medium;">&nbsp; Cash on Delivery</b> <br />
+                                            Phone: +91 <b><%= orderDetail.delivery_address.mobile %></b> <br>
+                                            <button id="onlinePayment" class="btn btn-primary"> Pay Early</button>
+                                        </p>
+                                    <% } else if (orderDetail.paymentStatus !== 'Completed') { %>
+                                        <p>
+                                            <b style="font-size: medium;">&nbsp; Payment <%= orderDetail.payment %></b>
+                                        </p>
+                                        <button id="onlinePayment" class="btn btn-primary"> Pay now</button>
+                                    <% } else if (orderDetail.payment === 'Cash on Delivery' && orderDetail.paymentStatus === 'Completed') { %>
+                                        <p>
+                                            <img src="/assets/imgs/card-brands/3.png" class="border" height="20" /> 
+                                            <b style="font-size: medium;">&nbsp;<%= orderDetail.payment %></b> <br />
+                                            Phone: +91 <b><%= orderDetail.delivery_address.mobile %></b>
+                                        </p>
+                                    <% } %>
+                                <% } %>
                             </div>
                             <div class="h-25 pt-4">
                                 <div class="mb-3">

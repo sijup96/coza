@@ -260,26 +260,24 @@
 									</div>
 									
 									<div class="collapse" id="collapseExample">
-										<div class="card card-body" style="display: flex;">
-											<% if(couponData && couponData.length > 0){ %>
-												<% for(i=0;i< couponData.length; i++){ %>
-													<div class="offer-box" data-coupon-id="<%= couponData[i]._id %>">
-														<span style="display: flex;">Coupon Name: &nbsp;<h5><%= couponData[i].couponName %></h5></span>
-														<p>
-															<strong>Copy this code:</strong>
-															<span class="percentage" style="color: green;"><%= couponData[i].couponCode %></span>
-														</p>
-														<span style="display: flex;">Price Drop: &nbsp;<h5 style="color: red;">- <%= couponData[i].discountAmount %></h5></span>
-
-														<p><strong>Description:</strong> <%= couponData[i].couponDescription %></p>
-													</div>
-													<hr>
-												<% } %>
+										<div class="card card-body" style="max-height: 300px; overflow-y: auto;">
+										  <% if(couponData && couponData.length > 0){ %>
+											<% for(i=0; i<couponData.length; i++){ %>
+											  <div class="offer-box" data-coupon-id="<%= couponData[i]._id %>">
+												<span style="display: flex;">Coupon Name: &nbsp;<h5><%= couponData[i].couponName %></h5></span>
+												<p>
+												  <strong>Copy this code:</strong>
+												  <span class="percentage" style="color: green;"><%= couponData[i].couponCode %></span>
+												</p>
+												<span style="display: flex;">Price Drop: &nbsp;<h5 style="color: red;">- <%= couponData[i].discountAmount %></h5></span>
+												<p><strong>Description:</strong> <%= couponData[i].couponDescription %></p>
+											  </div>
+											  <hr>
 											<% } %>
-
+										  <% } %>
 										</div>
 									  </div>
-
+									  
 
 
 
@@ -386,10 +384,17 @@
 									</span>
 								</div>
 
-								<div class="size-209">
+								<div class="size-209" >
 									<span class="mtext-110 cl2 discount-section" style="color: red; ">
-										₹ - <span id="couponAmount"></span>
+										₹ - <span id="couponAmount"><%= cartData.couponId ? cartData.couponId.discountAmount : 0 %></span>
 									</span>
+		
+										<span style="padding-left: 20%;">  
+											<a id="couponRemove" href="#">Remove</a>
+	
+											</span>
+									
+									
 								</div>
 							</div>
 
@@ -404,7 +409,7 @@
 									<span class="mtext-110 cl2 discount-section  shipping-charge">
 										
 									</span>
-									<!-- &nbsp;<span style="color: green;">FREE Delivery</span> -->
+								
 									</div>
 							</div>
 							<div class="flex-w flex-t p-t-27 p-b-33">
@@ -418,7 +423,7 @@
 
 								<div class="size-209 p-t-1">
 									₹<span class="mtext-110 cl2" id="totalAmount" >
-										 <%= cartData.cartTotal ? cartData.cartTotal: 0.00 %>
+										<%= cartData.cartTotal ? (cartData.cartTotal - (cartData.couponId ? cartData.couponId.discountAmount : 0)) : 0.00 %>
 									</span>
 								</div>
 							</div>
@@ -444,9 +449,11 @@
 											<div class="input-group-prepend">
 											  <div class="input-group-text">
 												<input type="checkbox" aria-label="Checkbox for following text input" style="margin-top:5.5px; transform: scale(1.5); position: absolute;" id="useWallet">
+
 											  </div>
 											</div>
-											<span style="margin-left: 15px;"> &nbsp; Use Wallet:  <span style="font-size: medium; color: black;"><strong>₹  <%= walletData? walletData.balance:0.00 %></strong></span><br></span>	
+									<span style="margin-left: 15px;"> &nbsp; Use Wallet:  <span style="font-size: medium; color: black;"><strong>₹  <%= walletData? walletData.balance:0.00 %></strong></span><br></span>	
+																							
 									  </div>
 										<button id="onlinePayment" class="btn btn-primary"> Pay Online</button>
 									</div>
@@ -591,7 +598,41 @@
 
 
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
+	<script>
+		document.getElementById("couponRemove").addEventListener("click", async function(event) {
+			event.preventDefault();
+			try {
+				$.ajax({
+					url: '/coupon/remove',
+					method: 'PATCH',
+					success: function(response) {
+						if (response.success) {
+							Swal.fire({
+								title: 'Success',
+								text: response.message,
+								icon: 'success'
+							}).then(() => {
+								location.reload();
+							});
+						} else {
+							console.error("Coupon removal failed with status:", response.status);
+						}
+					},
+					error: function(xhr, status, error) {
+						if (xhr.status === 400) {
+                            Swal.fire({
+                                title: 'Alert',
+                                text: xhr.responseJSON.message,
+                                icon: 'alert'
+                            });
+                        }
+					}
+				});
+			} catch (error) {
+				console.error("Error removing coupon:", error);
+			}
+		});
+		</script>
 	<script>
 		$(document).ready(function () {
 			$('#couponApply').click(function () {
@@ -606,10 +647,9 @@
 						success:function(response){
 							if (response.success) {
             const totalAmountElement = document.getElementById('totalAmount');
-            const originalTotalAmount = parseFloat(totalAmountElement.textContent); // Get original total
             const couponAmount = parseFloat(response.couponData.discountAmount);
-
-            const newTotalAmount = originalTotalAmount - couponAmount; // Calculate new total
+			const cartTotal = response.cartTotal || 0.00;
+            const newTotalAmount = cartTotal - couponAmount; // Calculate new total
             totalAmountElement.textContent = newTotalAmount.toFixed(2); // Update total with 2 decimal places
 			const couponAmountElement = document.getElementById('couponAmount');
             couponAmountElement.textContent = `${couponAmount.toFixed(2)}`; // Display discount with a minus sign
@@ -619,14 +659,17 @@
         }
 						},
 						error: function (xhr, status, error) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Pincode error! Please provide valid Pincode..'
-                        });
+							if (xhr.status === 400) {
+                            Swal.fire({
+                                title: 'Alert',
+                                text: xhr.responseJSON.message,
+                                icon: 'alert'
+                            });
+                        }
                     }
 					})
 				}
+
 			})
 		})
 	</script>
@@ -694,14 +737,20 @@ document.addEventListener('DOMContentLoaded', function () {
                     success: function (response) {
                         const shippingSpan = document.querySelector('.shipping-charge');
                         if (response.shippingCharge) {
+							
                             shippingSpan.textContent = '₹ ' + response.shippingCharge;
                         } else {
                             shippingSpan.textContent = 'FREE Delivery';
                         }
                         const totalAmount = document.getElementById('totalAmount');
+						const coupon=document.getElementById('couponAmount');
+						let couponAmount = parseFloat(coupon.textContent);
+						if (isNaN(couponAmount)) {
+							couponAmount = 0; 
+						}
                         const cartTotal = response.cartTotal || 0.00;
                         const shippingCharge = response.shippingCharge || 0.00;
-                        const total = cartTotal + shippingCharge;
+                        const total = cartTotal + shippingCharge - couponAmount;
                         totalAmount.textContent = ' ' + total.toFixed(2);
                     },
                     error: function (xhr, status, error) {
@@ -939,11 +988,11 @@ $(document).ready(function() {
 				placeOrder('Online');
 			});
 		});
-		let useWalletChecked=false;
-			const useWallet=document.getElementById('useWallet')
-			if(useWallet.checked){
-				useWalletChecked=true
-			}
+		let useWalletChecked = false;
+const useWallet = document.getElementById('useWallet');
+useWallet.addEventListener('change', function() {
+    useWalletChecked = this.checked;
+});
 		function placeOrder(payment) {
 			const selectedAddressInput = document.querySelector('input[name="selectedAddress"]:checked');
 			if (!selectedAddressInput) {
@@ -973,6 +1022,9 @@ $(document).ready(function() {
 					});
 					}else if(response.online){
 						razorpayPayment(response.orderData)
+						.then(()=>{
+							window.location.href = '/order/thankyou';
+						})
 					}else if(response.wallet){
 						swal("Success", "Order placed successfully", "success").then(() => {
 						window.location.href = '/order/thankyou';
@@ -983,7 +1035,7 @@ $(document).ready(function() {
 				error: function (xhr, status, error) {
 					swal("Alert", "Please add a valid product", 'warning')
 						.then(() => {
-							window.location.href = '/cart';
+							window.location.href = '/order/thankyou';
 						});
 				}
 			});

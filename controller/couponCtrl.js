@@ -9,7 +9,6 @@ const voucher_codes = require("voucher-code-generator");
 const jwt = require("jsonwebtoken");
 const Cart = require("../models/cartModel");
 
-
 // Load coupon
 const loadCoupon = asyncHandler(async (req, res) => {
   const couponData = await Coupon.find().sort({ updatedAt: -1 });
@@ -176,21 +175,76 @@ const applyCoupon = asyncHandler(async (req, res) => {
     if (existingCoupon && existingCoupon.usersUsed.includes(userId)) {
       return res.status(400).json({ message: "Coupon already used" });
     }
-const cartData= await Cart.findOne({user:userId})
+    const cartCheck = await Cart.findOne({ userId: userId });
+    if (cartCheck.couponApplied) {
+      return res.status(400).json({ message: "Coupon already used" });
+    }
     const couponData = await Coupon.findOneAndUpdate(
       { couponCode: couponCode },
-      { $push: { usersUsed: userId } }, 
-      { new: true } 
+      {
+        $addToSet: { usersUsed: userId },
+      },
+      {
+        new: true,
+      }
     );
-
     if (!couponData) {
       return res.status(404).json({ message: "Coupon not found" });
     }
-
-    res.json({success:true, message: "Coupon applied successfully!",couponData:couponData });
+    if (couponData) {
+      const cartData = await Cart.findOneAndUpdate(
+        { userId: userId },
+        { $set: { couponApplied: true, couponId: couponData._id } },
+        { new: true }
+      );
+      console.log(cartData);
+      res.json({
+        success: true,
+        message: "Coupon applied successfully!",
+        couponData: couponData,
+        cartTotal: cartData.cartTotal,
+      });
+    }
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
+  }
+});
+// Remove Coupon
+const removeCoupon = asyncHandler(async (req, res) => {
+  try {
+    const accessToken = req.accessToken;
+    const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
+    const userId = decodedToken.id;
+
+    const cartData = await Cart.findOne({ userId: userId });
+    const couponData = await Coupon.findById(cartData.couponId);
+    if(!couponData){
+      return res.status(400).json({message:'Coupon not Found.'})
+    }
+    
+    // Remove the user's ID from the usersUsed array in the coupon database
+    await Coupon.findByIdAndUpdate(
+      cartData.couponId,
+      { $pull: { usersUsed: userId } }
+    );
+    
+    // Update the cart to remove the applied coupon
+    const removedCoupon = await Cart.findOneAndUpdate(
+      { userId: userId },
+      {
+        $set: {
+          couponApplied: false,
+          couponId: null,
+        },
+      }
+    );
+    if (removedCoupon) {
+      return res.status(200).json({ success: true, message: "Removed Successfully." });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
@@ -203,4 +257,5 @@ module.exports = {
   updateStatus,
   getAllCoupon,
   applyCoupon,
+  removeCoupon,
 };

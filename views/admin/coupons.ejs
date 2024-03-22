@@ -350,9 +350,7 @@ $(document).ready(function(){
     $(document).ready(function(){
         $('#couponForm').submit(function(event){
             event.preventDefault();
-    
             let flag = 1; 
-    
             // Validation function for coupon name
             function validateCouponName(couponName) {
                 $('#couponNameError').html(''); // Clear previous error message

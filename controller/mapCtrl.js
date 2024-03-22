@@ -20,8 +20,8 @@ const getDistance = asyncHandler(async (req, res) => {
     const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
     const userId = decodedToken.id;
     const addressId = req.params.id;
-    const selectedAddress = await Address.findById(addressId);
     const cartData = await Cart.findOne({ userId: userId });
+    const selectedAddress = await Address.findById(addressId);
     const distanceText= await calculateDistance(selectedAddress.pincode);
     const numericalDistance = parseInt(distanceText.split(" ")[0]);
     let shippingCharge = 0;

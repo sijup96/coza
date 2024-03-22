@@ -4,6 +4,8 @@ const asyncHandler = require("express-async-handler");
 const { generateRefreshToken } = require("../config/refreshToken");
 const Order = require("../models/orderModel");
 const Wallet = require("../models/walletModel");
+const Product = require("../models/productModel");
+const Category = require("../models/categoryModel");
 
 //const category = require('../model/category')
 
@@ -21,7 +23,7 @@ const adminLogin = asyncHandler(async (req, res) => {
     if (!cookies || !cookies.refreshToken) {
       res.render("admin/adminLogin");
     } else {
-      res.render("admin/admin");
+     res.redirect('/admin/dashboard')
     }
   } catch (error) {
     // Log the error for debugging
@@ -36,24 +38,25 @@ const adminLogin = asyncHandler(async (req, res) => {
 
 const adminDashboard = asyncHandler(async (req, res) => {
   try {
-    // Set headers to prevent caching
     res.setHeader("Cache-Control", "no-store, no-cache");
-
-    // Extract cookies from the request
     const cookies = req.cookies;
-
-    // Check if there is a refreshToken cookie
     if (!cookies || !cookies.refreshToken) {
       res.render("admin/adminLogin");
     } else {
-      res.render("admin/admin");
+      const orderDetails = await Order.find();
+      const productDetails = await Product.find();
+      const categoryDetails = await Category.find();
+      res.render("admin/admin", {
+        orderDetails,
+        productDetails,
+        categoryDetails,
+      });
     }
   } catch (error) {
     // Log the error for debugging
     console.error(error);
 
     // Redirect to adminLogin in case of an error
-    res.redirect("/admin");
   }
 });
 
@@ -87,7 +90,7 @@ const login = asyncHandler(async (req, res) => {
       });
 
       // Render the "index" view
-      res.render("admin/admin");
+      res.redirect("/admin/dashboard");
     } else {
       // Redirect to "/userLogin" for invalid credentials
       req.flash("message", "Invalid credentials");
@@ -194,7 +197,6 @@ const changeOrderStatus = asyncHandler(async (req, res) => {
     if (status === "Returned") {
       const returnAmount =
         orderDetail.total_amount - orderDetail.shippingCharge;
-      console.log(returnAmount);
       await Wallet.findOneAndUpdate(
         { user: userId },
         {

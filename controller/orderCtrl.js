@@ -13,6 +13,8 @@ const crypto = require("crypto");
 const { calculateDistance } = require("./mapCtrl");
 const Wallet = require("../models/walletModel");
 const { log } = require("console");
+const Category = require("../models/categoryModel");
+
 
 // Load Thankyou Page
 const loadThankyou = asyncHandler(async (req, res) => {
@@ -111,13 +113,15 @@ const createOrder = asyncHandler(async (req, res) => {
         total_price: item.quantity * item.price,
       };
     });
+    const couponPrice= parseFloat( cartData.couponId ? cartData.couponId.discountAmount : '0')
     const order = new Order({
       user_id: userId,
       orderId: orderid.generate(),
       delivery_address: delivery_address,
       user_name: userData.name,
-      total_amount: cartData.cartTotal + shippingCharge,
+      total_amount:( cartData.cartTotal + shippingCharge)-couponPrice,
       shippingCharge: shippingCharge,
+      couponAmount:couponPrice,
       date: new Date().toISOString(),
       expected_delivery: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
       items: orderItems,
@@ -132,6 +136,8 @@ const createOrder = asyncHandler(async (req, res) => {
     }
     cartData.products = [];
     cartData.cartTotal = 0;
+    cartData.couponId = null;
+    cartData.couponApplied = false; 
     await cartData.save();
     if (paymentMethod === "Cash on Delivery") {
       await Order.findOneAndUpdate(
@@ -183,7 +189,7 @@ const createOrder = asyncHandler(async (req, res) => {
       return res.json({ wallet: true });
     } else {
       let payableAmount = placedOrder.total_amount;
-      if (usingWallet) {
+      if (usingWallet===true) {
         payableAmount = placedOrder.total_amount - walletDetails.balance;
       }
       generateRazorpay(placedOrder.orderId, payableAmount).then((orderData) => {

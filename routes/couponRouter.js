@@ -10,6 +10,7 @@ const {
   updateStatus,
   getAllCoupon,
   applyCoupon,
+  removeCoupon,
 } = require("../controller/couponCtrl");
 
 router.get("/", isAdmin, loadCoupon);
@@ -20,6 +21,8 @@ router.put("/edit", isAdmin, editCoupon);
 router.patch("/updateStatus", isAdmin, updateStatus);
 router.get("/getAllCoupon", isBlocked,userMiddleware, getAllCoupon);
 router.patch("/apply", isBlocked,userMiddleware, applyCoupon);
+router.patch("/remove", isBlocked,userMiddleware, removeCoupon);
+
 
 
 module.exports = router;

@@ -1,158 +1,199 @@
 <%- include('../layouts/adminLayout/_header.ejs') -%>
 <section class="content-main">
-    <div class="content-header">
-        <h2 class="content-title">Users list</h2>
-        <!-- <div>
+  <div class="content-header">
+    <h2 class="content-title">Users list</h2>
+    <!-- <div>
             <a href="#" class="btn btn-primary"><i class="material-icons md-plus"></i> Create new</a>
         </div> -->
-    </div>
-    <div class="card mb-4">
-        <header class="card-header">
-            <div class="row gx-3">
-                <div class="col-lg-4 col-md-6 me-auto">
-                    <input type="text" placeholder="Search..." class="form-control" />
-                </div>
-                <div class="col-lg-2 col-md-3 col-6">
-                    <select class="form-select">
-                        <option>Status</option>
-                        <option>Active</option>
-                        <option>Disabled</option>
-                        <option>Show all</option>
-                    </select>
-                </div>
-                <div class="col-lg-2 col-md-3 col-6">
-                    <select class="form-select">
-                        <option>Show 20</option>
-                        <option>Show 30</option>
-                        <option>Show 40</option>
-                    </select>
-                </div>
-            </div>
-        </header>
-        <!-- card-header end// -->
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover" >
-                    <thead>
-                        <tr>
-                            <th>Users</th>
-                            <th>Email</th>
-                            <th>Mobile</th>
-                            <th>Status</th>
-                            <th class="text-end">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% if (users.length > 0) { for (let i = 0; i < users.length; i++) { %>
-                        <tr>
-                            <td width="30%">
-                                <a href="#" class="itemside">
-                                    <div class="left">
-                                      <% if(users[i].icon){ %>
-                                        <img src="<%= users[i].icon %>" class="img-sm img-avatar">
-                                        <%}else{%>
-                                          <img src="/assets/imgs/people/avatar-1.png" class="img-sm img-avatar">
-                                          <%}%>
-                                    </div>
-                                    <div class="info pl-3">
-                                        <h6 class="mb-0 title" style="text-decoration: none;">
-                                            <%= users[i].name %>
-                                            <% if (users[i].verified==true) { %>
-                                              <span class="verified-mark" style="color: green; font-size: 1.5em;">✔</span>
-                                            <% } %>
-                                          </h6>
-                                        <small class="text-muted"><%= (users[i].refreshToken)?'Active': 'Not-Active' %></small>
-                                    </div>
-                                </a>
-                            </td>
-                            <td><%= users[i].email %></td>
-                            <td><%= users[i].mobile %></td>
-                            <td>
-                                <span class="badge rounded-pill <%= users[i].isBlocked ? 'alert-danger' : 'alert-success' %>">
-                                  <%= users[i].isBlocked ? 'Blocked' : 'Not Blocked' %>
-                                </span>
-                              </td>
-                              <td class="text-end">
-                                <% if (users[i].isBlocked) { %>
-                                  <a href="" class="btn btn-sm btn-success rounded font-sm mt-15" onclick="unblockUser('<%= users[i]._id %>')">Unblock User</a>
-                                <% } else { %>
-                                  <a href="" class="btn btn-sm btn-danger rounded font-sm mt-15" onclick="blockUser('<%= users[i]._id %>')">Block User</a>
-                                <% } %>
-                              </td>
-                        </tr>
-                        <% } } else { %>
-                            <td colspan="5">Products Not Found</td>
-                            <% } %>
-                        
-                    </tbody>
-                </table>
-                <!-- table-responsive.// -->
-            </div>
+  </div>
+  <div class="card mb-4">
+    <header class="card-header">
+      <div class="row gx-3">
+        <div class="col-lg-4 col-md-6 me-auto">
+          <input type="text" placeholder="Search..." class="form-control" />
         </div>
-        <!-- card-body end// -->
+        <div class="col-lg-2 col-md-3 col-6">
+          <select id="statusFilter" class="form-select">
+            <option value="all">Default</option>
+            <option value="active">Active</option>
+            <option value="not-active">Not Active</option>
+            <option value="blocked">Blocked</option>
+            <option value="not-blocked">Not Blocked</option>
+          </select>
+        </div>
+        <div class="col-lg-2 col-md-3 col-6">
+          <button class="form-select">Reset</button>
+        </div>
+      </div>
+    </header>
+    <!-- card-header end// -->
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Users</th>
+              <th>Email</th>
+              <th>Mobile</th>
+              <th>Status</th>
+              <th class="text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (users.length > 0) { for (let i = 0; i < users.length; i++) {
+            %>
+            <tr>
+              <td width="30%">
+                <a href="#" class="itemside">
+                  <div class="left">
+                    <% if(users[i].icon){ %>
+                    <img src="<%= users[i].icon %>" class="img-sm img-avatar" />
+                    <%}else{%>
+                    <img
+                      src="/assets/imgs/people/avatar-1.png"
+                      class="img-sm img-avatar"
+                    />
+                    <%}%>
+                  </div>
+                  <div class="info pl-3">
+                    <h6 class="mb-0 title" style="text-decoration: none">
+                      <%= users[i].name %> <% if (users[i].verified==true) { %>
+                      <span
+                        class="verified-mark"
+                        style="color: green; font-size: 1.5em"
+                        >✔</span
+                      >
+                      <% } %>
+                    </h6>
+                    <small class="text-muted"
+                      ><%= (users[i].refreshToken)?'Active': 'Not-Active'
+                      %></small
+                    >
+                  </div>
+                </a>
+              </td>
+              <td><%= users[i].email %></td>
+              <td><%= users[i].mobile %></td>
+              <td>
+                <span
+                  class="badge rounded-pill <%= users[i].isBlocked ? 'alert-danger' : 'alert-success' %>"
+                >
+                  <%= users[i].isBlocked ? 'Blocked' : 'Not Blocked' %>
+                </span>
+              </td>
+              <td class="text-end">
+                <% if (users[i].isBlocked) { %>
+                <a
+                  href=""
+                  class="btn btn-sm btn-success rounded font-sm mt-15"
+                  onclick="unblockUser('<%= users[i]._id %>')"
+                  >Unblock User</a
+                >
+                <% } else { %>
+                <a
+                  href=""
+                  class="btn btn-sm btn-danger rounded font-sm mt-15"
+                  onclick="blockUser('<%= users[i]._id %>')"
+                  >Block User</a
+                >
+                <% } %>
+              </td>
+            </tr>
+            <% } } else { %>
+            <td colspan="5">Products Not Found</td>
+            <% } %>
+          </tbody>
+        </table>
+        <!-- table-responsive.// -->
+      </div>
     </div>
-    <!-- card end// -->
-    <div class="pagination-area mt-15 mb-50">
-        <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-start">
-                <li class="page-item active"><a class="page-link" href="#">01</a></li>
-                <li class="page-item"><a class="page-link" href="#">02</a></li>
-                <li class="page-item"><a class="page-link" href="#">03</a></li>
-                <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                <li class="page-item"><a class="page-link" href="#">16</a></li>
-                <li class="page-item">
-                    <a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a>
-                </li>
-            </ul>
-        </nav>
-    </div>
+    <!-- card-body end// -->
+  </div>
+  <!-- card end// -->
+  <div class="pagination-area mt-15 mb-50">
+    <nav aria-label="Page navigation example">
+      <ul class="pagination justify-content-start">
+        <li class="page-item active"><a class="page-link" href="#">01</a></li>
+        <li class="page-item"><a class="page-link" href="#">02</a></li>
+        <li class="page-item"><a class="page-link" href="#">03</a></li>
+        <li class="page-item"><a class="page-link dot" href="#">...</a></li>
+        <li class="page-item"><a class="page-link" href="#">16</a></li>
+        <li class="page-item">
+          <a class="page-link" href="#"
+            ><i class="material-icons md-chevron_right"></i
+          ></a>
+        </li>
+      </ul>
+    </nav>
+  </div>
 </section>
+<!-- Include jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 <script>
-   function blockUser(userId) {
-  // Send an AJAX request to block the user
-  fetch(`/admin/blockUser/${userId}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ isBlocked: true }),
-  })
-    .then(response => response.json())
-    .then(data => {
-      if (data.message === 'User blocked successfully') {
-        // Update the UI or perform additional actions on success
-        alert('User blocked successfully.');
-      } else {
-        alert('Failed to block user. Please try again.');
-      }
-    })
-    .catch(error => {
-      console.error('Error blocking user:', error);
+  $(document).ready(function () {
+    const statusFilter = document.getElementById("statusFilter");
+    statusFilter.addEventListener("change", function () {
+      const selectedOption = this.value;
+      $.ajax({
+        url: "/admin/getAllUsers",
+        method: "GET",
+        data: { status: selectedOption },
+        success: function (response) {
+          if (response.success) {
+            $("tbody").load(location.href + " tbody"); // Corrected the selector
+          }
+        },
+      });
     });
-}
+  });
+</script>
 
-function unblockUser(userId) {
-  // Send an AJAX request to unblock the user
-  fetch(`/admin/unblockUser/${userId}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ isBlocked: false }),
-  })
-    .then(response => response.json())
-    .then(data => {
-      if (data.message === 'User unblocked successfully') {
-        // Update the UI or perform additional actions on success
-        alert('User unblocked successfully.');
-      } else {
-        alert('Failed to unblock user. Please try again.');
-      }
+<script>
+  function blockUser(userId) {
+    // Send an AJAX request to block the user
+    fetch(`/admin/blockUser/${userId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ isBlocked: true }),
     })
-    .catch(error => {
-      console.error('Error unblocking user:', error);
-    });
-}
-  </script>
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.message === "User blocked successfully") {
+          // Update the UI or perform additional actions on success
+          alert("User blocked successfully.");
+        } else {
+          alert("Failed to block user. Please try again.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error blocking user:", error);
+      });
+  }
+
+  function unblockUser(userId) {
+    // Send an AJAX request to unblock the user
+    fetch(`/admin/unblockUser/${userId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ isBlocked: false }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.message === "User unblocked successfully") {
+          // Update the UI or perform additional actions on success
+          alert("User unblocked successfully.");
+        } else {
+          alert("Failed to unblock user. Please try again.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error unblocking user:", error);
+      });
+  }
+</script>
 <%- include('../layouts/adminLayout/_footer.ejs') -%>
