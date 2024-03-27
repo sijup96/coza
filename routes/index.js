@@ -5,7 +5,7 @@ const { userHome }=require('../controller/userCtrl')
 const { userMiddleware, isAdmin, cacheControl } = require('../middlewares/authMiddleware');
 
 
-router.get('/about',loadAbout);
+router.get('/',userMiddleware,loadAbout);
 router.get('/details',loadContact);
 
 

@@ -286,11 +286,6 @@ const loadCheckout = asyncHandler(async (req, res) => {
     const userAddress = await Address.find({ user: userId }).populate("user");
     const walletData = await Wallet.findOne({ user: userId });
     const currentDate = new Date();
-    const couponData = await Coupon.find({
-      expiryDate: { $gte: currentDate },
-      is_listed: true,
-      usersUsed: { $ne: userId },
-    });
     if (cartData.products.length === 0) {
       return res.redirect("/cart");
     }
@@ -304,6 +299,25 @@ const loadCheckout = asyncHandler(async (req, res) => {
     if (!isValid) {
       req.flash("head", " Product is unListed or Out of stock");
       return res.redirect("/cart");
+    }
+    let couponData
+    if(cartData.cartTotal>300){
+    let filter = {
+      expiryDate: { $gte: currentDate },
+      is_listed: true,
+      usersUsed: { $ne: userId },
+    };
+    
+    if (cartData.cartTotal > 300) {
+      if (cartData.cartTotal <= 500) {
+        filter.discountAmount = { $lte: 100 };
+      } else if (cartData.cartTotal <= 1000) {
+        filter.discountAmount = { $lte: 200 };
+      } else if (cartData.cartTotal <= 5000) {
+        filter.discountAmount = { $lte: 500 };
+      }
+    }
+     couponData = await Coupon.find(filter).sort({ discountAmount: -1 });     
     }
     res.render("checkout", { cartData, userAddress, walletData, couponData });
   } catch (error) {

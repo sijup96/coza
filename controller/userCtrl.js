@@ -3,7 +3,6 @@ const User = require("../models/userModel");
 const asyncHandler = require("express-async-handler");
 const validateMongoDbId = require("../utils/validateMongodbId");
 const { generateRefreshToken } = require("../config/refreshToken");
-const { JsonWebTokenError } = require("jsonwebtoken");
 const jwt = require("jsonwebtoken");
 const sendEmail = require("./emailCtrl");
 const crypto = require("crypto");
@@ -14,55 +13,19 @@ const Product = require("../models/productModel");
 const Address = require("../models/addressModel");
 const Cart = require("./cartCtrl");
 const Wishlist = require("../models/wishListModel");
-const { log } = require("console");
 const slugify = require("slugify");
 
 /* GET home page. */
 const userHome = asyncHandler(async (req, res) => {
   try {
-    const startingPrice = req.query.startingPrice;
-    const endPrice = req.query.endPrice;
-    const sortByInput = req.query.sortBy || "default";
-    let productSearch = "";
-    if (req.query.productSearch)
-      productSearch = slugify(req.query.productSearch.toLowerCase());
-    // Filter
-    const filter = {
-      is_listed: true,
-    };
-    if (startingPrice && endPrice) {
-      filter.price = { $gte: startingPrice, $lte: endPrice };
-    } else if (startingPrice) {
-      filter.price = { $gte: startingPrice };
-    } else if (endPrice) {
-      filter.price = { $lte: endPrice };
-    }
-    // Search by Slug
-    if (productSearch)
-      filter.slug = { $regex: new RegExp("^" + productSearch, "i") };
-
-    // Sort
-    let sortBy = {};
-    switch (sortByInput) {
-      case "popularity":
-        sortBy = { sold: -1 };
-        break;
-      case "lowToHigh":
-        sortBy = { price: 1 };
-        break;
-      case "highToLow":
-        sortBy = { price: -1 };
-        break;
-      default:
-        sortBy = { updatedAt: -1 };
-        break;
-    }
-
     const categories = await Category.find({ is_listed: true });
     const categoryIds = categories.map((category) => category._id);
     const accessToken = req.accessToken;
-    const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
-    const userId = decodedToken.id;
+    let decodedToken, userId;
+    if (accessToken) {
+      decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
+      userId = decodedToken.id;
+    }
     let cartData;
     if (accessToken) {
       cartData = await Cart.viewCart(accessToken);
@@ -71,35 +34,30 @@ const userHome = asyncHandler(async (req, res) => {
 
     let products;
     if (categoryIds.length > 0) {
+      // Pagination
+      const page = req.query.page || 1;
+      const limit = 8;
+      const skip = (page - 1) * limit;
       products = await Product.find({
         category: { $in: categoryIds },
-        ...filter,
-      }).sort(sortBy);
-      // Check if any filtering parameters are provided
-      if (
-        !startingPrice &&
-        !endPrice &&
-        sortByInput === "default" &&
-        !productSearch
-      ) {
-        return res.render("index", {
-          products,
-          categories,
-          cartData,
-          wishlistedProducts,
-        });
-      } else{
-        return res.status(200).json({
-          success: true,
-          products,
-          categories,
-          cartData,
-          wishlistedProducts,
-        });
-      }
-    }
+      })
+        .skip(skip)
+        .limit(limit);
+      const totalProductsCount = await Product.countDocuments({
+        category: { $in: categoryIds },
+      });
 
-    // Render the view with the products
+      const totalPages = Math.ceil(totalProductsCount / limit);
+
+      return res.render("index", {
+        products,
+        categories,
+        cartData,
+        wishlistedProducts,
+        currentPage: parseInt(page),
+        totalPages,
+      });
+    }
   } catch (error) {
     // Handle the error appropriately, e.g., log it or send an error response
     console.error(error);
@@ -671,7 +629,6 @@ const resetPassword = asyncHandler(async (req, res) => {
 const updateProfileIcon = asyncHandler(async (req, res) => {
   try {
     const { photoUrl } = req.body;
-    console.log(photoUrl);
     const accessToken = req.accessToken;
     const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
     const userId = decodedToken.id;

@@ -172,6 +172,9 @@ const applyCoupon = asyncHandler(async (req, res) => {
     const { couponCode } = req.body;
 
     const existingCoupon = await Coupon.findOne({ couponCode: couponCode });
+    if(!existingCoupon){
+      return res.status(404).json({message:'Enter a valid coupon code'})
+    }
     if (existingCoupon && existingCoupon.usersUsed.includes(userId)) {
       return res.status(400).json({ message: "Coupon already used" });
     }

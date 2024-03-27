@@ -274,7 +274,11 @@
 											  </div>
 											  <hr>
 											<% } %>
-										  <% } %>
+										  <% }else{ %>
+											<div class="offer-box">
+												<span style="display: flex;"><h5 style="color: red;">Coupon not Available</h5></span>
+											  </div>
+										 <% } %>
 										</div>
 									  </div>
 									  
@@ -659,6 +663,13 @@
         }
 						},
 						error: function (xhr, status, error) {
+							if (xhr.status === 404) {
+                            Swal.fire({
+                                title: 'Alert',
+                                text: xhr.responseJSON.message,
+                                icon: 'alert'
+                            });
+                        }
 							if (xhr.status === 400) {
                             Swal.fire({
                                 title: 'Alert',
@@ -737,7 +748,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     success: function (response) {
                         const shippingSpan = document.querySelector('.shipping-charge');
                         if (response.shippingCharge) {
-							
+							console.log(response);
                             shippingSpan.textContent = '₹ ' + response.shippingCharge;
                         } else {
                             shippingSpan.textContent = 'FREE Delivery';
@@ -1114,7 +1125,7 @@ useWallet.addEventListener('change', function() {
 					cancelButtonText: 'No, cancel!'
 				}).then((result) => {
 					if (result.isConfirmed) {
-						location.reload();
+						window.location.href = '/order/thankyou';
 					} else {
 						rzp1.open();
 					}
@@ -1137,7 +1148,7 @@ rzp1.open();
 				method:'POST',
 				success:function(response){
 					if(response.success){
-						location.reload()
+						window.location.href = '/order/thankyou';
 					}
 				}
 			})

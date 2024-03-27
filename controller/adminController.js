@@ -6,6 +6,8 @@ const Order = require("../models/orderModel");
 const Wallet = require("../models/walletModel");
 const Product = require("../models/productModel");
 const Category = require("../models/categoryModel");
+const orderid = require("order-id")("key");
+
 
 //const category = require('../model/category')
 
@@ -23,7 +25,7 @@ const adminLogin = asyncHandler(async (req, res) => {
     if (!cookies || !cookies.refreshToken) {
       res.render("admin/adminLogin");
     } else {
-     res.redirect('/admin/dashboard')
+      res.redirect("/admin/dashboard");
     }
   } catch (error) {
     // Log the error for debugging
@@ -146,7 +148,7 @@ const loadOrders = asyncHandler(async (req, res) => {
           model: "Product",
         },
       })
-      .sort({ date: -1 });
+      .sort({ timestamps: -1 });
     res.render("admin/orders", { orderList });
   } catch (error) {
     throw new Error(error);
@@ -194,17 +196,33 @@ const changeOrderStatus = asyncHandler(async (req, res) => {
         }
       );
     }
-    if (status === "Returned") {
+    if (
+      (orderDetail.status === "Returned" || orderDetail.status === "Cancelled") &&
+      orderDetail.paymentStatus === "Completed"
+    ) {
       const returnAmount =
         orderDetail.total_amount - orderDetail.shippingCharge;
-      await Wallet.findOneAndUpdate(
-        { user: userId },
-        {
-          $inc: {
-            balance: returnAmount,
-          },
+        const balanceUpdated = await Wallet.findOneAndUpdate(
+          { user: userId },
+          {
+            $inc: {
+              balance: returnAmount,
+            },
+          }
+        );
+        if (balanceUpdated) {
+          const newTransaction = {
+            type: "Credit",
+            amount: returnAmount,
+            description: "Money was credited from cancelled Order",
+            paymentID: orderid.generate(),
+          };
+          await Wallet.findOneAndUpdate(
+            { user: userId },
+            { $push: { transactions: newTransaction } },
+            { new: true }
+          );
         }
-      );
     }
     if (orderDetail) {
       res
@@ -218,6 +236,7 @@ const changeOrderStatus = asyncHandler(async (req, res) => {
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
+
 
 module.exports = {
   adminLogin,

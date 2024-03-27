@@ -4,7 +4,7 @@ const { createBlog, updateBlog, getBlog, getAllBlogs, deleteBlog, loadBlog } = r
 const router = express.Router();
 
 
-router.get("/", loadBlog);
+router.get("/",userMiddleware, loadBlog);
 router.post("/adminBlog", userMiddleware, isAdmin, createBlog);
 router.put("/updateBlog/:id", userMiddleware, isAdmin, updateBlog);
 router.get("/getBlog/:id", getBlog);

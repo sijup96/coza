@@ -11,22 +11,24 @@
                 <h2 class="content-title card-title">Order List</h2>
                 <p>Here is the List of all Orders.</p>
             </div>
-            <div>
-                <input type="text" placeholder="Search order ID" class="form-control bg-white" />
-            </div>
+
         </div>
         <div class="card mb-4">
             <header class="card-header">
                 <div class="row gx-3">
                     <div class="col-lg-4 col-md-6 me-auto">
-                        <input type="text" placeholder="Search..." class="form-control" />
+                        <input type="text" placeholder="Search by ID" class="form-control" id="searchOrder"/>
                     </div>
                     <div class="col-lg-2 col-6 col-md-3">
                         <select class="form-select">
-                            <option>Status</option>
-                            <option>Active</option>
-                            <option>Disabled</option>
                             <option>Show all</option>
+                            <option>Not Processed</option>
+                            <option>Processing</option>
+                            <option>Dispatched</option>
+                            <option>Cancelled</option>
+                            <option>Delivered</option>
+                            <option>Return Requested</option>
+                            <option>Returned</option>
                         </select>
                     </div>
                     <div class="col-lg-2 col-6 col-md-3">
@@ -43,13 +45,13 @@
                 <div class="table-responsive">
                     <table class="table table-hover">
 
-                        <tbody>
+                        <tbody id="orderDatas">
                             <% if (orderList && orderList.length> 0) { %>
                                 <% orderList.forEach(order=> { %>
                                     <% let alertClass = ''; %>
 
                                     <% 
-                                    if (order.status === 'Cancled' || order.status === 'Returned') {
+                                    if (order.status === 'Cancelled' || order.status === 'Returned') {
                                         alertClass = 'alert-danger';
                                     } else if (order.status === 'Delivered') {
                                         alertClass = 'alert-success';
@@ -66,7 +68,8 @@
                                                 <%}else{%>
                                                     <img src="/assets/imgs/people/avatar-1.png"
                                                         class="img-sm img-avatar">
-                                                    <%}%>
+                                                    <%}%><br>
+                                                    <span># <%= order.orderId %></span>
 
                                         </td>
                                         <td><b><span style="font-weight: bold;"> Product Name</span><br>
@@ -148,6 +151,28 @@
         }
 
     </script>
-    </body>
+<script>
+    $(document).ready(function() {
+        $('#searchOrder').on('input', function() {
+            const searchValue = $(this).val().trim();
+            console.log(searchValue);
+            if (searchValue !== '') {
+                $.ajax({
+                    url: '/order/search',
+                    data: { searchValue: searchValue },
+                    success: function(response) {
+                        console.log(response);
+                        // Handle the response here, update the UI if needed
+                    },
+                    error: function(xhr, status, error) {
+                        // Handle errors if any
+                        console.error('Error:', error);
+                    }
+                });
+            }
+        });
+    });
+</script>
 
+    </body>
     </html>

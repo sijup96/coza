@@ -7,46 +7,115 @@ const fs = require("fs");
 const path = require("path");
 const Cart = require("./cartCtrl");
 const sharp = require("sharp");
+const jwt = require("jsonwebtoken");
+const Wishlist = require("../models/wishListModel");
 
 // Load Product
 const loadProduct = asyncHandler(async (req, res) => {
   try {
+    const startingPrice = req.query.startingPrice;
+    const endPrice = req.query.endPrice;
+    const sortByInput = req.query.sortBy || "default";
+    let productSearch = "";
+    if (req.query.productSearch)
+      productSearch = slugify(req.query.productSearch.toLowerCase());
+    // Filter
+    const filter = {
+      is_listed: true,
+    };
+    if (startingPrice && endPrice) {
+      filter.price = { $gte: startingPrice, $lte: endPrice };
+    } else if (startingPrice) {
+      filter.price = { $gte: startingPrice };
+    } else if (endPrice) {
+      filter.price = { $lte: endPrice };
+    }
+    // Search by Slug
+    if (productSearch) filter.slug = { $regex: new RegExp(productSearch, "i") };
+
+    // Sort
+    let sortBy = {};
+    switch (sortByInput) {
+      case "popularity":
+        sortBy = { sold: -1 };
+        break;
+      case "lowToHigh":
+        sortBy = { price: 1 };
+        break;
+      case "highToLow":
+        sortBy = { price: -1 };
+        break;
+      case "createdAt":
+        sortBy = { updatedAt: -1 };
+        break;
+      default:
+        sortBy = { updatedAt: -1 };
+        break;
+    }
+
     const categories = await Category.find({ is_listed: true });
     const categoryIds = categories.map((category) => category._id);
     const accessToken = req.accessToken;
+    const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
+    const userId = decodedToken.id;
     let cartData;
     if (accessToken) {
       cartData = await Cart.viewCart(accessToken);
     }
+    const wishlistedProducts = await Wishlist.findOne({ userId: userId });
 
+    let products;
     if (categoryIds.length > 0) {
-      const productsFemale = await Product.find({
+      // Pagination
+      const page = req.query.page || 1; // Default to page 1 if not provided
+      const limit = 8; // Number of items per page
+      const skip = (page - 1) * limit;
+
+      products = await Product.find({
         category: { $in: categoryIds },
-        is_listed: true,
-        sex: "female",
-      });
-      const productsMale = await Product.find({
+        ...filter,
+      })
+        .sort(sortBy)
+        .skip(skip)
+        .limit(limit);
+
+      const totalProductsCount = await Product.countDocuments({
         category: { $in: categoryIds },
-        is_listed: true,
-        sex: "male",
+        ...filter,
       });
-      const productsUnisex = await Product.find({
-        category: { $in: categoryIds },
-        is_listed: true,
-        sex: "unisex",
-      });
-      res.render("product", {
-        productsFemale,
-        productsMale,
-        productsUnisex,
-        categories,
-        cartData,
-      });
-    } else {
-      res.render("index", { productsFemale: [], cartData });
+
+      const totalPages = Math.ceil(totalProductsCount / limit);
+
+      // Check if any filtering parameters are provided
+      if (
+        !startingPrice &&
+        !endPrice &&
+        sortByInput === "default" &&
+        !productSearch
+      ) {
+        return res.render("product", {
+          products,
+          categories,
+          cartData,
+          wishlistedProducts,
+          currentPage: parseInt(page),
+          totalPages,
+          sortBy: sortByInput, // Pass sortBy to the template for active state
+        });
+      } else {
+        return res.status(200).json({
+          success: true,
+          products,
+          categories,
+          cartData,
+          wishlistedProducts,
+          currentPage: parseInt(page),
+          totalPages,
+          sortBy: sortByInput, // Pass sortBy to the response for client-side sorting
+        });
+      }
     }
   } catch (error) {
-    // Handle the error appropriately, e.g., log it or send an error response
     console.error(error);
     res.status(500).send("Internal Server Error");
   }
@@ -56,19 +125,26 @@ const loadProductDetail = asyncHandler(async (req, res) => {
   const { id } = req.params;
   try {
     const accessToken = req.accessToken;
+    const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
+    const userId = decodedToken.id;
+
     const cartData = await Cart.viewCart(accessToken);
     const productData = await Product.findById({ _id: id })
       .populate("offer")
       .populate("category");
     const product = await productData.populate("category.offer");
+    const isWishlisted = await Wishlist.findOne({
+      userId: userId,
+      "products.product": product._id,
+    });
     if (product.is_listed == true) {
-      res.render("product-detail", { product, cartData });
+      res.render("product-detail", { product, cartData, isWishlisted });
     } else {
       res.send(` <script>
              alert('Sorry..., this product was unListed by Admin');
              window.history.back();
           </script>`);
-      res.render("product-detail", { product, cartData });
+      res.render("product-detail", { product, cartData, isWishlisted });
     }
   } catch (error) {
     // Handle the error or log it
@@ -163,8 +239,8 @@ const createProduct = asyncHandler(async (req, res) => {
       color,
       sex,
     } = req.body;
-    const cat=await Category.findById(category)
-    console.log(category,cat);
+    const cat = await Category.findById(category);
+    console.log(category, cat);
     // const images = req.files.map((file) => file.originalname);
     const newProduct = new Product({
       title,

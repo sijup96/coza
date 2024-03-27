@@ -22,8 +22,8 @@ function formatDate(dateString) {
                 </div>
                 <div class="col-lg-6 col-md-6 ms-auto text-md-end">
                     <% if(orderDetail.status === 'Return Requested'){ %>
-                        <button type="button" class="btn btn-primary btn-sm">Accept</button>
-                        <button type="button" class="btn btn-secondary btn-sm">Decline</button>
+                        <button type="button" class="btn btn-primary btn-sm" id="acceptButton">Accept</button>
+                        <button type="button" class="btn btn-secondary btn-sm" id="declineButton">Decline</button>                        
                         <a id="printButton" class="btn btn-secondary print ms-2" href="#"><i class="icon material-icons md-print"></i> Print</a>
                    <% }else if(orderDetail.status === 'Returned'){ %>
                     <h6 style="color: red;">Order Returned</h6>
@@ -200,18 +200,45 @@ function formatDate(dateString) {
                 <div class="col-lg-4">
                     <div class="box shadow-sm bg-light">
                         <h6 class="mb-15">Payment info</h6>
-                        <% if(orderDetail.payment == 'online'){%>
-                        <p>
-                            <img src="/assets/imgs/card-brands/3.png" class="border" height="20" /> <b style="font-size:medium; ;"> &nbsp;Razorpay</b> <br />
-                            Payment ID:&nbsp; <%= orderDetail.paymentId %>><br />
-                            Phone: +91 <b><%= orderDetail.delivery_address.mobile %> </b>
-                        </p>
-                        <%}else{ %>
-                            <p>
-                             <b style="font-size:medium; ;"> &nbsp;Cash on Delivery</b> <br />
-                                Phone: +91 <b><%= orderDetail.delivery_address.mobile %> </b>
-                            </p>
+
+                        <% if (orderDetail.status === 'Cancelled') { %>
+                            <% if (orderDetail.payment === 'Online' || orderDetail.payment === 'Wallet') { %>
+                                <p>
+                                    <b style="font-size: medium;">&nbsp; Payment credited to Wallet </b> <br />
+                                    <b style="font-size: medium;">&nbsp; Order Cancelled</b>
+                                </p>
+                            <% } else if (orderDetail.payment === 'Cash on Delivery') { %>
+                                <p>
+                                    <b style="font-size: medium;">&nbsp; Order Cancelled</b>
+                                </p>
                             <% } %>
+                        <% } else { %>
+                            <% if (orderDetail.payment === 'Online' || orderDetail.payment === 'Wallet') { %>
+                                <p>
+                                    <img src="/assets/imgs/card-brands/3.png" class="border" height="20" /> 
+                                    <b style="font-size: medium;">&nbsp;<%= orderDetail.payment %></b> <br />
+                                    Payment ID: <%= orderDetail.paymentId %> <br />
+                                    Phone: +91 <b><%= orderDetail.delivery_address.mobile %></b>
+                                </p>
+                            <% } else if (orderDetail.payment === 'Cash on Delivery' && orderDetail.paymentStatus !== 'Completed') { %>
+                                <p>
+                                    <b style="font-size: medium;">&nbsp; Cash on Delivery</b> <br />
+                                    Phone: +91 <b><%= orderDetail.delivery_address.mobile %></b> <br>
+                                    <button id="onlinePayment" class="btn btn-primary"> Pay Early</button>
+                                </p>
+                            <% } else if (orderDetail.paymentStatus !== 'Completed') { %>
+                                <p>
+                                    <b style="font-size: medium;">&nbsp; Payment <%= orderDetail.payment %></b>
+                                </p>
+                                <button id="onlinePayment" class="btn btn-primary"> Pay now</button>
+                            <% } else if (orderDetail.payment === 'Cash on Delivery' && orderDetail.paymentStatus === 'Completed') { %>
+                                <p>
+                                    <img src="/assets/imgs/card-brands/3.png" class="border" height="20" /> 
+                                    <b style="font-size: medium;">&nbsp;<%= orderDetail.payment %></b> <br />
+                                    Phone: +91 <b><%= orderDetail.delivery_address.mobile %></b>
+                                </p>
+                            <% } %>
+                        <% } %>
                     </div>
                     <div class="h-25 pt-4">
                         <div class="mb-3">
@@ -290,5 +317,38 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
+</script>
+<script>
+    document.getElementById('acceptButton').addEventListener('click', function() {
+    sendRequest('accept');
+});
+
+document.getElementById('declineButton').addEventListener('click', function() {
+    sendRequest('decline');
+});
+function sendRequest(action) {
+    fetch('your_url', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ action: action }) // Sending the action ('accept' or 'decline')
+    })
+    .then(response => {
+        // Handle response
+        if (response.ok) {
+            // Request was successful
+            console.log('Request successful');
+            // You can perform additional actions here if needed
+        } else {
+            // Request failed
+            console.error('Request failed');
+        }
+    })
+    .catch(error => {
+        // Handle errors
+        console.error('Error:', error);
+    });
+}
 </script>
 <%- include('../layouts/adminLayout//_footer.ejs') -%>

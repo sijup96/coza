@@ -12,6 +12,7 @@
 			background-color: transparent;
 		}
 	</style>
+
 	<!-- Slider -->
 	<section class="section-slide">
 		<div class="wrap-slick1 rs2-slick1">
@@ -35,7 +36,6 @@
 							<div class="layer-slick1 animated visible-false" data-appear="zoomIn" data-delay="1600">
 								<a href="/products"
 									class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn2 p-lr-15 trans-04">
-									
 									Shop Now
 								</a>
 							</div>
@@ -102,7 +102,6 @@
 			<div class="wrap-slick1-dots p-lr-10"></div>
 		</div>
 	</section>
-	
 
 
 	<!-- Banner -->
@@ -179,398 +178,53 @@
 				</h3>
 			</div>
 
-			<div class="flex-w flex-sb-m p-b-52">
-				<div class="flex-w flex-l-m filter-tope-group m-tb-10">
-					<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 how-active1">
-						All Products
-					</button>
-				</div>
-				<div class="row">
-					<div class="col-md-4 mb-3">
-						Search :
-						<input class="form-control mr-sm-2" type="search" id="productSearch" placeholder="Search" aria-label="Search">
-					</div>
-					<div class="col-md-2 mb-3">
-						Sort :
-						<select class="custom-select" id="sortBy">
-							<option value="default">Default</option>
-							<option value="popularity">Popularity</option>
-							<option value="lowToHigh">Low to High</option>
-							<option value="highToLow">High to Low</option>
-						</select>
-					</div>
-					<div class="col-md-2 mb-3">
-						Price from :
-						<input type="number" class="form-control" placeholder="Enter Price" id="startingPrice">
-					</div>
-					<div class="col-md-2 mb-3">
-						to :
-						<input type="number" class="form-control" placeholder="Enter Price" id="endPrice">
-					</div>
-					<div class="col-md-2"><br>
-						<button type="button" class="btn btn-secondary" id="submitButton">Submit</button>
-					</div>
-				</div>	
+
+
+
+
+			<div class="row isotope-grid">
+
+				<% if (products.length> 0 ) { for (let i = 0; i < products.length; i++) { %>
+					<a href="/products/detail/<%= products[i]._id %>">
+						<div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item">
+							<!-- Block2 -->
+							<div class="block2">
+								<div class="block2-pic hov-img0 label-new" data-label="New">
+											<img src=" /productImages/<%=products[i].images[0] %>" alt="IMG-PRODUCT">
+
+									<a href="/products/detail/<%= products[i]._id %>"
+										class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
+										Quick View
+									</a>
+								</div>
+
+								<div class="block2-txt flex-w flex-t p-t-14">
+									<div class="block2-txt-child1 flex-col-l ">
+										<a href="/products/detail/<%= products[i]._id %>"
+											class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+											<%= products[i].title %>
+										</a>
+
+										<span class="stext-105 cl3">
+											<%= products[i].price %>
+										</span>
+									</div>
+
+								</div>
+							</div>
+						</div>
+					</a>
+						<% } } %>
 
 			</div>
-			<div class="row isotope" id="productLoad">
-				<% if(products && products.length > 0) { %>
-				  <% for(let i = 0; i < products.length; i++) { %>
-					<div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item">
-					  <!-- Block2 -->
-					  <div class="block2">
-						<div class="block2-pic hov-img0 label-new" data-label="New">
-						  <img src="/productImages/<%= products[i].images[0] %>" alt="IMG-PRODUCT">
-						  <a href="/products/detail/<%= products[i]._id %>"
-							class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
-							Quick View
-						  </a>
-						</div>
-						<div class="block2-txt flex-w flex-t p-t-14">
-						  <div class="block2-txt-child1 flex-col-l ">
-							<a href="/products/detail/<%= products[i]._id %>"
-							  class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
-							  <%= products[i].title %>
-							</a>
-							<span class="stext-105 cl3">
-							  <%= products[i].price %>
-							</span>
-						  </div>
-						  <div class="block2-txt-child2 flex-r p-t-3">
-							<% if(wishlistedProducts && wishlistedProducts.products.length > 0) { %>
-							  <% const productId = products[i]._id.toString(); %>
-							  <% const isWishlisted = wishlistedProducts.products.some(product => product.product.toString() === productId); %>
-							  <% if(isWishlisted) { %>
-								<a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2" data-product-id="<%= products[i]._id %>">
-								  <img class="icon-heart1 dis-block trans-04" src="/images/icons/icon-heart-02.png" alt="ICON">
-								</a>
-							  <% } else { %>
-								<a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2" data-product-id="<%= products[i]._id %>">
-								  <img class="icon-heart-01 dis-block trans-04 ab-t-l" src="/images/icons/icon-heart-01.png" alt="ICON">
-								</a>
-							  <% } %>
-							<% } else { %>
-							  <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2" data-product-id="<%= products[i]._id %>">
-								<img class="icon-heart-01 dis-block trans-04 ab-t-l" src="/images/icons/icon-heart-01.png" alt="ICON">
-							  </a>
-							<% } %>
-						  </div>
-						</div>
-					  </div>
-					</div>
-				  <% } %>
-				<% } %>
-			
-			  </div>
-			<!-- Pagination -->
-			<div class="flex-c-m flex-w w-full p-t-38">
-				<a href="#" class="flex-c-m how-pagination1 trans-04 m-all-7 active-pagination1">
-					1
-				</a>
-
-				<a href="#" class="flex-c-m how-pagination1 trans-04 m-all-7">
-					2
-				</a>
-
-			</div>
+		<!-- Pagination -->
+<div class="flex-c-m flex-w w-full p-t-38">
+	<% for (let i = 1; i <= totalPages; i++) { %>
+	  <a href="/?page=<%= i %>" class="flex-c-m how-pagination1 trans-04 m-all-7<%= currentPage === i ? ' active-pagination1' : '' %>">
+		<%= i %>
+	  </a>
+	<% } %>
+  </div>
 	</section>
 
-
-	<!-- Footer -->
-	<footer class="bg3 p-t-75 p-b-32">
-		<div class="container">
-			<div class="row">
-				<div class="col-sm-6 col-lg-3 p-b-50">
-					<h4 class="stext-301 cl0 p-b-30">
-						Categories
-					</h4>
-
-					<ul>
-						<% if(categories && categories.length>0){ for(let i=0;i< categories.length;i++){ %>
-								<li class="p-b-10">
-									<a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-										<%= categories[i].title %>
-									</a>
-								</li>
-							<% }} %>
-					</ul>
-				</div>
-
-				<div class="col-sm-6 col-lg-3 p-b-50">
-					<h4 class="stext-301 cl0 p-b-30">
-						Help
-					</h4>
-
-					<ul>
-						<li class="p-b-10">
-							<a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-								Track Order
-							</a>
-						</li>
-
-						<li class="p-b-10">
-							<a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-								Returns
-							</a>
-						</li>
-
-						<li class="p-b-10">
-							<a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-								Shipping
-							</a>
-						</li>
-
-						<li class="p-b-10">
-							<a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-								FAQs
-							</a>
-						</li>
-					</ul>
-				</div>
-
-				<div class="col-sm-6 col-lg-3 p-b-50">
-					<h4 class="stext-301 cl0 p-b-30">
-						GET IN TOUCH
-					</h4>
-
-					<p class="stext-107 cl7 size-201">
-						Any questions? Let us know in store at 8th floor, 379 Hudson St, New York, NY 10018 or call
-						us on (+1) 96 716 6879
-					</p>
-
-					<div class="p-t-27">
-						<a href="#" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
-							<i class="fa fa-facebook"></i>
-						</a>
-
-						<a href="#" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
-							<i class="fa fa-instagram"></i>
-						</a>
-
-						<a href="#" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
-							<i class="fa fa-pinterest-p"></i>
-						</a>
-					</div>
-				</div>
-
-				<div class="col-sm-6 col-lg-3 p-b-50">
-					<h4 class="stext-301 cl0 p-b-30">
-						Newsletter
-					</h4>
-
-					<form>
-						<div class="wrap-input1 w-full p-b-4">
-							<input class="input1 bg-none plh1 stext-107 cl7" type="text" name="email"
-								placeholder="email@example.com">
-							<div class="focus-input1 trans-04"></div>
-						</div>
-
-						<div class="p-t-18">
-							<button class="flex-c-m stext-101 cl0 size-103 bg1 bor1 hov-btn2 p-lr-15 trans-04">
-								Subscribe
-							</button>
-						</div>
-					</form>
-				</div>
-			</div>
-
-			<div class="p-t-40">
-				<div class="flex-c-m flex-w p-b-18">
-					<a href="#" class="m-all-1">
-						<img src="/images/icons/icon-pay-01.png" alt="ICON-PAY">
-					</a>
-
-					<a href="#" class="m-all-1">
-						<img src="/images/icons/icon-pay-02.png" alt="ICON-PAY">
-					</a>
-
-					<a href="#" class="m-all-1">
-						<img src="/images/icons/icon-pay-03.png" alt="ICON-PAY">
-					</a>
-
-					<a href="#" class="m-all-1">
-						<img src="/images/icons/icon-pay-04.png" alt="ICON-PAY">
-					</a>
-
-					<a href="#" class="m-all-1">
-						<img src="/images/icons/icon-pay-05.png" alt="ICON-PAY">
-					</a>
-				</div>
-
-			</div>
-		</div>
-	</footer>
-
-	<!-- Back to top -->
-	<div class="btn-back-to-top" id="myBtn">
-		<span class="symbol-btn-back-to-top">
-			<i class="zmdi zmdi-chevron-up"></i>
-		</span>
-	</div>
-	<!--===============================================================================================-->
-	<script src="/vendor/jquery/jquery-3.2.1.min.js"></script>
-	<!--===============================================================================================-->
-	<script src="/vendor/animsition/js/animsition.min.js"></script>
-	<!--===============================================================================================-->
-	<script src="/vendor/bootstrap/js/popper.js"></script>
-	<script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
-	<!--===============================================================================================-->
-	<script src="/vendor/select2/select2.min.js"></script>
-	<script>
-		$(".js-select2").each(function () {
-			$(this).select2({
-				minimumResultsForSearch: 20,
-				dropdownParent: $(this).next('.dropDownSelect2')
-			});
-		})
-	</script>
-	<!--===============================================================================================-->
-	<script src="/vendor/daterangepicker/moment.min.js"></script>
-	<script src="/vendor/daterangepicker/daterangepicker.js"></script>
-	<!--===============================================================================================-->
-	<script src="/vendor/slick/slick.min.js"></script>
-	<script src="/js/slick-custom.js"></script>
-	<!--===============================================================================================-->
-	<script src="/vendor/parallax100/parallax100.js"></script>
-	<script>
-		$('.parallax100').parallax100();
-	</script>
-	<!--===============================================================================================-->
-	<script src="/vendor/MagnificPopup/jquery.magnific-popup.min.js"></script>
-	<script>
-		$('.gallery-lb').each(function () { // the containers for all your galleries
-			$(this).magnificPopup({
-				delegate: 'a', // the selector for gallery item
-				type: 'image',
-				gallery: {
-					enabled: true
-				},
-				mainClass: 'mfp-fade'
-			});
-		});
-	</script>
-	<!--===============================================================================================-->
-	<script src="/vendor/isotope/isotope.pkgd.min.js"></script>
-	<!--===============================================================================================-->
-	<script src="/vendor/sweetalert/sweetalert.min.js"></script>
-	
-	<!--===============================================================================================-->
-	<script src="/vendor/perfect-scrollbar/perfect-scrollbar.min.js"></script>
-	<script>
-		$('.js-pscroll').each(function () {
-			$(this).css('position', 'relative');
-			$(this).css('overflow', 'hidden');
-			var ps = new PerfectScrollbar(this, {
-				wheelSpeed: 1,
-				scrollingThreshold: 1000,
-				wheelPropagation: false,
-			});
-
-			$(window).on('resize', function () {
-				ps.update();
-			})
-		});
-	</script>
-	<!--===============================================================================================-->
-	<script src="/js/main.js"></script>
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-
-	<script>
-	$(document).ready(function() {
-    $('.js-addwish-b2').click(function(e) {
-        e.preventDefault();
-        const productId = $(this).data('product-id');
-        const isWishlisted = $(this).hasClass('added');
-             $.ajax({
-                type: 'PUT',
-                url: '/wishList/update',
-                contentType: 'application/json',
-                data: JSON.stringify({ productId: productId }),
-                success: function(response) {
-					location.reload()
-            //   $(`#wishlist${productId}`).load(location.href + `#wishlist${productId}`)
-                },
-                error: function(xhr, status, error) {
-                    // Handle error response
-                    console.error(xhr.responseText);
-                }
-            });
-        
-        $(this).toggleClass('added');
-    });
-});
-	</script>
-<script>
-	$(document).ready(function(){
-    $('#submitButton').click(function(){
-        const startingPrice = $('#startingPrice').val();
-        const endPrice = $('#endPrice').val();
-        const sortBy = $('#sortBy').val();
-        const productSearch = $('#productSearch').val();
-        $.ajax({
-            url: '/',
-            method: 'GET',
-            data: {
-                productSearch: productSearch,
-                sortBy: sortBy,
-                startingPrice: startingPrice,
-                endPrice: endPrice
-            },
-            success: function(response){
-                if(response.success){
-                    const products = response.products;
-                    const wishlistedProducts = response.wishlistedProducts;
-                    let productHtml = '';
-                    if(products && products.length > 0) {
-                        products.forEach(product => {
-                            productHtml += `
-                                <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item">
-                                    <!-- Block2 -->
-                                    <div class="block2">
-                                        <div class="block2-pic hov-img0 label-new" data-label="New">
-                                            <img src="/productImages/${product.images[0]}" alt="IMG-PRODUCT">
-                                            <a href="/products/detail/${product._id}"
-                                                class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
-                                                Quick View
-                                            </a>
-                                        </div>
-                                        <div class="block2-txt flex-w flex-t p-t-14">
-                                            <div class="block2-txt-child1 flex-col-l">
-                                                <a href="/products/detail/${product._id}"
-                                                    class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
-                                                    ${product.title}
-                                                </a>
-                                                <span class="stext-105 cl3">
-                                                    ${product.price}
-                                                </span>
-                                            </div>
-                                            <div class="block2-txt-child2 flex-r p-t-3">
-                                                <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2" data-product-id="${product._id}">
-                                                    ${wishlistedProducts && wishlistedProducts.products.some(p => p.product.toString() === product._id.toString()) ?
-                                                        '<img class="icon-heart1 dis-block trans-04" src="/images/icons/icon-heart-02.png" alt="ICON">' :
-                                                        '<img class="icon-heart-01 dis-block trans-04 ab-t-l" src="/images/icons/icon-heart-01.png" alt="ICON">'
-                                                    }
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            `;
-                        });
-                    }
-					
-                    $('#productLoad').html(productHtml);
-                } else {
-                    console.log('Error: ', response.error);
-                }
-            },
-            error: function(xhr, status, error){
-                console.log('Error: ', error);
-            }
-        });
-    });
-});
-	
-	</script>
 	<%- include('./indlude/_footer.ejs') %>

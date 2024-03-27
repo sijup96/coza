@@ -22,21 +22,18 @@ function formatDate(dateString) {
                             <small class="text-muted">Order ID: #<%= orderDetail.orderId %></small>
                         </div>
                         <div class="col-lg-6 col-md-6 ms-auto text-md-end">
-                            <% if(orderDetail.status !=='Cancelled'){ %>
-                            <% if(orderDetail.status !== "Delivered" && orderDetail.status !== "Cancelled" && orderDetail.status !== "Return Requested" ) { %>
+                            <% if (orderDetail.status !== 'Cancelled' && orderDetail.status !== 'Delivered' && orderDetail.status !== 'Return Requested') { %>
                                 <a class="btn btn-primary" style="background-color: red;" href="#" id="cancelOrderButton">Cancel Order</a>
-
-                                
-                                <% }else if( orderDetail.status !== "Return Requested"  && orderDetail.status !== "Returned" ){ %>
+                            <% } else if (orderDetail.status === 'Delivered') { %>
                                 <a class="btn btn-primary" style="background-color: red;" href="#" id="returnOrder">Return Order</a>
                                 <a class="btn btn-secondary print ms-2" href="#"><i class="icon material-icons md-print"></i></a>
+                            <% } else if (orderDetail.status === 'Cancelled') { %>
+                                <a class="btn btn-primary" style="background-color: red;">Order Cancelled</a>
+                            <% }else if(orderDetail.status === 'Return Requested'){ %>
 
                            <% } %>
-                           <% }else{ %>
-                            <a class="btn btn-primary" style="background-color: red;">Order Cancelled</a>
-
-                             <% }%>
                         </div>
+                        
                     </div>
                 </header>
                 <!-- card-header end// -->
