@@ -4,7 +4,7 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 
-const indexRouter = require("./routes/index");
+// const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/usersRouter");
 const authRouter = require("./routes/authRoute");
 //const userRouter = require('./routes/userRoute');
@@ -70,7 +70,7 @@ app.use("/products", productRouter);
 app.use("/blog", blogRouter);
 app.use("/prodCategory", categoryRouter);
 app.use("/brand", brandRouter);
-app.use("/about", indexRouter);
+// app.use("/about", indexRouter);
 app.use("/admin", adminRoute);
 app.use("/user", usersRouter);
 app.use("/cart", cartRouter);
