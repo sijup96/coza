@@ -20,7 +20,7 @@
           ></span>
           <div class="text">
             <h6 class="mb-1 card-title">Revenue</h6>
-            <span>₹13,456.5</span>
+            <span>₹ <%= totalRevenue ? totalRevenue:0.00%></span>
             <span class="text-sm"> Shipping fees are not included </span>
           </div>
         </article>
@@ -63,8 +63,8 @@
             ><i class="text-info material-icons md-shopping_basket"></i
           ></span>
           <div class="text">
-            <h6 class="mb-1 card-title">Monthly Earning</h6>
-            <span>₹6,982</span>
+            <h6 class="mb-1 card-title">Total User</h6>
+            <span><%= userCount?userCount: 0 %></span>
             <span class="text-sm"> Based in your local time. </span>
           </div>
         </article>
@@ -85,43 +85,9 @@
             <article class="card-body">
               <h5 class="card-title">New Members</h5>
               <div class="new-member-list">
-                <div
-                  class="d-flex align-items-center justify-content-between mb-4"
-                >
-                  <div class="d-flex align-items-center">
-                    <img
-                      src="assets/imgs/people/avatar-4.png"
-                      alt=""
-                      class="avatar"
-                    />
-                    <div>
-                      <h6>Patric Adams</h6>
-                      <p class="text-muted font-xs">Sanfrancisco</p>
-                    </div>
-                  </div>
-                  <a href="#" class="btn btn-xs"
-                    ><i class="material-icons md-add"></i> Add</a
-                  >
-                </div>
-                <div
-                  class="d-flex align-items-center justify-content-between mb-4"
-                >
-                  <div class="d-flex align-items-center">
-                    <img
-                      src="assets/imgs/people/avatar-2.png"
-                      alt=""
-                      class="avatar"
-                    />
-                    <div>
-                      <h6>Dilan Specter</h6>
-                      <p class="text-muted font-xs">Sanfrancisco</p>
-                    </div>
-                  </div>
-                  <a href="#" class="btn btn-xs"
-                    ><i class="material-icons md-add"></i> Add</a
-                  >
-                </div>
-                <div
+              <%  if(newUser && newUser.length > 0){ %>
+                <% for(i=0;i< newUser.length;i++){ %>
+                  <div
                   class="d-flex align-items-center justify-content-between mb-4"
                 >
                   <div class="d-flex align-items-center">
@@ -131,14 +97,15 @@
                       class="avatar"
                     />
                     <div>
-                      <h6>Tomas Baker</h6>
-                      <p class="text-muted font-xs">Sanfrancisco</p>
+                      <h6><%= newUser[i].name %></h6>
+                      <p class="text-muted font-xs"><%= newUser[i].email %></p>
                     </div>
                   </div>
-                  <a href="#" class="btn btn-xs"
-                    ><i class="material-icons md-add"></i> Add</a
-                  >
+
                 </div>
+               
+                <% }} %>
+               
               </div>
             </article>
           </div>
@@ -301,39 +268,6 @@
   <div class="card mb-4">
     <header class="card-header">
       <h4 class="card-title">Latest orders</h4>
-      <div class="row align-items-center">
-        <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
-          <div class="custom_select">
-            <select class="form-select select-nice">
-              <option selected>All Categories</option>
-              <option>Women's Clothing</option>
-              <option>Men's Clothing</option>
-              <option>Cellphones</option>
-              <option>Computer & Office</option>
-              <option>Consumer Electronics</option>
-              <option>Jewelry & Accessories</option>
-              <option>Home & Garden</option>
-              <option>Luggage & Bags</option>
-              <option>Shoes</option>
-              <option>Mother & Kids</option>
-            </select>
-          </div>
-        </div>
-        <div class="col-md-2 col-6">
-          <input type="date" value="02.05.2021" class="form-control" />
-        </div>
-        <div class="col-md-2 col-6">
-          <div class="custom_select">
-            <select class="form-select select-nice">
-              <option selected>Status</option>
-              <option>All</option>
-              <option>Paid</option>
-              <option>Chargeback</option>
-              <option>Refund</option>
-            </select>
-          </div>
-        </div>
-      </div>
     </header>
     <div class="card-body">
       <div class="table-responsive">
@@ -343,15 +277,8 @@
               <tr>
                 <th scope="col" class="text-center">
                   <div class="form-check align-middle">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="transactionCheck01"
-                    />
-                    <label
-                      class="form-check-label"
-                      for="transactionCheck01"
-                    ></label>
+                 
+                   
                   </div>
                 </th>
                 <th class="align-middle" scope="col">Order ID</th>
@@ -364,196 +291,35 @@
               </tr>
             </thead>
             <tbody>
+             <% if(latestOrders && latestOrders.length>0){ %>
+              <% for(i=0;i< latestOrders.length; i++){ %>
+
+             
               <tr>
                 <td class="text-center">
                   <div class="form-check">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="transactionCheck02"
-                    />
-                    <label
-                      class="form-check-label"
-                      for="transactionCheck02"
-                    ></label>
+               
                   </div>
                 </td>
-                <td><a href="#" class="fw-bold">#SK2540</a></td>
-                <td>Neal Matthews</td>
-                <td>07 Oct, 2021</td>
-                <td>$400</td>
+                <td><a href="#" class="fw-bold"># <%= latestOrders[i].orderId %></a></td>
+                <td><%= latestOrders[i].user_name %></td>
+                <td><%= new Date(latestOrders[i].date).toLocaleDateString('en-GB') %></td>
+                <td>₹ <%= latestOrders[i].total_amount %></td>
                 <td>
-                  <span class="badge badge-pill badge-soft-success">Paid</span>
+                  <span class="badge badge-pill badge-soft-success"><%= latestOrders[i].paymentStatus %></span>
                 </td>
                 <td>
                   <i
                     class="material-icons md-payment font-xxl text-muted mr-5"
                   ></i>
-                  Mastercard
+                  <%= latestOrders[i].payment %>
                 </td>
                 <td>
-                  <a href="#" class="btn btn-xs"> View details</a>
+                  <a href="#" class="btn btn-xs" onclick="redirectToOrderDetail('<%= latestOrders[i]._id %>')"> View details</a>
                 </td>
               </tr>
-              <tr>
-                <td class="text-center">
-                  <div class="form-check">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="transactionCheck03"
-                    />
-                    <label
-                      class="form-check-label"
-                      for="transactionCheck03"
-                    ></label>
-                  </div>
-                </td>
-                <td><a href="#" class="fw-bold">#SK2541</a></td>
-                <td>Jamal Burnett</td>
-                <td>07 Oct, 2021</td>
-                <td>$380</td>
-                <td>
-                  <span class="badge badge-pill badge-soft-danger"
-                    >Chargeback</span
-                  >
-                </td>
-                <td>
-                  <i
-                    class="material-icons md-payment font-xxl text-muted mr-5"
-                  ></i>
-                  Visa
-                </td>
-                <td>
-                  <a href="#" class="btn btn-xs"> View details</a>
-                </td>
-              </tr>
-              <tr>
-                <td class="text-center">
-                  <div class="form-check">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="transactionCheck04"
-                    />
-                    <label
-                      class="form-check-label"
-                      for="transactionCheck04"
-                    ></label>
-                  </div>
-                </td>
-                <td><a href="#" class="fw-bold">#SK2542</a></td>
-                <td>Juan Mitchell</td>
-                <td>06 Oct, 2021</td>
-                <td>$384</td>
-                <td>
-                  <span class="badge badge-pill badge-soft-success">Paid</span>
-                </td>
-                <td>
-                  <i
-                    class="material-icons md-payment font-xxl text-muted mr-5"
-                  ></i>
-                  Paypal
-                </td>
-                <td>
-                  <a href="#" class="btn btn-xs"> View details</a>
-                </td>
-              </tr>
-              <tr>
-                <td class="text-center">
-                  <div class="form-check">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="transactionCheck05"
-                    />
-                    <label
-                      class="form-check-label"
-                      for="transactionCheck05"
-                    ></label>
-                  </div>
-                </td>
-                <td><a href="#" class="fw-bold">#SK2543</a></td>
-                <td>Barry Dick</td>
-                <td>05 Oct, 2021</td>
-                <td>$412</td>
-                <td>
-                  <span class="badge badge-pill badge-soft-success">Paid</span>
-                </td>
-                <td>
-                  <i
-                    class="material-icons md-payment font-xxl text-muted mr-5"
-                  ></i>
-                  Mastercard
-                </td>
-                <td>
-                  <a href="#" class="btn btn-xs"> View details</a>
-                </td>
-              </tr>
-              <tr>
-                <td class="text-center">
-                  <div class="form-check">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="transactionCheck06"
-                    />
-                    <label
-                      class="form-check-label"
-                      for="transactionCheck06"
-                    ></label>
-                  </div>
-                </td>
-                <td><a href="#" class="fw-bold">#SK2544</a></td>
-                <td>Ronald Taylor</td>
-                <td>04 Oct, 2021</td>
-                <td>$404</td>
-                <td>
-                  <span class="badge badge-pill badge-soft-warning"
-                    >Refund</span
-                  >
-                </td>
-                <td>
-                  <i
-                    class="material-icons md-payment font-xxl text-muted mr-5"
-                  ></i>
-                  Visa
-                </td>
-                <td>
-                  <a href="#" class="btn btn-xs"> View details</a>
-                </td>
-              </tr>
-              <tr>
-                <td class="text-center">
-                  <div class="form-check">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="transactionCheck07"
-                    />
-                    <label
-                      class="form-check-label"
-                      for="transactionCheck07"
-                    ></label>
-                  </div>
-                </td>
-                <td><a href="#" class="fw-bold">#SK2545</a></td>
-                <td>Jacob Hunter</td>
-                <td>04 Oct, 2021</td>
-                <td>$392</td>
-                <td>
-                  <span class="badge badge-pill badge-soft-success">Paid</span>
-                </td>
-                <td>
-                  <i
-                    class="material-icons md-payment font-xxl text-muted mr-5"
-                  ></i>
-                  Paypal
-                </td>
-                <td>
-                  <a href="#" class="btn btn-xs"> View details</a>
-                </td>
-              </tr>
+           
+              <% }} %>
             </tbody>
           </table>
         </div>
@@ -561,23 +327,12 @@
       <!-- table-responsive end// -->
     </div>
   </div>
-  <div class="pagination-area mt-30 mb-50">
-    <nav aria-label="Page navigation example">
-      <ul class="pagination justify-content-start">
-        <li class="page-item active"><a class="page-link" href="#">01</a></li>
-        <li class="page-item"><a class="page-link" href="#">02</a></li>
-        <li class="page-item"><a class="page-link" href="#">03</a></li>
-        <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-        <li class="page-item"><a class="page-link" href="#">16</a></li>
-        <li class="page-item">
-          <a class="page-link" href="#"
-            ><i class="material-icons md-chevron_right"></i
-          ></a>
-        </li>
-      </ul>
-    </nav>
-  </div>
 </section>
 <!-- content-main end// -->
-<script></script>
+<script>
+  function redirectToOrderDetail(orderId) {
+      window.location.href = '/admin/orderDetail?orderId=' + orderId;
+  }
+
+</script>
 <%- include('../layouts/adminLayout/_footer.ejs') -%>

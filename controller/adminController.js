@@ -44,13 +44,32 @@ const adminDashboard = asyncHandler(async (req, res) => {
     if (!cookies || !cookies.refreshToken) {
       res.render("admin/adminLogin");
     } else {
-      const orderDetails = await Order.find();
+      const users=await User.find()
+      const orderDetails = await Order.find().sort({ date: -1 });
       const productDetails = await Product.find();
       const categoryDetails = await Category.find();
+      const deliveredOrders = await Order.find({
+        status: "Delivered",
+        paymentStatus: { $ne: "Pending" },
+      });
+      // Calculate total revenue
+      let totalRevenue = 0;
+      deliveredOrders.forEach((order) => {
+        totalRevenue += order.total_amount;
+      });
+      const seventyPercent = totalRevenue * 0.7;
+
+      const latestOrders = await Order.find().sort({ date: -1 }).limit(10);
+      const newUser = await User.find().sort({ createdAt: -1 }).limit(3);
+      const userCount= await User.find().countDocuments()
       res.render("admin/admin", {
         orderDetails,
         productDetails,
         categoryDetails,
+        totalRevenue: seventyPercent.toFixed(2),
+        latestOrders,
+        newUser,
+        userCount
       });
     }
   } catch (error) {
@@ -66,7 +85,22 @@ const loadSalesReport = asyncHandler(async (req, res) => {
     const page = req.query.page || 1; // Default to page 1 if not provided
     const limit = 8; // Number of items per page
     const skip = (page - 1) * limit;
-    const orderList = await Order.find({ paymentStatus: { $ne: "Pending" } })
+    const startingDate = req.query.startingDate;
+    const endingDate = req.query.endingDate;
+    let dateFilter = {};
+
+    if (startingDate && endingDate) {
+      dateFilter = { date: { $gte: startingDate, $lte: endingDate } };
+    } else if (startingDate && !endingDate) {
+      dateFilter = { date: { $gte: startingDate } };
+    } else if (!startingDate && endingDate) {
+      dateFilter = { date: { $lte: endingDate } };
+    }
+
+    const orderList = await Order.find({
+      ...dateFilter,
+      paymentStatus: { $ne: "Pending" },
+    })
       .populate({
         path: "items",
         populate: {
@@ -77,13 +111,30 @@ const loadSalesReport = asyncHandler(async (req, res) => {
       .sort({ timestamps: -1 })
       .skip(skip)
       .limit(limit);
-    const totalOrderCount = await Order.countDocuments({ paymentStatus: { $ne: "Pending" } });
-    const totalPages = Math.ceil(totalOrderCount / limit);
-    res.render("admin/salesReport", {
-      orderList,
-      currentPage: parseInt(page),
-      totalPages,
+    const totalOrderCount = await Order.countDocuments({
+      paymentStatus: { $ne: "Pending" },
     });
+    const totalPages = Math.ceil(totalOrderCount / limit);
+    const pageTotal = orderList.reduce(
+      (total, order) => total + order.total_amount,
+      0
+    );
+    if (startingDate || endingDate) {
+      return res.status(200).json({
+        success: true,
+        orderList,
+        currentPage: parseInt(page),
+        totalPages,
+        pageTotal,
+      });
+    } else {
+      res.render("admin/salesReport", {
+        orderList,
+        currentPage: parseInt(page),
+        totalPages,
+        pageTotal,
+      });
+    }
   } catch (error) {
     console.error(error);
   }

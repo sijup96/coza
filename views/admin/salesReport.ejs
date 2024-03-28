@@ -20,14 +20,19 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
       
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <body class="dark">
 
             <section class="content-main">
+                <a href="/admin" id="backButton"><button type="button" class="btn btn-light">Go back..</button></a>
+                <div class="h1" style="text-align: center;">COZA STORE</div>
+                <div></div>
                 <div class="content-header">
                     <div>
-                        <h2 class="content-title card-title">Sales Report</h2>
+                        <h2 class="content-title card-title" >Sales Report</h2>
                         <p>Here is the List of all Sales report.</p>
                     </div>
+                    <a id="printButton" class="btn btn-secondary print ms-2" href="#"> Print sales report<i class="icon material-icons md-print"></i> </a>
 
                 </div>
                 <div class="card mb-4">
@@ -37,29 +42,170 @@
                             <div class="col-lg-2 col-6 col-md-3">
                                 <div class="col mb-3">
                                     Date from :
-                                    <input type="date" class="form-control" placeholder="Enter Price" id="startingPrice">
+                                    <input type="date" class="form-control" placeholder="Enter Price" id="startingDate">
                                 </div>
                             </div>
                             <div class="col-lg-2 col-6 col-md-3">
                                 <div class="col mb-3">
                                     Date to :
-                                    <input type="date" class="form-control" placeholder="Enter Price" id="startingPrice">
+                                    <input type="date" class="form-control" placeholder="Enter Price" id="endingDate">
                                 </div>
                             </div><br>
                             <div class="col-lg-2 col-6 col-md-3">
                                 <div class="col mb-3">
                                    <br>
-                                    <button type="button" class="btn btn-secondary">Submit</button>
+                                    <button type="button" class="btn btn-secondary" id="submitBtn">Submit</button>
                                 </div>
                             </div>
                         </div>
                     </header>
                     <!-- card-header end// -->
-                    <div class="card-body">
+                    <div class="card-body" id="orderLoad">
                         <div class="table-responsive">
                             <table class="table table-hover">
             
                                 <tbody>
+                                    <% if (orderList && orderList.length > 0) { %>
+                                        <% orderList.forEach(order=> { %>
+
+                                            <tr class="clickable-row"
+                                                onclick="redirectToOrderDetail('<%= order._id %>')">
+                                                <td>
+                                                    <td><b><span style="font-weight: bold;"> Order Id :</span><br>
+                                                        #<%= order.orderId %>
+                                                    </b>
+            
+                                                </td>
+                                                <td><b><span style="font-weight: bold;"> Product Name :</span><br>
+                                                        <%= order.items[0].product_id.title %><br>
+                                                       <% if(order.items.length > 1){ %> and ( <%= order.items.length-1 %> ) other <%}%>
+                                                    </b><br>
+            
+                                                </td>
+                                                <td><span style="font-weight: bold;">Ordered By :</span><br>
+                                                    <%= order.user_name %><br>
+                                                    <%=  order.delivery_address.city %>
+                                                </td>
+                                                <td><span style="font-weight: bold;">Payment Method :</span><br><span>
+                                                        <%= order.payment %>
+                                                    </span></td>
+                                                <td><span style="font-weight: bold;">Order Placed :</span><br>
+                                                    <%= formatDate(order.date) %>
+                                                </td>
+                                                <td><span style="font-weight: bold;">Price :</span><br>₹ <%= order.total_amount %>
+                                                </td>
+            
+                                            </tr>
+            
+                                            <% }); %>
+                                              
+                                                    <% } %>
+            
+                                                        <% function formatDate(dateString) { const date=new Date(dateString);
+                                                            const options={ day: '2-digit' , month: 'short' , year: 'numeric' };
+                                                            return date.toLocaleDateString('en-GB', options).replace(',', '' );
+                                                            } %>
+            
+                                </tbody>
+                            </table>
+                            <div style="display: flex; justify-content: flex-end;margin-right: 10px;">
+                                <h3 style="margin-right: 10px;">Total Amount: </h3>
+                                <h2  style="margin-right: 10px;"> ₹ <%= pageTotal ? pageTotal.toFixed(2) : '0.00' %></h2>
+                            </div>
+                                                        </div>
+                        <!-- table-responsive //end -->
+                                              	  <!-- Pagination -->
+				  <div class="flex-c-m flex-w w-full p-t-38" style="text-align: center;" id="pageButton">
+                    <span>Page</span>
+					<% for (let i = 1; i <= totalPages; i++) { %>
+                        
+                        <a href="/admin/salesReport?page=<%= i %>" id="page<%= i %>" class="flex-c-m how-pagination1 trans-04 m-all-7" style="text-align: center; font-size: large; color: <%= currentPage === i ? 'green' : 'red' %>;">
+                            <%= i %>
+					  </a>
+					<% } %>
+				  </div>
+                    </div>
+                    <!-- card-body end// -->
+
+                </div>
+                <!-- card end// -->
+       
+            </section>
+
+            <footer class="main-footer font-xs">
+                <div class="row pb-30 pt-15">
+                    <div class="col-sm-6">
+                        <script>
+                            document.write(new Date().getFullYear());
+                        </script>
+                        
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-sm-end">All rights reserved</div>
+                    </div>
+                </div>
+            </footer>
+            </main>
+            <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+            <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+            <script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
+            <script src="/admin/assets/js/vendors/bootstrap.bundle.min.js"></script>
+            <script src="/assets/js/vendors/select2.min.js"></script>
+            <script src="/assets/js/vendors/perfect-scrollbar.js"></script>
+            <script src="/assets/js/vendors/jquery.fullscreen.min.js"></script>
+            <script src="/assets/js/vendors/chart.js"></script>
+            <!-- Main Script -->
+            <script src="/assets/js/main.js?v=1.1" type="text/javascript"></script>
+            <script src="/assets/js/custom-chart.js" type="text/javascript"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+            const paginationArea = document.querySelector('.pagination-area');
+        
+            // Function to generate pagination links
+            function generatePaginationLinks(totalPages, currentPage) {
+                let paginationHtml = '';
+                for (let i = 1; i <= totalPages; i++) {
+                    paginationHtml += `
+                        <a href="/admin/salesReport?page=${i}" class="flex-c-m how-pagination1 trans-04 m-all-7${currentPage === i ? ' active-pagination1' : ''}">
+                            ${i}
+                        </a>`;
+                }
+                return paginationHtml;
+            }
+        
+            // Initial filtering and pagination
+            const currentPage = '<%= currentPage %>';
+            const totalPages = '<%= totalPages %>';
+            // paginationArea.innerHTML = generatePaginationLinks(totalPages, currentPage);
+        });
+            </script>
+            
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const submitBtn = document.getElementById('submitBtn');
+            
+                    submitBtn.addEventListener('click', function(event) {
+                        // Get selected dates
+                        const startingDate = document.getElementById('startingDate').value;
+                        const endingDate = document.getElementById('endingDate').value;
+                        // Perform AJAX request
+                        $.ajax({
+                            url: '/admin/salesReport',
+                            method: 'GET',
+                            dataType: 'json',
+                            data: { startingDate: startingDate, endingDate: endingDate },
+                            success: function(response) {
+                                if (response.success) {
+                                    const orderList = response.orderList;
+                                    const pageTotal=response.pageTotal;
+                                    let orderHtml = '';
+                                    if (orderList && orderList.length > 0) {
+                                        orderHtml += `
+                                            <div class="card-body">
+                                                <div class="table-responsive">
+                                                    <table class="table table-hover">
+                                                        <tbody>
                                     <% if (orderList && orderList.length > 0) { %>
                                         <% orderList.forEach(order=> { %>
                                             <% let alertClass = ''; %>
@@ -112,74 +258,72 @@
                                                             } %>
             
                                 </tbody>
-                            </table>
-                        </div>
-                        <!-- table-responsive //end -->
-                    </div>
-                    <!-- card-body end// -->
-                      	  <!-- Pagination -->
-				  <div class="flex-c-m flex-w w-full p-t-38" style="text-align: center;">
-                    <span>Page</span>
-					<% for (let i = 1; i <= totalPages; i++) { %>
-                        
-                        <a href="/admin/salesReport?page=<%= i %>" id="page<%= i %>" class="flex-c-m how-pagination1 trans-04 m-all-7" style="text-align: center; font-size: large; color: <%= currentPage === i ? 'green' : 'red' %>;">
-                            <%= i %>
-					  </a>
-					<% } %>
-				  </div>
-                </div>
-                <!-- card end// -->
-       
-            </section>
-
-            <footer class="main-footer font-xs">
-                <div class="row pb-30 pt-15">
-                    <div class="col-sm-6">
-                        <script>
-                            document.write(new Date().getFullYear());
-                        </script>
-                        
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="text-sm-end">All rights reserved</div>
-                    </div>
-                </div>
-            </footer>
-            </main>
-            <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-            <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-            <script src="/assets/js/vendors/jquery-3.6.0.min.js"></script>
-            <script src="/admin/assets/js/vendors/bootstrap.bundle.min.js"></script>
-            <script src="/assets/js/vendors/select2.min.js"></script>
-            <script src="/assets/js/vendors/perfect-scrollbar.js"></script>
-            <script src="/assets/js/vendors/jquery.fullscreen.min.js"></script>
-            <script src="/assets/js/vendors/chart.js"></script>
-            <!-- Main Script -->
-            <script src="/assets/js/main.js?v=1.1" type="text/javascript"></script>
-            <script src="/assets/js/custom-chart.js" type="text/javascript"></script>
-            <script>
-                document.addEventListener('DOMContentLoaded', function() {
-            const paginationArea = document.querySelector('.pagination-area');
-        
-            // Function to generate pagination links
-            function generatePaginationLinks(totalPages, currentPage) {
-                let paginationHtml = '';
-                for (let i = 1; i <= totalPages; i++) {
-                    paginationHtml += `
-                        <a href="/admin/salesReport?page=${i}" class="flex-c-m how-pagination1 trans-04 m-all-7${currentPage === i ? ' active-pagination1' : ''}">
-                            ${i}
-                        </a>`;
-                }
-                return paginationHtml;
-            }
-        
-            // Initial filtering and pagination
-            const currentPage = '<%= currentPage %>';
-            const totalPages = '<%= totalPages %>';
-            paginationArea.innerHTML = generatePaginationLinks(totalPages, currentPage);
-        });
+                                                    </table>
+                                                    <div style="display: flex; justify-content: flex-end;margin-right: 10px;">
+                                <h3 style="margin-right: 10px;">Total Amount: </h3>
+                                <h2  style="margin-right: 10px;"> ₹ <%= pageTotal ? pageTotal.toFixed(2) : '0.00' %></h2>
+                            </div>
+                                                </div>
+                                            </div>`;
+                                    } else {
+                                        orderHtml += '<p>No sales data available.</p>';
+                                    }
+                                    // Update the sales report with the new data
+                                    document.getElementById('orderLoad').innerHTML = orderHtml;
+                                } else {
+                                    // Handle error response
+                                    console.error('Error:', response.message);
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('XHR request failed:', error);
+                            }
+                        });
+                    });
+                });
             </script>
-            
+<script>
+    // JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the print button element
+        const printButton = document.getElementById('printButton');
+
+        // Add click event listener
+        printButton.addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent default link behavior
+
+            // Remove or hide the content you want to exclude from printing
+            const contentToRemove = document.getElementById('backButton');
+            const contentToRemove2 = document.getElementById('printButton');
+            const contentToRemove3 = document.getElementById('pageButton');
+            const contentToRemove4 = document.getElementById('submitBtn');
+            if (contentToRemove && contentToRemove2 && contentToRemove3) {
+                contentToRemove.style.display = 'none'; // Hide the element using CSS
+                contentToRemove2.style.display = 'none';
+                contentToRemove3.style.display = 'none';
+                contentToRemove4.style.display = 'none';
+            }
+
+            // Trigger printing
+            window.print();
+        });
+
+        // Listen for the afterprint event to show the hidden items after printing
+        window.addEventListener('afterprint', function() {
+            // Show the previously hidden content
+            const contentToRemove = document.getElementById('backButton');
+            const contentToRemove2 = document.getElementById('printButton');
+            const contentToRemove3 = document.getElementById('pageButton');
+            const contentToRemove4 = document.getElementById('submitBtn');
+            if (contentToRemove) {
+                contentToRemove.style.display = ''; // Restore the default display property
+                contentToRemove2.style.display = '';
+                contentToRemove3.style.display = '';
+                contentToRemove4.style.display = '';
+            }
+        });
+    });
+</script>
+
             </body>
             </html>
