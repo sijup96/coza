@@ -8,7 +8,6 @@ const Product = require("../models/productModel");
 const Category = require("../models/categoryModel");
 const orderid = require("order-id")("key");
 
-
 //const category = require('../model/category')
 
 //login page
@@ -59,6 +58,34 @@ const adminDashboard = asyncHandler(async (req, res) => {
     console.error(error);
 
     // Redirect to adminLogin in case of an error
+  }
+});
+// Load sales Report
+const loadSalesReport = asyncHandler(async (req, res) => {
+  try {
+    const page = req.query.page || 1; // Default to page 1 if not provided
+    const limit = 8; // Number of items per page
+    const skip = (page - 1) * limit;
+    const orderList = await Order.find({ paymentStatus: { $ne: "Pending" } })
+      .populate({
+        path: "items",
+        populate: {
+          path: "product_id",
+          model: "Product",
+        },
+      })
+      .sort({ timestamps: -1 })
+      .skip(skip)
+      .limit(limit);
+    const totalOrderCount = await Order.countDocuments({ paymentStatus: { $ne: "Pending" } });
+    const totalPages = Math.ceil(totalOrderCount / limit);
+    res.render("admin/salesReport", {
+      orderList,
+      currentPage: parseInt(page),
+      totalPages,
+    });
+  } catch (error) {
+    console.error(error);
   }
 });
 
@@ -197,32 +224,33 @@ const changeOrderStatus = asyncHandler(async (req, res) => {
       );
     }
     if (
-      (orderDetail.status === "Returned" || orderDetail.status === "Cancelled") &&
+      (orderDetail.status === "Returned" ||
+        orderDetail.status === "Cancelled") &&
       orderDetail.paymentStatus === "Completed"
     ) {
       const returnAmount =
         orderDetail.total_amount - orderDetail.shippingCharge;
-        const balanceUpdated = await Wallet.findOneAndUpdate(
-          { user: userId },
-          {
-            $inc: {
-              balance: returnAmount,
-            },
-          }
-        );
-        if (balanceUpdated) {
-          const newTransaction = {
-            type: "Credit",
-            amount: returnAmount,
-            description: "Money was credited from cancelled Order",
-            paymentID: orderid.generate(),
-          };
-          await Wallet.findOneAndUpdate(
-            { user: userId },
-            { $push: { transactions: newTransaction } },
-            { new: true }
-          );
+      const balanceUpdated = await Wallet.findOneAndUpdate(
+        { user: userId },
+        {
+          $inc: {
+            balance: returnAmount,
+          },
         }
+      );
+      if (balanceUpdated) {
+        const newTransaction = {
+          type: "Credit",
+          amount: returnAmount,
+          description: "Money was credited from cancelled Order",
+          paymentID: orderid.generate(),
+        };
+        await Wallet.findOneAndUpdate(
+          { user: userId },
+          { $push: { transactions: newTransaction } },
+          { new: true }
+        );
+      }
     }
     if (orderDetail) {
       res
@@ -237,7 +265,6 @@ const changeOrderStatus = asyncHandler(async (req, res) => {
   }
 });
 
-
 module.exports = {
   adminLogin,
   login,
@@ -246,4 +273,5 @@ module.exports = {
   loadOrders,
   loadOrderDetail,
   changeOrderStatus,
+  loadSalesReport,
 };

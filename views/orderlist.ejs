@@ -20,25 +20,19 @@
                         <input type="text" placeholder="Search by ID" class="form-control" id="searchOrder"/>
                     </div>
                     <div class="col-lg-2 col-6 col-md-3">
-                        <select class="form-select">
-                            <option>Show all</option>
-                            <option>Not Processed</option>
-                            <option>Processing</option>
-                            <option>Dispatched</option>
-                            <option>Cancelled</option>
-                            <option>Delivered</option>
-                            <option>Return Requested</option>
-                            <option>Returned</option>
-                        </select>
-                    </div>
-                    <div class="col-lg-2 col-6 col-md-3">
-                        <select class="form-select">
-                            <option>Show 20</option>
-                            <option>Show 30</option>
-                            <option>Show 40</option>
+                        <select class="form-select" id="statusFilter">
+                            <option value="">Show all</option>
+                            <option value="Not Processed">Not Processed</option>
+                            <option value="Processing">Processing</option>
+                            <option value="Dispatched">Dispatched</option>
+                            <option value="Cancelled">Cancelled</option>
+                            <option value="Delivered">Delivered</option>
+                            <option value="Return Requested">Return Requested</option>
+                            <option value="Returned">Returned</option>
                         </select>
                     </div>
                 </div>
+                
             </header>
             <!-- card-header end// -->
             <div class="card-body">
@@ -107,22 +101,18 @@
                 <!-- table-responsive //end -->
             </div>
             <!-- card-body end// -->
+            	  <!-- Pagination -->
+				  <div class="flex-c-m flex-w w-full p-t-38" style="text-align: center;">
+                    <span>Page</span>
+					<% for (let i = 1; i <= totalPages; i++) { %>
+                        
+					  <a href="/order/list?page=<%= i %>" id="page<%= i %>" class="flex-c-m how-pagination1 trans-04 m-all-7" style="text-align: center; font-size: large; color: <%= currentPage === i ? 'green' : 'red' %>;">
+						<%= i %>
+					  </a>
+					<% } %>
+				  </div>
         </div>
         <!-- card end// -->
-        <div class="pagination-area mt-15 mb-50">
-            <nav aria-label="Page navigation example">
-                <ul class="pagination justify-content-start">
-                    <li class="page-item active"><a class="page-link" href="#">01</a></li>
-                    <li class="page-item"><a class="page-link" href="#">02</a></li>
-                    <li class="page-item"><a class="page-link" href="#">03</a></li>
-                    <li class="page-item"><a class="page-link dot" href="#">...</a></li>
-                    <li class="page-item"><a class="page-link" href="#">16</a></li>
-                    <li class="page-item">
-                        <a class="page-link" href="#"><i class="material-icons md-chevron_right"></i></a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
     </section>
     <!-- content-main end// -->
     <footer class="main-footer font-xs">
@@ -151,27 +141,115 @@
         }
 
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    const paginationArea = document.querySelector('.pagination-area');
+
+    // Function to generate pagination links
+    function generatePaginationLinks(totalPages, currentPage) {
+        let paginationHtml = '';
+        for (let i = 1; i <= totalPages; i++) {
+            paginationHtml += `
+                <a href="/order/list?page=${i}" class="flex-c-m how-pagination1 trans-04 m-all-7${currentPage === i ? ' active-pagination1' : ''}">
+                    ${i}
+                </a>`;
+        }
+        return paginationHtml;
+    }
+
+    // Initial filtering and pagination
+    const currentPage = '<%= currentPage %>';
+    const totalPages = '<%= totalPages %>';
+    paginationArea.innerHTML = generatePaginationLinks(totalPages, currentPage);
+});
+    </script>
 <script>
-    $(document).ready(function() {
-        $('#searchOrder').on('input', function() {
-            const searchValue = $(this).val().trim();
-            console.log(searchValue);
-            if (searchValue !== '') {
-                $.ajax({
-                    url: '/order/search',
-                    data: { searchValue: searchValue },
-                    success: function(response) {
-                        console.log(response);
-                        // Handle the response here, update the UI if needed
-                    },
-                    error: function(xhr, status, error) {
-                        // Handle errors if any
-                        console.error('Error:', error);
-                    }
-                });
+document.addEventListener('DOMContentLoaded', function() {
+    const searchOrderInput = document.getElementById('searchOrder');
+    const statusFilterSelect = document.getElementById('statusFilter');
+    const orderDatas = document.getElementById('orderDatas'); // Get reference to tbody element
+
+    // Add event listeners
+    searchOrderInput.addEventListener('input', filterOrders);
+    statusFilterSelect.addEventListener('change', filterOrders);
+
+    function filterOrders() {
+        const searchQuery = searchOrderInput.value.trim();
+        const statusFilter = statusFilterSelect.value;
+
+        // Make AJAX request
+        const xhr = new XMLHttpRequest();
+        xhr.open('PATCH', '/order/filter', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                const filteredOrders = JSON.parse(xhr.responseText);
+                const html = generateOrderHTML(filteredOrders); // Generate HTML for filtered orders
+                orderDatas.innerHTML = html; // Set the generated HTML as innerHTML of tbody
             }
+        };
+        const data = JSON.stringify({ searchQuery, statusFilter });
+        xhr.send(data);
+    }
+
+    // Function to generate HTML for orders
+    function generateOrderHTML(orders) {
+        let html = '';
+        orders.forEach(order => {
+            let alertClass = '';
+            if (order.status === 'Cancelled' || order.status === 'Returned') {
+                alertClass = 'alert-danger';
+            } else if (order.status === 'Delivered') {
+                alertClass = 'alert-success';
+            } else {
+                alertClass = 'alert-warning';
+            }
+            html += `
+                <tr class="clickable-row" onclick="redirectToOrderDetail('${order._id}')">
+                    <td>
+                        ${order ? `<img src="/productImages/${order.items[0].product_id.images[0]}" class="img-md img-avatar">` : `<img src="/assets/imgs/people/avatar-1.png" class="img-sm img-avatar">`}
+                        <br>
+                        <span># ${order.orderId}</span>
+                    </td>
+                    <td>
+                        <b><span style="font-weight: bold;"> Product Name</span><br>
+                        ${order.items[0].product_id.title}
+                        ${order.items.length > 1 ? ` and (${order.items.length - 1}) other` : ''}
+                        </b>
+                        <br>
+                    </td>
+                    <td>
+                        <span style="font-weight: bold;">Ship to </span><br>
+                        ${order.user_name}<br>
+                        ${order.delivery_address.city}
+                    </td>
+                    <td>
+                        <span style="font-weight: bold;">Price</span><br>
+                        ₹ ${order.total_amount}
+                    </td>
+                    <td>
+                        <span style="font-weight: bold;">Status</span><br>
+                        <span class="badge rounded-pill ${alertClass}">
+                            ${order.status}
+                        </span>
+                    </td>
+                    <td>
+                        <span style="font-weight: bold;">Order Placed </span><br>
+                        ${formatDate(order.date)}
+                    </td>
+                </tr>`;
         });
-    });
+        return html;
+    }
+
+    // Function to format date
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const options = { day: '2-digit', month: 'short', year: 'numeric' };
+        return date.toLocaleDateString('en-GB', options).replace(',', '');
+    }
+});
+
 </script>
 
     </body>

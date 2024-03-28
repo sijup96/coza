@@ -73,9 +73,14 @@
 															<!-- Handle the case where cartProduct.product or cartProduct.product.title is not defined -->
 															<% } %>
 												</td>
-												<td class="column-3">₹ <%= cartProduct.product.price ?
-														cartProduct.product.price : '' %>
+												<td class="column-3">₹<% if(cartProduct.product.offer || cartProduct.product.category.offer){ %>
 
+											<%= cartProduct.product.offer? cartProduct.product.price - (cartProduct.product.offer.percentage * cartProduct.product.price)/100 : cartProduct.product.price - (cartProduct.product.category.offer.percentage * cartProduct.product.price)/100  %>
+												<% }else{ %>
+													<span>
+														₹ <%= cartProduct.product.price %> </span> 
+												</span>
+												<% } %>
 												</td>
 												<td class="column-4">
 													<div class="wrap-num-product flex-w m-l-auto m-r-0">
@@ -94,8 +99,14 @@
 														</div>
 													</div>
 												</td>
-												<td class="column-5">₹ <span id="productTotal<%= cartProduct.product._id %>"><%= cartProduct.product &&
-														cartProduct.price * cartProduct.quantity %>
+												<td class="column-5">₹ <span id="productTotal<%= cartProduct.product._id %>"><% if(cartProduct.product.offer || cartProduct.product.category.offer){ %>
+
+													<%= (cartProduct.product.offer? cartProduct.product.price - (cartProduct.product.offer.percentage * cartProduct.product.price)/100 : cartProduct.product.price - (cartProduct.product.category.offer.percentage * cartProduct.product.price)/100)* cartProduct.quantity  %>
+														<% }else{ %>
+															<span>
+																₹ <%= cartProduct.product.price * cartProduct.quantity %> </span> 
+														</span>
+														<% } %>
 													</span>
 												</td>
 												<td class="column-6">
@@ -321,7 +332,7 @@
 		$(document).ready(function () {
 			$('.btn-num-product-down, .btn-num-product-up').click(function () {
 				const productId = $(this).data('product-id');
-				const quantity = parseInt($('.num-product[data-product-id="' + productId + '"]').val(), 10);
+				const quantity = parseInt($('.num-product[data-product-id="' + productId + '"]').val());
 				$.ajax({
 					url: '/cart/updateCart',
 					method: 'PATCH',
@@ -336,7 +347,7 @@
 					},
 					error: function (xhr, status, error) {
 						if (xhr.status === 400) {
-							const currentValue = parseInt($('.num-product[data-product-id="' + productId + '"]').val(), 10);
+							const currentValue = parseInt($('.num-product[data-product-id="' + productId + '"]').val());
 							swal("Error", "Quantity Exceeded", "error");
 							$('.num-product[data-product-id="' + productId + '"]').val(currentValue - 1);
 						} else {

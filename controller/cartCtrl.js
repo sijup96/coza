@@ -67,7 +67,7 @@ const addToCart = asyncHandler(async (req, res) => {
         : selectedProduct.category.offer.percentage;
     }
     if (offer > 0) {
-      offer = Math.round((offer * selectedProduct.price) / 100);
+      offer = (offer * selectedProduct.price) / 100;
     }
     const discountedPrice = selectedProduct.price - offer;
     const price = discountedPrice * quantity;
@@ -107,7 +107,7 @@ const addToCart = asyncHandler(async (req, res) => {
       existingCart.products.push({
         product: productId,
         quantity: quantity,
-        price: price,
+        price: discountedPrice,
       });
 
       existingCart.cartTotal += price;
@@ -193,7 +193,6 @@ const deleteCartProduct = asyncHandler(async (req, res) => {
       const deletedProduct = existingCart.products.find((product) =>
         product.product.equals(productId)
       );
-
       if (deletedProduct) {
         // Remove the product from the cart
         existingCart.products = existingCart.products.filter(

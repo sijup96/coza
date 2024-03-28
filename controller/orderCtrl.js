@@ -278,12 +278,16 @@ const retryPayment = asyncHandler(async (req, res) => {
     throw new Error(error);
   }
 });
-// Load Order List
 const loadOrderList = asyncHandler(async (req, res) => {
   try {
     const accessToken = req.accessToken;
     const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
     const userId = decodedToken.id;
+    const page = req.query.page || 1; // Default to page 1 if not provided
+    const limit = 8; // Number of items per page
+    const skip = (page - 1) * limit;
+    
+    // Query orders based on user ID and populate items with product details
     const orderList = await Order.find({ user_id: userId })
       .populate({
         path: "items",
@@ -292,12 +296,26 @@ const loadOrderList = asyncHandler(async (req, res) => {
           model: "Product",
         },
       })
-      .sort({ date: -1 });
-    res.render("orderlist", { orderList });
+      .sort({ date: -1 })
+      .skip(skip)
+      .limit(limit);
+    
+    // Count total number of orders
+    const totalOrderCount = await Order.countDocuments({ user_id: userId });
+
+    // Calculate total number of pages
+    const totalPages = Math.ceil(totalOrderCount / limit);
+
+    res.render("orderlist", {
+      orderList,
+      currentPage: parseInt(page),
+      totalPages,
+    });
   } catch (error) {
     throw new Error(error);
   }
 });
+
 // Cancel Order
 const cancelOrder = asyncHandler(async (req, res) => {
   try {
@@ -325,7 +343,7 @@ const cancelOrder = asyncHandler(async (req, res) => {
         if (balanceUpdated) {
           const newTransaction = {
             type: "Credit",
-            amount: cancledOrder.total_amount,
+            amount: cancledOrder.total_amount - cancledOrder.shippingCharge,
             description: "Money was credited from cancelled Order",
             paymentID: orderid.generate(),
           };
@@ -384,6 +402,43 @@ const image = asyncHandler(async (req, res) => {
   const { image } = req.body;
   console.log("hii", image);
 });
+// Search & Filter Order
+const filterOrder = asyncHandler(async (req, res) => {
+  try {
+    const accessToken = req.accessToken;
+    const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
+    const userId = decodedToken.id;
+    const { searchQuery, statusFilter } = req.body;
+
+    // Query orders based on user ID and populate items with product details
+    const orderList = await Order.find({ user_id: userId })
+      .populate({
+        path: "items",
+        populate: {
+          path: "product_id",
+          model: "Product",
+        },
+      })
+      .sort({ date: -1 });
+
+    // Filter orders based on search query and status filter
+    const filteredOrders = orderList.filter((order) => {
+      // Match order ID with search query (case-insensitive)
+      const orderIdMatch = order.orderId
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      // Match order status with status filter
+      const statusMatch = statusFilter === "" || order.status === statusFilter;
+      return orderIdMatch && statusMatch;
+    });
+
+    // Send the filtered order list as response
+    res.status(200).json(filteredOrders);
+  } catch (error) {
+    console.error("Error filtering orders:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
 module.exports = {
   createOrder,
@@ -395,4 +450,5 @@ module.exports = {
   verifyPayment,
   retryPayment,
   returnOrder,
+  filterOrder,
 };

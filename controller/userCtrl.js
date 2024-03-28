@@ -1,4 +1,5 @@
 const { generateToken } = require("../config/jwtToken");
+const user=require("./userCtrl")
 const User = require("../models/userModel");
 const asyncHandler = require("express-async-handler");
 const validateMongoDbId = require("../utils/validateMongodbId");
@@ -36,7 +37,7 @@ const userHome = asyncHandler(async (req, res) => {
     if (categoryIds.length > 0) {
       // Pagination
       const page = req.query.page || 1;
-      const limit = 8;
+      const limit = 16;
       const skip = (page - 1) * limit;
       products = await Product.find({
         category: { $in: categoryIds },

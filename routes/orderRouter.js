@@ -11,6 +11,7 @@ const {
   verifyPayment,
   retryPayment,
   returnOrder,
+  filterOrder,
 } = require("../controller/orderCtrl");
 
 router.post("/create", isBlocked, userMiddleware, createOrder);
@@ -26,5 +27,7 @@ router.post("/image", image);
 
 router.patch("/cancel/:id", isBlocked,userMiddleware, cancelOrder);
 router.patch("/return/:id",isBlocked, userMiddleware, returnOrder);
+router.patch("/filter",isBlocked, userMiddleware, filterOrder);
+
 
 module.exports = router;

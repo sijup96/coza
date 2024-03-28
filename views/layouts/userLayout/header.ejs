@@ -73,13 +73,13 @@
 							<a href="shoping-cart.html">Features</a>
 						</li> -->
 
-								<li>
+								<!-- <li>
 									<a href="/blog">Blog</a>
 								</li>
 
 								<li>
 									<a href="/about">About</a>
-								</li>
+								</li> -->
 
 
 							</ul>
@@ -142,15 +142,15 @@
 
 
 
-					<li>
+					<!-- <li>
 						<a href="/blog">Blog</a>
-					</li>
+					</li> -->
 
 
 
-					<li>
+					<!-- <li>
 						<a href="/contact/details">Contact</a>
-					</li>
+					</li> -->
 
 					<li>
 						<a href="/user/account">
@@ -306,7 +306,16 @@
 										</a>
 
 										<span class="header-cart-item-info">
-											<%= product.quantity %> x ₹ <%= product.product && product.product.price ? product.product.price : 'Price Not Available' %>
+											<%= product.quantity %> x ₹ <% if(product.product.offer || product.product.category.offer){ %>
+
+												<%= product.product.offer? product.product.price - (product.product.offer.percentage * product.product.price)/100 : product.product.price - (product.product.category.offer.percentage * product.product.price)/100  %>
+													<% }else{ %>
+														<span>
+															₹ <%= product.product.price %> </span> 
+													</span>
+													<% } %>
+											
+									
 										</span>
 									</div>
 								</li>

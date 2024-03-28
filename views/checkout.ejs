@@ -231,7 +231,7 @@
 														0.00
 													<% } %>
 													</td>
-													<td class="column-5">₹ <%= cartProduct.price * cartProduct.quantity %>
+													<td class="column-5">₹ <%= (cartProduct.price * cartProduct.quantity) %>
 															<input type="hidden" id="total" value="<%= (cartProduct.product.price * cartProduct.quantity) - (cartProduct.product.offer && (cartProduct.product.offer.percentage * cartProduct.product.price)/100) %>">
 													</td>
 
@@ -276,7 +276,7 @@
 											<% } %>
 										  <% }else{ %>
 											<div class="offer-box">
-												<span style="display: flex;"><h5 style="color: red;">Coupon not Available</h5></span>
+												<span style="display: flex;"><span style="color: red;">Coupon not Available</span></span>
 											  </div>
 										 <% } %>
 										</div>
