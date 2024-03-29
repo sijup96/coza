@@ -226,7 +226,7 @@ const loadOrders = asyncHandler(async (req, res) => {
           model: "Product",
         },
       })
-      .sort({ timestamps: -1 });
+      .sort({ createdAt: -1 });
     res.render("admin/orders", { orderList });
   } catch (error) {
     throw new Error(error);
