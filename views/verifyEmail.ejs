@@ -1,95 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <title>Verify Email</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>forgot password</title>
     <style>
-        body {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            background-color: rgb(40, 22, 1);
-        }
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        background-color: rgb(40, 22, 1);
+      }
 
-        .login-container {
-            width: 300px;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 25px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            background-color: rgb(107, 64, 6);
-        }
+      .login-container {
+        width: 300px;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 25px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: rgb(107, 64, 6);
+      }
 
-        label {
-            display: block;
-            margin-bottom: 8px;
-        }
+      label {
+        display: block;
+        margin-bottom: 8px;
+      }
 
-        input {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 12px;
-            box-sizing: border-box;
-            border-radius: 25px;
-        }
+      input {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 12px;
+        box-sizing: border-box;
+        border-radius: 25px;
+      }
 
-        button {
-            background-color: #4caf50;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            justify-content: center;
-        }
+      button {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        justify-content: center;
+      }
 
-        button:hover {
-            background-color: #45a049;
-        }
+      button:hover {
+        background-color: #45a049;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div class="login-container">
-        <h1 id="head">Enter your email</h1>
-        <form id="loginForm" action="/forgotPassword" method="post">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required />
-            <span id="alertEmail" style="color: red;"></span>
-            <button type="button" id="emailButton" onclick="verifyEmail()">Verify Email</button>
-
-        </form>
+      <h1 id="head">Enter your email</h1>
+      <form id="loginForm" action="/forgotPassword" method="post">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required />
+        <span id="alertEmail" style="color: red"></span>
+        <button type="button" id="emailButton" onclick="verifyEmail()">
+          Verify Email
+        </button>
+      </form>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        function verifyEmail() {
-            const email = document.getElementById('email').value;
-            axios.post('/forgotPassword', { email: email })
-                .then(response => {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Password Reset Email Sent',
-                        text: 'Check your email for further instructions.',
-                    });
-                    document.getElementById('email').disabled = true;
-                    document.getElementById('emailButton').style.display = 'none';
-                })
-                .catch(error => {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Invalid Email. Please try another Email.',
-                    });
-                });
-        }
+      function verifyEmail() {
+        const email = document.getElementById("email").value;
+        axios
+          .post("/forgotPassword", { email: email })
+          .then((response) => {
+            Swal.fire({
+              icon: "success",
+              title: "Password Reset Email Sent",
+              text: "Check your email for further instructions.",
+            });
+            document.getElementById("email").disabled = true;
+            document.getElementById("emailButton").style.display = "none";
+          })
+          .catch((error) => {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "Invalid Email. Please try another Email.",
+            });
+          });
+      }
     </script>
-</body>
-
+  </body>
 </html>
